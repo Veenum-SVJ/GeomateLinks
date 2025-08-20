@@ -34,7 +34,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4 ml-auto">
+        <div className="flex items-center gap-4">
           <Button asChild className="hidden md:flex bg-primary hover:bg-primary/90">
             <Link href="#contact">Get a Quote</Link>
           </Button>
