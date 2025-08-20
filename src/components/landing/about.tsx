@@ -30,13 +30,14 @@ export function About() {
   return (
     <section id="about" className="container mx-auto">
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-8">
+        <div className="flex flex-col gap-8">
           <div className="space-y-3">
             <h2 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">About Geomate Links Consulting Limited</h2>
             <p className="text-lg text-muted-foreground">
               Your trusted partner in geospatial solutions since 2007.
             </p>
           </div>
+          
           <div className="space-y-4 text-foreground/90">
             <p>
               Geomate Links Consulting Limited, established in 2007, is a premier indigenous firm in Nigeria specializing in <strong>Surveying, Mapping, and Geographic Information Systems (GIS)</strong>. Our journey began with a mission to provide innovative and reliable geospatial solutions to meet the evolving needs of our clients.
@@ -46,32 +47,32 @@ export function About() {
             </p>
           </div>
 
-          <div className="space-y-8">
-             <div>
-                <h3 className="text-2xl font-bold tracking-tight text-primary mb-6">Our Core Values</h3>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  {values.map((value) => (
-                    <div key={value.title} className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <value.icon className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{value.title}</h4>
-                        <p className="text-sm text-muted-foreground">{value.description}</p>
-                      </div>
-                    </div>
-                  ))}
+          <div>
+            <h3 className="text-2xl font-bold tracking-tight text-primary mb-6">Our Core Values</h3>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {values.map((value) => (
+                <div key={value.title} className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <value.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">{value.title}</h4>
+                    <p className="text-sm text-muted-foreground">{value.description}</p>
+                  </div>
                 </div>
-              </div>
-            <div className="pt-4">
-                <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
-                <Link href="#services">
-                    Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-                </Button>
+              ))}
             </div>
           </div>
+
+          <div className="pt-4">
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
+              <Link href="#services">
+                Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         </div>
+
         <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-xl lg:h-[550px]">
            <Image
             src="https://placehold.co/800x1000.png"
