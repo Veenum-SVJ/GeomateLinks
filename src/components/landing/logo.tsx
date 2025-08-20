@@ -13,8 +13,8 @@ export function Logo({ className }: { className?: string }) {
             <path d="M11 1.5C8.49893 4.31667 6.83223 7.83333 6.5 12C6.83223 16.1667 8.49893 19.6833 11 22.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
-      <span className="text-xl font-bold tracking-tight text-primary">
-        Geomate Links
+      <span className="text-lg font-bold tracking-tight text-primary">
+        Geomate Links Consulting Limited
       </span>
     </Link>
   );
