@@ -10,6 +10,7 @@ const navItems = [
     { name: 'Services', href: '#', icon: Briefcase },
     { name: 'Projects', href: '#', icon: FolderKanban },
     { name: 'Messages', href: '#', icon: Mails },
+    { name: 'Media', href: '#', icon: Image },
     { name: 'Settings', href: '#', icon: Settings },
 ];
 
@@ -19,46 +20,35 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-16 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Logo />
-              <span className="sr-only">Geomate Links</span>
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <Logo />
+        </Link>
+        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <item.icon className="h-5 w-5" />
+              {item.name}
             </Link>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          ))}
+        </nav>
+        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+            <div className='ml-auto'>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                    <UserCircle className="h-5 w-5" />
+                    <span className="sr-only">Toggle user menu</span>
+                </Button>
+            </div>
         </div>
-      </div>
-      <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          {/* Mobile Nav Trigger can go here if needed */}
-          <div className="w-full flex-1">
-            <h1 className="text-xl font-semibold">CMS Dashboard</h1>
-          </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <UserCircle className="h-5 w-5" />
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
-        </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-          {children}
-        </main>
-      </div>
+      </header>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        {children}
+      </main>
     </div>
   );
 }
