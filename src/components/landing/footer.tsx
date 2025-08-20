@@ -40,6 +40,11 @@ export function Footer() {
                       </Link>
                     </li>
                   ))}
+                   <li>
+                      <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                        Admin Dashboard
+                      </Link>
+                    </li>
                 </ul>
               </div>
               <div>
