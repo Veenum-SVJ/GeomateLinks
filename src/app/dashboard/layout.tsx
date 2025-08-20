@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Home, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, LogOut } from 'lucide-react';
+import { Home, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, LogOut, LifeBuoy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -71,7 +71,10 @@ export default function DashboardLayout({
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>Support</DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center w-full">
+                      <LifeBuoy className="mr-2 h-4 w-4" />
+                      <span>Support</span>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <Link href="/" className="flex items-center w-full">
