@@ -53,10 +53,6 @@ export function Projects() {
                         />
                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                       </div>
-                      <div className="absolute bottom-0 p-4">
-                        <h3 className="text-lg font-semibold text-white">{project.title}</h3>
-                        <p className="text-sm text-gray-300">{project.category}</p>
-                      </div>
                     </CardContent>
                   </Card>
                 ))}
