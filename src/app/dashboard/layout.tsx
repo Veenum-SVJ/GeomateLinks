@@ -6,12 +6,12 @@ import { Logo } from '@/components/landing/logo';
 
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Pages', href: '#', icon: FileText },
-    { name: 'Services', href: '#', icon: Briefcase },
-    { name: 'Projects', href: '#', icon: FolderKanban },
-    { name: 'Messages', href: '#', icon: Mails },
-    { name: 'Media', href: '#', icon: Image },
-    { name: 'Settings', href: '#', icon: Settings },
+    { name: 'Pages', href: '/dashboard/pages', icon: FileText },
+    { name: 'Services', href: '/dashboard/services', icon: Briefcase },
+    { name: 'Projects', href: '/dashboard/projects', icon: FolderKanban },
+    { name: 'Messages', href: '/dashboard/messages', icon: Mails },
+    { name: 'Media', href: '/dashboard/media', icon: Image },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export default function DashboardLayout({
