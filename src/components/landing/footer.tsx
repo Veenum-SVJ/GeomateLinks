@@ -40,11 +40,6 @@ export function Footer() {
                       </Link>
                     </li>
                   ))}
-                   <li>
-                      <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                        Admin Dashboard
-                      </Link>
-                    </li>
                 </ul>
               </div>
               <div>
@@ -73,7 +68,9 @@ export function Footer() {
         </div>
         
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Geomate Links Consulting Limited. All Rights Reserved.</p>
+           <Link href="/dashboard" className="hover:text-primary transition-colors">
+            &copy; {new Date().getFullYear()} Geomate Links Consulting Limited. All Rights Reserved.
+           </Link>
         </div>
       </div>
     </footer>

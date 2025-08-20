@@ -15,7 +15,7 @@ export function About() {
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">About Geomate Links</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">About Geomate Links Consulting Limited</h2>
             <p className="text-lg text-muted-foreground">
               Your trusted partner in geospatial solutions since 2007.
             </p>
