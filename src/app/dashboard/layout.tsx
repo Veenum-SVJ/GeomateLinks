@@ -68,7 +68,7 @@ export default function DashboardLayout({
                     <DropdownMenuItem>
                       <Link href="/dashboard/settings/profile" className="flex items-center w-full">
                         <UserCircle className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
+                        <span>Profile Settings</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
