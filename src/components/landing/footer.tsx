@@ -68,9 +68,10 @@ export function Footer() {
         </div>
         
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-           <Link href="/dashboard" className="hover:text-primary transition-colors">
-            &copy; {new Date().getFullYear()} Geomate Links Consulting Limited. All Rights Reserved.
-           </Link>
+            <Link href="/dashboard" className="hover:text-primary transition-colors">
+                &copy;
+            </Link>
+            {" "}{new Date().getFullYear()} Geomate Links Consulting Limited. All Rights Reserved.
         </div>
       </div>
     </footer>
