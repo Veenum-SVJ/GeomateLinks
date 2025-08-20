@@ -1,19 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, FileText, ImageIcon, MessageSquare } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Briefcase, FileText, FolderKanban, Mails } from "lucide-react";
 
 export default function DashboardPage() {
   const stats = [
-    { title: "Page Views", value: "12,345", icon: Eye },
-    { title: "Content Pages", value: "5", icon: FileText },
-    { title: "Media Files", value: "82", icon: ImageIcon },
-    { title: "Contact Queries", value: "16", icon: MessageSquare },
+    { title: "New Messages", value: "16", icon: Mails },
+    { title: "Total Projects", value: "8", icon: FolderKanban },
+    { title: "Services Offered", value: "5", icon: Briefcase },
+    { title: "Content Pages", value: "3", icon: FileText },
   ];
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome to your CMS</h1>
-        <p className="text-muted-foreground">Here's a quick overview of your website's status.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">An overview of your website's content and activity.</p>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -32,21 +33,23 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Messages</CardTitle>
+            <Button variant="outline" size="sm">View All</Button>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">No recent activity to display.</p>
-            {/* Placeholder for recent activity feed */}
+            <p className="text-muted-foreground">No recent messages to display.</p>
+            {/* Placeholder for recent messages list */}
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Projects</CardTitle>
+             <Button variant="outline" size="sm">View All</Button>
           </CardHeader>
           <CardContent>
-             <p className="text-muted-foreground">No quick actions available yet.</p>
-            {/* Placeholder for quick action buttons */}
+             <p className="text-muted-foreground">No recent projects to display.</p>
+            {/* Placeholder for recent projects list */}
           </CardContent>
         </Card>
       </div>

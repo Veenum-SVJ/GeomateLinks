@@ -1,6 +1,6 @@
 import React from 'react';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from '@/components/ui/sidebar';
-import { Home, Newspaper, Image, Settings, UserCircle } from 'lucide-react';
+import { Home, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -30,8 +30,26 @@ export default function DashboardLayout({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton href="#">
-                <Newspaper />
+                <FileText />
                 Pages
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton href="#">
+                <Briefcase />
+                Services
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton href="#">
+                <FolderKanban />
+                Projects
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton href="#">
+                <Mails />
+                Messages
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
