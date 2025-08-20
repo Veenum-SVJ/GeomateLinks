@@ -1,13 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Briefcase, FileText, FolderKanban, Mails } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const stats = [
-    { title: "New Messages", value: "16", icon: Mails },
-    { title: "Total Projects", value: "8", icon: FolderKanban },
-    { title: "Services Offered", value: "5", icon: Briefcase },
-    { title: "Content Pages", value: "3", icon: FileText },
+    { title: "New Messages", value: "16", icon: Mails, href: "/dashboard/messages" },
+    { title: "Total Projects", value: "8", icon: FolderKanban, href: "/dashboard/projects" },
+    { title: "Services Offered", value: "5", icon: Briefcase, href: "/dashboard/services" },
+    { title: "Content Pages", value: "3", icon: FileText, href: "/dashboard/pages" },
   ];
 
   return (
@@ -26,6 +27,9 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
+              <Link href={stat.href} className="text-xs text-muted-foreground hover:text-primary">
+                View all
+              </Link>
             </CardContent>
           </Card>
         ))}
@@ -35,7 +39,9 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Messages</CardTitle>
-            <Button variant="outline" size="sm">View All</Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/messages">View All</Link>
+            </Button>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">No recent messages to display.</p>
@@ -45,7 +51,9 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Projects</CardTitle>
-             <Button variant="outline" size="sm">View All</Button>
+             <Button variant="outline" size="sm" asChild>
+                <Link href="/dashboard/projects">View All</Link>
+             </Button>
           </CardHeader>
           <CardContent>
              <p className="text-muted-foreground">No recent projects to display.</p>
