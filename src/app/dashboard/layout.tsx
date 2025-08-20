@@ -37,7 +37,7 @@ export default function DashboardLayout({
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
         <nav className="hidden flex-1 flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:justify-center md:gap-5 md:text-sm lg:gap-6">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === '/dashboard/settings' && pathname.startsWith('/dashboard/settings'));
             return (
               <Link
                 key={item.name}
@@ -66,14 +66,16 @@ export default function DashboardLayout({
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                      <Link href="/dashboard/settings" className="flex items-center w-full">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
+                      <Link href="/dashboard/settings/profile" className="flex items-center w-full">
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center w-full">
-                      <LifeBuoy className="mr-2 h-4 w-4" />
-                      <span>Support</span>
+                    <DropdownMenuItem>
+                      <a href="#" className="flex items-center w-full">
+                        <LifeBuoy className="mr-2 h-4 w-4" />
+                        <span>Support</span>
+                      </a>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
