@@ -46,28 +46,30 @@ export function About() {
             </p>
           </div>
 
-          <div>
-             <h3 className="text-2xl font-bold tracking-tight text-primary mb-6">Our Core Values</h3>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {values.map((value) => (
-                <div key={value.title} className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <value.icon className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold">{value.title}</h4>
-                    <p className="text-sm text-muted-foreground">{value.description}</p>
-                  </div>
+          <div className="space-y-8">
+             <div>
+                <h3 className="text-2xl font-bold tracking-tight text-primary mb-6">Our Core Values</h3>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {values.map((value) => (
+                    <div key={value.title} className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <value.icon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{value.title}</h4>
+                        <p className="text-sm text-muted-foreground">{value.description}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            <div className="pt-4">
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
+                <Link href="#services">
+                    Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+                </Button>
             </div>
-          </div>
-           <div className="pt-4">
-            <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
-              <Link href="#services">
-                Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
           </div>
         </div>
         <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-xl lg:h-[550px]">
