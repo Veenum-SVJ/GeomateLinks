@@ -17,13 +17,13 @@ export default function LoginPage() {
             <form className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="admin@example.com" required />
+                <Input id="email" type="email" placeholder="admin@geomatelinks.com" defaultValue="admin@geomatelinks.com" required />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" defaultValue="password" required />
               </div>
               <Button type="submit" className="w-full" asChild>
                  <Link href="/dashboard">Login</Link>
