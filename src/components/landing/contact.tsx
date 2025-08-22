@@ -27,7 +27,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="font-semibold">Phone</h4>
-                  <p className="text-muted-foreground">(+234) 803 123 4567</p>
+                  <p className="text-muted-foreground">+234 803 334 1424</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -36,7 +36,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="font-semibold">Email</h4>
-                  <p className="text-muted-foreground">info@geomate-links.com.ng</p>
+                  <p className="text-muted-foreground">geomatelinks@gmail.com</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -45,7 +45,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="font-semibold">Address</h4>
-                  <p className="text-muted-foreground">123 Surveyors Avenue, Abuja, Nigeria</p>
+                  <p className="text-muted-foreground">Josbeed Mall Ashi Bodija Road Ibadan North LGA, Ibadan Nigeria</p>
                 </div>
               </div>
             </div>

@@ -45,10 +45,10 @@ export function Footer() {
               <div>
                 <h3 className="font-semibold text-primary">Contact Us</h3>
                 <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                  <li>123 Surveyors Avenue, Abuja</li>
+                  <li>Josbeed Mall Ashi Bodija Road Ibadan North LGA, Ibadan</li>
                   <li>Nigeria</li>
-                  <li className="pt-2">info@geomate-links.com.ng</li>
-                  <li>(+234) 803 123 4567</li>
+                  <li className="pt-2">geomatelinks@gmail.com</li>
+                  <li>+234 803 334 1424</li>
                 </ul>
               </div>
               <div>

@@ -21,16 +21,16 @@ export default function SettingsPage() {
         <CardContent className="space-y-6">
           <div className="grid gap-3">
             <Label htmlFor="address">Address</Label>
-            <Input id="address" defaultValue="123 Surveyors Avenue, Abuja, Nigeria" />
+            <Input id="address" defaultValue="Josbeed Mall Ashi Bodija Road Ibadan North LGA, Ibadan Nigeria" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="grid gap-3">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" defaultValue="(+234) 803 123 4567" />
+                <Input id="phone" defaultValue="+234 803 334 1424" />
             </div>
             <div className="grid gap-3">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="info@geomate-links.com.ng" />
+                <Input id="email" type="email" defaultValue="geomatelinks@gmail.com" />
             </div>
           </div>
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
