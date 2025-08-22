@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./logo";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -16,27 +17,59 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = navLinks.map(link => document.querySelector(link.href));
+      let currentSection = "";
+
+      sections.forEach(section => {
+        if (section) {
+          const sectionTop = (section as HTMLElement).offsetTop;
+          const sectionHeight = (section as HTMLElement).clientHeight;
+          if (window.scrollY >= sectionTop - sectionHeight / 3) {
+            currentSection = `#${section.id}`;
+          }
+        }
+      });
+
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 2) {
+          currentSection = "#contact";
+      }
+
+      setActiveLink(currentSection);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); 
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between">
-        <div className="flex items-center">
+      <div className="container mx-auto flex h-16 items-center">
+        <div className="flex-1 flex justify-start">
           <Logo />
         </div>
         
-        <nav className="hidden items-center justify-center gap-6 md:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+              className={cn(
+                "text-sm font-medium transition-colors",
+                activeLink === link.href ? "text-primary" : "text-muted-foreground hover:text-primary"
+              )}
             >
               {link.name}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center justify-end gap-4">
+        <div className="flex-1 flex items-center justify-end gap-4">
           <Button asChild className="hidden md:flex bg-primary hover:bg-primary/90">
             <Link href="#contact">Get a Quote</Link>
           </Button>
@@ -63,7 +96,10 @@ export function Header() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMenuOpen(false)}
-                      className="text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
+                      className={cn(
+                        "text-lg font-medium transition-colors",
+                        activeLink === link.href ? "text-primary" : "text-muted-foreground hover:text-primary"
+                      )}
                     >
                       {link.name}
                     </Link>
