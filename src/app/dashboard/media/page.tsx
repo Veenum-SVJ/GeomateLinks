@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { UploadCloud } from "lucide-react";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default function MediaPage() {
   const [uploading, setUploading] = useState(false);
@@ -22,38 +20,52 @@ export default function MediaPage() {
     }
   };
 
-  const handleUpload = (file: File) => {
-    const storageRef = ref(storage, `media/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
+  const handleUpload = async (file: File) => {
     setUploading(true);
     setUploadProgress(0);
 
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        const progress = (event.loaded / event.total) * 100;
         setUploadProgress(progress);
-      },
-      (error) => {
-        setUploading(false);
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      setUploading(false);
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log('File available at', response.url);
+        toast({
+          title: "Upload Successful",
+          description: "Your file has been uploaded.",
+        });
+      } else {
+        const errorResponse = JSON.parse(xhr.responseText);
         toast({
           title: "Upload Failed",
-          description: error.message,
+          description: errorResponse.error || "An unknown error occurred.",
           variant: "destructive",
         });
-      },
-      () => {
-        setUploading(false);
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log('File available at', downloadURL);
-          toast({
-            title: "Upload Successful",
-            description: "Your file has been uploaded.",
-          });
-          // Here you would typically save the downloadURL to a database
-        });
       }
-    );
+    });
+
+    xhr.addEventListener('error', () => {
+      setUploading(false);
+      toast({
+        title: "Upload Failed",
+        description: "A network error occurred during the upload.",
+        variant: "destructive",
+      });
+    });
+
+    xhr.open('POST', '/api/upload');
+    xhr.send(formData);
   };
 
   const triggerFileSelect = () => {
