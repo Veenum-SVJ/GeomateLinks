@@ -1,21 +1,23 @@
-import Image from "next/image";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
 
 const projects = [
-  { category: "Cadastral", title: "Boundary Survey", image: "https://placehold.co/600x400.png", hint: "cadastral map" },
-  { category: "Cadastral", title: "Land Title Registration", image: "https://placehold.co/600x400.png", hint: "land deed" },
-  { category: "GIS", title: "Urban Planning Analysis", image: "https://placehold.co/600x400.png", hint: "gis analysis" },
-  { category: "GIS", title: "Environmental Impact Assessment", image: "https://placehold.co/600x400.png", hint: "environmental map" },
-  { category: "Drone Mapping", title: "Topographic Survey", image: "https://placehold.co/600x400.png", hint: "drone mapping" },
-  { category: "Drone Mapping", title: "Construction Monitoring", image: "https://placehold.co/600x400.png", hint: "construction site" },
-  { category: "Digitization", title: "Historical Map Archiving", image: "https://placehold.co/600x400.png", hint: "document scan" },
-  { category: "Digitization", title: "Utility Network Digitization", image: "https://placehold.co/600x400.png", hint: "network map" },
-];
+  { category: "Cadastral", title: "Boundary Survey", image: "/images/20250502_123312.jpg" },
+  { category: "Cadastral", title: "Land Title Registration", image: "/images/20250502_123315.jpg" },
+  { category: "GIS", title: "Urban Planning Analysis", image: "/images/20250502_135454.jpg" },
+  { category: "GIS", title: "Environmental Impact Assessment", image: "/images/20250502_160800.jpg" },
+  { category: "Drone Mapping", title: "Topographic Survey", image: "/images/20260819_130339.jpg" },
+  { category: "Drone Mapping", title: "Construction Monitoring", image: "/images/20260819_131151.jpg" },
+  { category: "Digitization", title: "Historical Map Archiving", image: "/images/20260819_131304.jpg" },
+  { category: "Digitization", title: "Utility Network Digitization", image: "/images/20260819_131307.jpg" },
+]
 
-const categories = ["All", "Cadastral", "GIS", "Drone Mapping", "Digitization"];
+const categories = ["All", "Cadastral", "GIS", "Drone Mapping", "Digitization"]
 
 export function Projects() {
+  const [activeTab, setActiveTab] = useState("All")
+
   return (
     <section id="projects" className="bg-secondary/30">
       <div className="container mx-auto">
@@ -26,7 +28,7 @@ export function Projects() {
           </p>
         </div>
 
-        <Tabs defaultValue="All" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
             {categories.map((category) => (
               <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
@@ -42,14 +44,11 @@ export function Projects() {
                 ).map((project, index) => (
                   <Card key={`${project.title}-${index}`} className="overflow-hidden group">
                     <CardContent className="p-0">
-                      <div className="relative h-56 w-full">
-                        <Image
+                      <div className="relative h-56 w-full overflow-hidden">
+                        <img
                           src={project.image}
                           alt={project.title}
-                          layout="fill"
-                          objectFit="cover"
-                          className="transition-transform duration-300 group-hover:scale-110"
-                          data-ai-hint={project.hint}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                         />
                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                       </div>
@@ -62,5 +61,5 @@ export function Projects() {
         </Tabs>
       </div>
     </section>
-  );
+  )
 }
