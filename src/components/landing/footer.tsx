@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { Facebook, Linkedin, Twitter } from "lucide-react";
-import { Logo } from "./logo";
-import { Button } from "../ui/button";
+import { Link } from "react-router-dom"
+import { Facebook, Linkedin, Twitter } from "lucide-react"
+import { Logo } from "./logo"
+import { Button } from "../ui/button"
 
 export function Footer() {
   const quickLinks = [
@@ -9,13 +9,13 @@ export function Footer() {
     { name: "Services", href: "#services" },
     { name: "Projects", href: "#projects" },
     { name: "Contact", href: "#contact" },
-  ];
+  ]
 
   const socialLinks = [
     { name: "Facebook", icon: Facebook, href: "#" },
     { name: "Twitter", icon: Twitter, href: "#" },
     { name: "LinkedIn", icon: Linkedin, href: "#" },
-  ];
+  ]
 
   return (
     <footer className="bg-card text-card-foreground border-t">
@@ -35,9 +35,9 @@ export function Footer() {
                 <ul className="mt-4 space-y-2">
                   {quickLinks.map((link) => (
                     <li key={link.name}>
-                      <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      <a href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                         {link.name}
-                      </Link>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -68,12 +68,12 @@ export function Footer() {
         </div>
         
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-            <Link href="/login" className="hover:text-primary transition-colors">
+            <Link to="/login" className="hover:text-primary transition-colors">
                 &copy;
             </Link>
             {" "}{new Date().getFullYear()} Geomate Links Consulting Limited. All Rights Reserved.
         </div>
       </div>
     </footer>
-  );
+  )
 }
