@@ -1,6 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
 import formidable from 'formidable'
-import fs from 'fs'
 import path from 'path'
 
 export const config = {
@@ -24,7 +23,7 @@ export default async function handler(
   })
 
   try {
-    const [fields, files] = await form.parse(request)
+    const [, files] = await form.parse(request)
     
     const file = files.file?.[0]
     if (!file) {
