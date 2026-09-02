@@ -52,8 +52,7 @@ export function Services() {
             </CardContent>
           </Card>
         ))}
-        {/* Placeholder for alignment if there were 5 items in a 3-col grid */}
-         <div className="hidden lg:block"></div>
+        {/* No placeholder needed - flex layout handles alignment */}
       </div>
     </section>
   );
