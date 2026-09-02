@@ -63,8 +63,8 @@ export function About() {
           </div>
 
           <div className="pt-4">
-            <Button size="lg" className="bg-accent hover:bg-accent/90">
-              <a href="#services">
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 gap-2">
+              <a href="#services" className="inline-flex items-center">
                 Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>

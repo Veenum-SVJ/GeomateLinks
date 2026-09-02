@@ -49,13 +49,11 @@ export function Contact() {
                 </div>
               </div>
             </div>
-            <div 
+            <div
               className="h-64 w-full rounded-lg bg-cover bg-center shadow-md lg:h-80"
-              style={{ backgroundImage: "url('https://placehold.co/800x400.png')" }}
-              data-ai-hint="nigeria map"
-              aria-label="Map showing company location"
+              style={{ backgroundImage: "url('/images/20260819_130339.jpg')" }}
+              aria-label="Map showing company location in Nigeria"
             >
-             {/* This div serves as a placeholder for an interactive Google Map */}
             </div>
           </div>
           <div className="rounded-lg border bg-card p-6 shadow-sm sm:p-8">
