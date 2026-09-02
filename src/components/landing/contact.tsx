@@ -1,5 +1,5 @@
-import { ContactForm } from "./contact-form";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react"
+import { ContactForm } from "./contact-form"
 
 export function Contact() {
   return (
@@ -51,12 +51,9 @@ export function Contact() {
             </div>
             <div 
               className="h-64 w-full rounded-lg bg-cover bg-center shadow-md lg:h-80"
-              style={{ backgroundImage: "url('https://placehold.co/800x400.png')" }}
-              data-ai-hint="nigeria map"
-              aria-label="Map showing company location"
-            >
-             {/* This div serves as a placeholder for an interactive Google Map */}
-            </div>
+              style={{ backgroundImage: "url('/images/20250502_123348.jpg')" }}
+              aria-label="Company location map"
+            ></div>
           </div>
           <div className="rounded-lg border bg-card p-6 shadow-sm sm:p-8">
             <ContactForm />
@@ -64,5 +61,5 @@ export function Contact() {
         </div>
       </div>
     </section>
-  );
+  )
 }
