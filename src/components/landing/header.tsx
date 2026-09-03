@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
 import { Logo } from "./logo"
 import { useState, useEffect } from "react"
-import { useLocation } from "react-router-dom"
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -16,7 +15,6 @@ const navLinks = [
 export function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,7 +31,7 @@ export function Header() {
     )}>
       <div className="nav-inner">
         <div className="nav-progress">
-          <div className="nav-progress-fill"></div>
+          <div className="nav-progress-fill" style={{ width: `${scrollProgress}%` }}></div>
         </div>
         <div className="container mx-auto flex h-16 items-center">
           <div className="flex-1 flex justify-start">
