@@ -1,7 +1,12 @@
 import { ContactForm } from "./contact-form";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, ExternalLink } from "lucide-react";
 
 export function Contact() {
+  // Approximate coordinates for Ashi Bodija Road, Ibadan Nigeria
+  const lat = 7.4326;
+  const lon = 3.9120;
+  const bbox = `${lon - 0.01},${lat - 0.005},${lon + 0.01},${lat + 0.005}`;
+
   return (
     <section id="contact" className="bg-secondary/30">
       <div className="container mx-auto">
@@ -49,13 +54,37 @@ export function Contact() {
                 </div>
               </div>
             </div>
-            <div
-              className="h-64 w-full rounded-lg bg-cover bg-center shadow-md lg:h-80"
-              style={{ backgroundImage: "url('/images/20260819_130339.jpg')" }}
-              aria-label="Map showing company location in Nigeria"
-            >
+
+            {/* Map Preview - OpenStreetMap Embed */}
+            <div className="space-y-2">
+              <div className="relative w-full overflow-hidden rounded-lg border shadow-md" style={{ height: '400px' }}>
+                <iframe
+                  title="Geomate Links office location"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}`}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    border: 0
+                  }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Open in OpenStreetMap
+              </a>
             </div>
           </div>
+
           <div className="rounded-lg border bg-card p-6 shadow-sm sm:p-8">
             <ContactForm />
           </div>
