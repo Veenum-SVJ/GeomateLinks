@@ -4,7 +4,6 @@ import LoginPage from "./pages/LoginPage"
 import NotFound from "./pages/NotFound"
 import { Header } from "@/components/landing/header"
 import { Footer } from "@/components/landing/footer"
-import { Breadcrumb } from "@/components/ui/breadcrumb"
 import useSEO from "./hooks/useSEO"
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -12,7 +11,6 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <Breadcrumb />
       <main className="flex-1">{children}</main>
       <Footer />
     </>

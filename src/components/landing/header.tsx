@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
+import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
 import { Logo } from "./logo"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -15,6 +16,7 @@ const navLinks = [
 export function Header() {
   const [isMenuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,44 +28,49 @@ export function Header() {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow",
+      "relative",
       scrolled && "shadow-md"
     )}>
-      <div className="container mx-auto flex h-16 items-center">
-        <div className="flex-1 flex justify-start">
-          <Logo />
+      <div className="nav-inner">
+        <div className="nav-progress">
+          <div className="nav-progress-fill"></div>
         </div>
-        
-        <nav className="hidden flex-1 items-center justify-center gap-6 md:flex" aria-label="Main navigation">
-          {navLinks.map((link) => (
+        <div className="container mx-auto flex h-16 items-center">
+          <div className="flex-1 flex justify-start">
+            <Logo />
+          </div>
+          
+          <nav className="hidden flex-1 items-center justify-center gap-6 md:flex" aria-label="Main navigation">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex-1 flex items-center justify-end gap-4">
             <Link
-              key={link.name}
-              to={link.href}
-              className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+              to="/login"
+              className="hidden md:inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              {link.name}
+              Admin Login
             </Link>
-          ))}
-        </nav>
 
-        <div className="flex-1 flex items-center justify-end gap-4">
-          <Link
-            to="/login"
-            className="hidden md:inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Admin Login
-          </Link>
-
-          <div className="md:hidden">
-            <button
-              onClick={() => setMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-menu"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            <div className="md:hidden">
+              <button
+                onClick={() => setMenuOpen(!isMenuOpen)}
+                className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>

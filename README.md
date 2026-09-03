@@ -1,67 +1,19 @@
-# Geomate Links Consulting Limited
+# Variant B: Field Notes
 
-Professional Surveying, Mapping & GIS Solutions in Nigeria.
+## Design Stance
+Technical field-report aesthetic — clean, functional, and slightly industrial. Feels like a modern engineering firm's documentation system. Monospace type for labels and data, bold geometric sans for headlines.
 
-## Technology Stack
+## Key Choices
+- **Typography:** DM Sans (geometric sans) for headlines + Space Mono (monospace) for labels/data — creates a "field notes" feel
+- **Color:** Clean white base with strong dark borders (#1C1917), brand gold accents only
+- **Layout:** Bold diagonal hero split, list-based services (like a spec sheet), grid photo gallery
+- **Details:** Image filenames as metadata (IMG_20250502), coordinate overlays, numbered service rows, stats bar
 
-- **Frontend:** Vite 5 + React 18 + TypeScript
-- **Styling:** Tailwind CSS with custom design tokens
-- **UI Components:** shadcn/ui primitives
-- **Forms:** React Hook Form + Zod validation
-- **Routing:** React Router DOM
-- **Serverless Functions:** Vercel Node runtime for file uploads
+## Trade-offs
+- **Strong at:** Technical credibility, clarity, unique personality that stands out from generic sites
+- **Weak at:** Could feel too "engineering" for some clients; monospace may read as cold to non-technical visitors
 
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-## Project Structure
-
-```
-vite-app/
-├── api/upload/           # Vercel serverless upload function
-├── public/images/        # Static assets (images, videos)
-├── src/
-│   ├── components/
-│   │   ├── landing/      # Landing page components
-│   │   └── ui/           # shadcn/ui primitives
-│   ├── pages/            # Route pages
-│   ├── lib/utils.ts      # Utility functions
-│   └── main.tsx          # Entry point
-├── vercel.json           # Vercel deployment config
-├── vite.config.ts        # Vite configuration
-└── tailwind.config.js    # Tailwind configuration
-```
-
-## Deployment
-
-Deploy to Vercel automatically from GitHub:
-
-1. Connect your GitHub repository to Vercel
-2. Select the `feat/vite-migration` branch (or merge to main)
-3. Vercel will auto-detect the build settings
-4. No additional configuration needed
-
-## Features
-
-- Responsive landing page with hero, about, services, projects, and contact sections
-- Image gallery with category filtering (Cadastral, GIS, Drone Mapping, Digitization)
-- Contact form with validation
-- Admin login page (placeholder)
-- Serverless file upload API at `/api/upload`
-
-## License
-
-Private project for Geomate Links Consulting Limited
+## Best for
+- B2B clients who value precision and technical competence
+- Government and institutional contracts
+- Positioning as a serious technical partner, not just another surveyor

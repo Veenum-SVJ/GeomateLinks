@@ -38,4 +38,17 @@
   section {
     @apply py-12 sm:py-16 lg:py-20;
   }
+  /* Custom styles */
+  .nav {
+    @apply sticky top-0 z-100;
+  }
+  .nav-inner {
+    @apply max-w-[1200px] mx-auto flex h-16 items-center justify-between;
+  }
+  .nav-progress {
+    @apply absolute bottom-0 left-0 h-[3px] bg-brand-brown transition-width;
+  }
+  .nav-progress-fill {
+    @apply absolute inset-0 h-full bg-brand-gold transition-width;
+  }
 }
