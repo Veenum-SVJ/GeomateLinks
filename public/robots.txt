@@ -1,0 +1,9 @@
+# Geomate Links Consulting Limited
+
+User-agent: *
+Allow: /
+
+Sitemap: https://geomate-links.vercel.app/sitemap.xml
+
+# Disallow admin areas
+Disallow: /login

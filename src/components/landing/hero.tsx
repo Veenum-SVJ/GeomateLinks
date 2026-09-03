@@ -2,13 +2,14 @@ import { Button } from "@/components/ui/button"
 
 export function Hero() {
   return (
-    <section id="home" className="relative h-[80vh] min-h-[500px] w-full overflow-hidden">
+    <section id="home" className="relative h-[80vh] min-h-[500px] w-full overflow-hidden" aria-label="Hero section with video background">
       <video 
         autoPlay 
         loop 
         muted 
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
+        poster="/images/20260819_142334.jpg"
       >
         <source src="/images/20250502_123423.mp4" type="video/mp4" />
       </video>
@@ -22,11 +23,15 @@ export function Hero() {
             Precision, efficiency, and cutting-edge technology for all your geospatial needs.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-              <a href="#contact">Get a Quote</a>
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+              <a href="#contact" className="inline-flex items-center">
+                Get a Quote
+              </a>
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-              <a href="#contact">Contact Us</a>
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+              <a href="#contact" className="inline-flex items-center">
+                Contact Us
+              </a>
             </Button>
           </div>
         </div>

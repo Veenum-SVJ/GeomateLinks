@@ -31,9 +31,11 @@ const services = [
 
 export function Services() {
   return (
-    <section id="services" className="container mx-auto">
+    <section id="services" className="container mx-auto py-16" aria-labelledby="services-heading">
       <div className="mb-12 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">Our Services</h2>
+        <h2 id="services-heading" className="text-3xl font-bold tracking-tight text-primary md:text-4xl">
+          Our Services
+        </h2>
         <p className="mt-2 text-lg text-muted-foreground">
           Delivering comprehensive geospatial solutions tailored to your needs.
         </p>
@@ -52,7 +54,6 @@ export function Services() {
             </CardContent>
           </Card>
         ))}
-        {/* No placeholder needed - flex layout handles alignment */}
       </div>
     </section>
   );

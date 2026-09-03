@@ -26,11 +26,13 @@ export function About() {
   ]
 
   return (
-    <section id="about" className="container mx-auto">
+    <section id="about" className="container mx-auto py-16" aria-labelledby="about-heading">
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
         <div className="flex flex-col space-y-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-primary md:text-4xl">About Geomate Links Consulting Limited</h2>
+            <h2 id="about-heading" className="text-3xl font-bold tracking-tight text-primary md:text-4xl">
+              About Geomate Links Consulting Limited
+            </h2>
             <p className="mt-3 text-lg text-muted-foreground">
               Your trusted partner in geospatial solutions since 2007.
             </p>
@@ -74,8 +76,9 @@ export function About() {
         <div className="relative h-[450px] w-full overflow-hidden rounded-lg shadow-xl lg:h-[550px]">
            <img
             src="/images/20250502_123302.jpg"
-            alt="Survey team working in the field"
+            alt="Geomate Links survey team working in the field conducting a topographic survey in Ibadan, Nigeria"
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            loading="lazy"
           />
         </div>
       </div>

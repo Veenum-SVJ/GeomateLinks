@@ -1,0 +1,18 @@
+version: 1.1
+description: Geomate Links Consulting Limited - A geospatial solutions company based in Ibadan, Nigeria. Specializing in surveying, mapping, GIS, and drone services.
+
+## Website
+https://geomate-links.vercel.app
+
+## Services
+- Cadastral Surveying
+- Topographic Surveying
+- GIS & LIS Solutions
+- Drone Mapping
+- Digitization Services
+- Corporate Training
+
+## Contact
+- Email: geomatelinks@gmail.com
+- Phone: +234 803 334 1424
+- Address: Josbeed Mall, Ashi Bodija Road, Ibadan North LGA, Nigeria
