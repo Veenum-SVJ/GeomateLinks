@@ -1,112 +1,65 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 type PageConfig = {
   title: string
   description: string
-  keywords: string
-  type: string
   url: string
+  noindex?: boolean
 }
 
-const pageConfig: Record<string, PageConfig> = {
-  '/': {
-    title: 'GeoLink Navigator | Geomate Links Consulting Limited',
-    description: 'Innovative Surveying, Mapping & GIS Solutions in Nigeria. Geomate Links Consulting Limited is a leading firm in surveying, mapping, and GIS consultancy.',
-    keywords: 'Surveying Nigeria, Mapping Services, GIS, LIS, Geomate Links, Ibadan',
-    type: 'website',
-    url: 'https://geomate-links.vercel.app/',
+const SITE = "https://geomate-links.vercel.app"
+
+const pages: Record<string, PageConfig> = {
+  "/": {
+    title: "Geomate Links Consulting Limited — Surveying, Mapping & GIS, Ibadan",
+    description:
+      "Geomate Links Consulting Limited (RC746106) provides cadastral, engineering, topographic, bathymetric and UAV survey, mapping, digitization and GIS/LIS services from Ibadan, Oyo State, Nigeria.",
+    url: `${SITE}/`,
   },
-  '/login': {
-    title: 'Admin Login | Geomate Links Consulting',
-    description: 'Admin login portal for Geomate Links Consulting Limited. Access your dashboard for project management and client services.',
-    keywords: 'Admin Login, Geomate Links, Dashboard',
-    type: 'website',
-    url: 'https://geomate-links.vercel.app/login',
-  },
-  '/dashboard': {
-    title: 'Dashboard | Geomate Links Consulting',
-    description: 'Admin dashboard for managing Geomate Links website content, projects, services, and media.',
-    keywords: 'Admin, Dashboard, Geomate Links',
-    type: 'website',
-    url: 'https://geomate-links.vercel.app/dashboard',
-  },
+}
+
+function upsertMeta(selector: string, attr: "name" | "property", key: string, value: string) {
+  let tag = document.head.querySelector<HTMLMetaElement>(selector)
+  if (!tag) {
+    tag = document.createElement("meta")
+    tag.setAttribute(attr, key)
+    document.head.appendChild(tag)
+  }
+  tag.setAttribute("content", value)
 }
 
 export default function useSEO() {
   const location = useLocation()
-  
+
   useEffect(() => {
-    const path = location.pathname || '/'
-    const config = pageConfig[path] || pageConfig['/']
-    
-    // Update title
+    const path = location.pathname || "/"
+    const isAdmin = path.startsWith("/admin")
+
+    const config: PageConfig = isAdmin
+      ? {
+          title: "Admin — Geomate Links Consulting",
+          description: "Private content management area.",
+          url: `${SITE}${path}`,
+          noindex: true,
+        }
+      : pages[path] ?? pages["/"]
+
     document.title = config.title
-    
-    // Update meta description
-    let metaDescription = document.querySelector('meta[name="description"]')
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta')
-      metaDescription.setAttribute('name', 'description')
-      document.head.appendChild(metaDescription)
-    }
-    metaDescription.setAttribute('content', config.description)
-    
-    // Update meta keywords
-    let metaKeywords = document.querySelector('meta[name="keywords"]')
-    if (!metaKeywords) {
-      metaKeywords = document.createElement('meta')
-      metaKeywords.setAttribute('name', 'keywords')
-      document.head.appendChild(metaKeywords)
-    }
-    metaKeywords.setAttribute('content', config.keywords)
-    
-    // Update canonical
-    let canonical = document.querySelector('link[rel="canonical"]')
+    upsertMeta('meta[name="description"]', "name", "description", config.description)
+    upsertMeta('meta[name="robots"]', "name", "robots", config.noindex ? "noindex, nofollow" : "index, follow")
+    upsertMeta('meta[property="og:title"]', "property", "og:title", config.title)
+    upsertMeta('meta[property="og:description"]', "property", "og:description", config.description)
+    upsertMeta('meta[property="og:url"]', "property", "og:url", config.url)
+    upsertMeta('meta[name="twitter:title"]', "name", "twitter:title", config.title)
+    upsertMeta('meta[name="twitter:description"]', "name", "twitter:description", config.description)
+
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     if (!canonical) {
-      canonical = document.createElement('link')
-      canonical.setAttribute('rel', 'canonical')
+      canonical = document.createElement("link")
+      canonical.rel = "canonical"
       document.head.appendChild(canonical)
     }
-    canonical.setAttribute('href', config.url)
-    
-    // Update Open Graph tags
-    const ogTags = [
-      { property: 'og:title', content: config.title },
-      { property: 'og:description', content: config.description },
-      { property: 'og:type', content: config.type },
-      { property: 'og:url', content: config.url },
-      { property: 'og:image', content: `${config.url}og-image.jpg` },
-      { property: 'og:site_name', content: 'Geomate Links Consulting Limited' },
-      { property: 'og:locale', content: 'en_NG' },
-    ]
-    
-    ogTags.forEach(({ property, content }) => {
-      let tag = document.querySelector(`meta[property="${property}"]`)
-      if (!tag) {
-        tag = document.createElement('meta')
-        tag.setAttribute('property', property)
-        document.head.appendChild(tag)
-      }
-      tag.setAttribute('content', content)
-    })
-    
-    // Update Twitter Card tags
-    const twitterTags = [
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: config.title },
-      { name: 'twitter:description', content: config.description },
-      { name: 'twitter:image', content: `${config.url}og-image.jpg` },
-    ]
-    
-    twitterTags.forEach(({ name, content }) => {
-      let tag = document.querySelector(`meta[name="${name}"]`)
-      if (!tag) {
-        tag = document.createElement('meta')
-        tag.setAttribute('name', name)
-        document.head.appendChild(tag)
-      }
-      tag.setAttribute('content', content)
-    })
+    canonical.href = config.url
   }, [location.pathname])
 }

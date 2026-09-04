@@ -2,8 +2,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://geomate-links.vercel.app/sitemap.xml
-
-# Disallow admin areas
-Disallow: /login

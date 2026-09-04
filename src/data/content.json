@@ -18,12 +18,21 @@
       "country": "Nigeria",
       "postal": "P. O. Box 30216, Secretariat Post Office, Ibadan"
     },
-    "phones": ["0803 334 1424", "0818 430 6060"],
-    "emails": ["geomatelinks@gmail.com", "info@geomatelinks.com"],
+    "phones": [
+      "0803 334 1424",
+      "0818 430 6060"
+    ],
+    "emails": [
+      "geomatelinks@gmail.com",
+      "info@geomatelinks.com"
+    ],
     "website": "www.geomatelinks.com",
     "facebook": "https://www.facebook.com/geomatelinks",
     "hours": "Monday – Friday, 8:00 AM – 5:00 PM WAT",
-    "coordinates": { "lat": 7.4275, "lon": 3.9304994 },
+    "coordinates": {
+      "lat": 7.4275,
+      "lon": 3.9304994
+    },
     "mapEmbed": "https://maps.google.com/maps?q=7.4275,3.9304994&hl=en&z=17&output=embed",
     "mapLink": "https://www.google.com/maps/place/Geomate+Links+Consulting+Ltd/@7.4275,3.9279245,17z/data=!3m1!4b1!4m6!3m5!1s0x1039ed0e8bb16fcf:0xf4da9748b9909654!8m2!3d7.4275!4d3.9304994!16s%2Fg%2F11f5hkwrn1?hl=en-US&entry=ttu"
   },
@@ -36,12 +45,23 @@
     "primaryCta": "Request a Quote",
     "secondaryCta": "Our Services",
     "videoCaption": "FIELD RECORD — BATHYMETRIC MOBILISATION",
-    "videoCoords": "7.43°N 3.93°E"
+    "videoCoords": "7.43°N 3.93°E",
+    "videoUrl": "/media/hero.mp4",
+    "posterUrl": "/media/hero-poster.jpg"
   },
   "stats": [
-    { "value": "2007", "label": "Established" },
-    { "value": "19 yrs", "label": "In practice" },
-    { "value": "16", "label": "Documented projects" }
+    {
+      "value": "2007",
+      "label": "Established"
+    },
+    {
+      "value": "19 yrs",
+      "label": "In practice"
+    },
+    {
+      "value": "16",
+      "label": "Documented projects"
+    }
   ],
   "services": [
     {
@@ -301,11 +321,31 @@
     ]
   },
   "team": [
-    { "name": "Surv. Adewale Adams Bankole", "role": "Principal Consultant / Chief Executive Officer", "note": "Registered with SURCON. Full member, Nigerian Institution of Surveyors. Specialises in bathymetric, ground control, topographic, as-built and route surveys." },
-    { "name": "Surv. Salau Adedayo", "role": "Project Coordinator", "note": "Field coordination and quality control." },
-    { "name": "Surv. Taiwo Wasiu", "role": "Project Coordinator", "note": "Field coordination and data processing." },
-    { "name": "Abdul Hakeem Abubakar", "role": "Surveyor", "note": "Field data acquisition." },
-    { "name": "Abiola Mubarak", "role": "Surveyor", "note": "Field data acquisition." }
+    {
+      "name": "Surv. Adewale Adams Bankole",
+      "role": "Principal Consultant / Chief Executive Officer",
+      "note": "Registered with SURCON. Full member, Nigerian Institution of Surveyors. Specialises in bathymetric, ground control, topographic, as-built and route surveys."
+    },
+    {
+      "name": "Surv. Salau Adedayo",
+      "role": "Project Coordinator",
+      "note": "Field coordination and quality control."
+    },
+    {
+      "name": "Surv. Taiwo Wasiu",
+      "role": "Project Coordinator",
+      "note": "Field coordination and data processing."
+    },
+    {
+      "name": "Abdul Hakeem Abubakar",
+      "role": "Surveyor",
+      "note": "Field data acquisition."
+    },
+    {
+      "name": "Abiola Mubarak",
+      "role": "Surveyor",
+      "note": "Field data acquisition."
+    }
   ],
   "credentials": [
     "Registered with the Surveyors Council of Nigeria (SURCON)",
@@ -335,10 +375,14 @@
       "body": "Call the office, send an email, or use the form to open a message in your mail client."
     }
   },
-  "messages": [],
-  "profile": {
-    "fullName": "Surv. Adewale Adams Bankole",
-    "email": "geomatelinks@gmail.com",
-    "role": "Administrator"
-  }
+  "aboutImages": [
+    "/media/20250502_123302-800.jpg",
+    "/media/20250502_123312-800.jpg",
+    "/media/20250502_123315-800.jpg",
+    "/media/20250502_123348-800.jpg",
+    "/media/20250502_135454-800.jpg",
+    "/media/20250502_160800-800.jpg",
+    "/media/20260819_131304-800.jpg",
+    "/media/20260819_131307-800.jpg"
+  ]
 }
