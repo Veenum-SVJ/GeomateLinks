@@ -74,8 +74,8 @@ export default function HomePage() {
             <div className="nav-progress-fill" style={{ width: `${scrollProgress}%` }} />
           </div>
           <a href="#top" className="logo">
-                      <img src="/favicon.ico" alt="Geomate Links Logo" className="h-3.5 w-3.5 rounded" />
-                      GEOMATE LINKS CONSULTING LIMITED
+                      <img src="/favicon.ico" alt="Geomate Links Logo" className="h-6 w-6 rounded" />
+                      GEOMATE LINKS CONSULTING LTD
                     </a>
           <ul className="nav-links">
             <li><a href="#about">About</a></li>
