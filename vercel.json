@@ -1,8 +1,19 @@
 {
-  "builds": [
-    { "src": "public/**", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/public/$1" }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/media/(.*)", "destination": "/media/$1" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/images/(.*)", "destination": "/images/$1" },
+    { "source": "/favicon.svg", "destination": "/favicon.svg" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/og-image.jpg", "destination": "/og-image.jpg" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

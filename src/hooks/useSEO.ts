@@ -24,6 +24,13 @@ const pageConfig: Record<string, PageConfig> = {
     type: 'website',
     url: 'https://geomate-links.vercel.app/login',
   },
+  '/dashboard': {
+    title: 'Dashboard | Geomate Links Consulting',
+    description: 'Admin dashboard for managing Geomate Links website content, projects, services, and media.',
+    keywords: 'Admin, Dashboard, Geomate Links',
+    type: 'website',
+    url: 'https://geomate-links.vercel.app/dashboard',
+  },
 }
 
 export default function useSEO() {
@@ -101,41 +108,5 @@ export default function useSEO() {
       }
       tag.setAttribute('content', content)
     })
-    
-    // Add JSON-LD structured data
-    let scriptTag = document.querySelector('script[type="application/ld+json"]')
-    if (!scriptTag) {
-      scriptTag = document.createElement('script')
-      scriptTag.setAttribute('type', 'application/ld+json')
-      document.head.appendChild(scriptTag)
-    }
-    
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Geomate Links Consulting Limited",
-      "url": "https://geomate-links.vercel.app",
-      "logo": `${config.url}favicon.svg`,
-      "description": config.description,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Josbeed Mall, Ashi Bodija Road",
-        "addressLocality": "Ibadan North LGA",
-        "addressRegion": "Oyo",
-        "addressCountry": "NG"
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+234-803-334-1424",
-        "contactType": "customer service",
-        "email": "geomatelinks@gmail.com",
-        "areaServed": "NG",
-        "availableLanguage": "English"
-      },
-      "sameAs": []
-    }
-    
-    scriptTag.textContent = JSON.stringify(structuredData, null, 2)
-    
-  }, [location])
+  }, [location.pathname])
 }

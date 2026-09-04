@@ -1,283 +1,266 @@
 import { Link } from "react-router-dom"
-import { useState, useEffect } from "react"
-import { Header } from "@/components/landing/header"
-import { Footer } from "@/components/landing/footer"
-import { Breadcrumb } from "@/components/ui/breadcrumb"
+import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
+import useSEO from "@/hooks/useSEO"
+import type { Project } from "@/data/index"
+import content from "@/data/content.json"
 
-export default function Home() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
+useSEO()
 
-  const slides = [
-    {
-      id: 1,
-      category: "Cadastral",
-      title: "Ibadan Land Title Survey",
-      description: "Complete boundary determination and title registration support for a 50-hectare residential development.",
-      image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=1200&q=80"
-    },
-    {
-      id: 2,
-      category: "Drone Mapping",
-      title: "Topographic Survey — Oyo State",
-      description: "Aerial photogrammetry covering 200km² for infrastructure planning and environmental assessment.",
-      image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&q=80"
-    },
-    {
-      id: 3,
-      category: "GIS",
-      title: "Urban Planning Analysis",
-      description: "Comprehensive GIS analysis for municipal planning, zoning, and land use optimization.",
-      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80"
-    },
-    {
-      id: 4,
-      category: "Surveying",
-      title: "Engineering Boundary Survey",
-      description: "High-precision engineering survey for commercial complex construction with sub-centimeter accuracy.",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80"
-    }
-  ];
+const HERO_VIDEO = "/media/hero.mp4"
+const HERO_POSTER = "/media/hero-poster.jpg"
+const ABOUT_IMAGES = [
+  "/media/20250502_123302-800.jpg",
+  "/media/20250502_123312-800.jpg",
+  "/media/20250502_123315-800.jpg",
+  "/media/20250502_123348-800.jpg",
+  "/media/20250502_135454-800.jpg",
+  "/media/20250502_160800-800.jpg",
+  "/media/20260819_131304-800.jpg",
+  "/media/20260819_131307-800.jpg",
+]
+
+const FOOTER_LINKS = [
+  { label: "Privacy", href: "#" },
+  { label: "Terms", href: "#" },
+  { label: "SURCON Registered", href: "#" },
+]
+
+const MAP_SRC = content.company.mapEmbed
+
+export default function HomePage() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" })
+
+  const projects: Project[] = content.projects
+  const totalSlides = Math.max(1, Math.ceil(projects.length / 4))
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrolled / maxScroll) * 100;
-      setScrollProgress(progress);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      const scrolled = window.scrollY
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(maxScroll > 0 ? Math.min((scrolled / maxScroll) * 100, 100) : 0)
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-  const goToSlide = (index: number) => {
-    if (index < 0) setCurrentSlide(slides.length - 1);
-    else if (index >= slides.length) setCurrentSlide(0);
-    else setCurrentSlide(index);
-  };
+  const goToSlide = (index: number) => setCurrentSlide(Math.max(0, Math.min(index, totalSlides - 1)))
+  const visibleProjects = projects.slice(currentSlide * 4, currentSlide * 4 + 4)
+
+  const updateField = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    window.location.href = `mailto:${content.company.emails[0]}?subject=${encodeURIComponent(form.subject || "New website enquiry")}&body=${encodeURIComponent(form.message || form.name + "\n" + form.email + "\n" + form.phone)}`
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      {/* Navigation with Progress Bar */}
-      <nav className="relative">
-        <div className="nav-progress">
-          <div className="nav-progress-fill" style={{ width: `${scrollProgress}%` }}></div>
-        </div>
+    <div className="min-h-screen bg-brand-cream text-brand-dark">
+      <nav className="nav">
         <div className="nav-inner">
-          <Link to="/" className="logo">
+          <div className="nav-progress">
+            <div className="nav-progress-fill" style={{ width: `${scrollProgress}%` }} />
+          </div>
+          <Link to="/" className="flex items-center gap-3 no-underline">
             <div className="logo-mark">GL</div>
-            GEOMATE LINKS
+            <span className="font-mono text-sm font-bold tracking-tight text-brand-dark">GEOMATE LINKS</span>
           </Link>
           <ul className="nav-links">
-            <li><Link to="#about">About</Link></li>
-            <li><Link to="#services">Services</Link></li>
-            <li><Link to="#projects">Projects</Link></li>
-            <li><Link to="#contact">Contact</Link></li>
-            <li><Link to="#contact" className="nav-cta">Get Quote</Link></li>
+            <li><a href="#about" className="font-mono text-xs uppercase tracking-widest text-brand-warm-gray hover:text-brand-brown transition-colors">About</a></li>
+            <li><a href="#services" className="font-mono text-xs uppercase tracking-widest text-brand-warm-gray hover:text-brand-brown transition-colors">Services</a></li>
+            <li><a href="#projects" className="font-mono text-xs uppercase tracking-widest text-brand-warm-gray hover:text-brand-brown transition-colors">Projects</a></li>
+            <li><a href="#contact" className="font-mono text-xs uppercase tracking-widest text-brand-warm-gray hover:text-brand-brown transition-colors">Contact</a></li>
+            <li><a href="#contact" className="nav-cta">Get Quote</a></li>
           </ul>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-grid">
+      <section className="hero relative overflow-hidden border-b-2 border-brand-dark bg-brand-cream">
+        <div className="absolute inset-y-0 right-0 w-11/12 sm:w-3/5 bg-brand-dark" style={{ clipPath: "polygon(12% 0, 100% 0, 100% 100%, 0% 100%)" }} />
+        <div className="relative z-10 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center py-16 sm:py-24 px-4 sm:px-6">
           <div className="hero-text">
-            <div className="hero-tag">Geospatial Solutions — Ibadan, Nigeria</div>
-            <h1>We Map the World<br /><span>One Coordinate</span><br />at a Time</h1>
-            <p>Precision surveying, drone mapping, and GIS solutions for projects that demand accuracy. Serving Nigeria and beyond since 2007.</p>
-            <div className="hero-actions">
-              <Link to="#contact" className="btn btn-primary">Start a Project →</Link>
-              <Link to="#services" className="btn btn-outline">Our Services</Link>
+            <div className="hero-tag font-mono text-[0.6875rem] tracking-[0.2em] uppercase text-brand-gold flex items-center gap-2">
+              <span className="inline-block h-2 w-6 bg-brand-gold" />
+              {content.hero.tag}
             </div>
-            <div className="hero-stats">
-              <div className="stat">
-                <div className="stat-number">17+</div>
-                <div className="stat-label">Years Experience</div>
-              </div>
-              <div className="stat">
-                <div className="stat-number">500+</div>
-                <div className="stat-label">Projects Completed</div>
-              </div>
-              <div className="stat">
-                <div className="stat-number">50+</div>
-                <div className="stat-label">Clients Served</div>
-              </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.75rem] font-semibold tracking-tight text-brand-dark leading-[1.05] mb-6">
+              {content.hero.headlineTop}
+              <br />
+              <span className="text-brand-gold">{content.hero.headlineAccent}</span>
+              <br />
+              {content.hero.headlineBottom}
+            </h1>
+            <p className="text-base sm:text-lg text-brand-warm-gray leading-relaxed max-w-md mb-8 text-balance">
+              {content.hero.intro}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <a href="#contact" className="btn btn-primary">Request a Quote</a>
+              <a href="#services" className="btn btn-outline">Our Services</a>
+            </div>
+            <div className="mt-10 flex flex-wrap gap-10 border-t border-black/10 pt-6">
+              {content.stats.map((item) => (
+                <div key={item.value} className="stat">
+                  <div className="font-mono text-[1.75rem] font-bold text-brand-gold leading-none">{item.value}</div>
+                  <div className="text-xs text-brand-warm-gray uppercase tracking-[0.1em] mt-1">{item.label}</div>
+                </div>
+              ))}
             </div>
           </div>
           <div className="hero-visual">
-            <div className="hero-image">
-              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Survey field work in Nigerian landscape" />
-              <div className="hero-image-overlay">
-                <span>IMG_20250502_123423</span>
-                <span>7.43°N 3.91°E</span>
+            <div className="hero-image relative rounded border-2 border-brand-dark overflow-hidden">
+              <video className="w-full aspect-[4/3] object-cover" autoPlay loop muted playsInline poster={HERO_POSTER}>
+                <source src={HERO_VIDEO} type="video/mp4" />
+              </video>
+              <div className="hero-image-overlay absolute inset-x-0 bottom-0 bg-brand-dark/90 px-4 py-3 flex items-center justify-between">
+                <span className="font-mono text-[0.6875rem] text-white/60 tracking-[0.1em]">{content.hero.videoCaption}</span>
+                <span className="font-mono text-[0.6875rem] text-white/60 tracking-[0.1em]">{content.hero.videoCoords}</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="section" id="about">
-        <div className="section-inner">
-          <div className="about-grid">
-            <div className="about-text">
-              <span className="section-label">01 — About</span>
-              <h2 className="section-title">Precision Is Not Just<br />What We Do — It's<br />Who We Are</h2>
-              <p>Established in <strong>2007</strong>, Geomate Links Consulting Limited has grown from a small surveying practice to one of Nigeria's trusted geospatial firms.</p>
-              <p>We specialize in <strong>cadastral surveying, topographic mapping, drone-based aerial surveys, and GIS development</strong>. Our team combines traditional surveying expertise with cutting-edge drone and satellite technology.</p>
-              <p>Whether it's a boundary dispute, a large-scale development project, or a government land registry digitization, we deliver results with <strong>sub-centimeter accuracy</strong>.</p>
-            </div>
-            <div className="about-image-grid">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Team member" />
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="Field equipment" />
-              <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80" alt="Drone survey" />
-              <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80" alt="GIS work" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section className="section" id="services">
-        <div className="section-inner">
-          { /* Services Content */}
-          <span className="section-label">02 — Services</span>
-          <h2 className="section-title">What We Offer</h2>
-          <div className="services-list">
-            <div className="service-row">
-              <span className="service-num">01</span>
-              <h3>Cadastral Surveying</h3>
-              <p>Boundary determination, land subdivision, and title registration support</p>
-            </div>
-            <div className="service-row">
-              <span className="service-num">02</span>
-              <h3>Topographic Mapping</h3>
-              <p>Contour mapping, terrain analysis, and engineering survey plots</p>
-            </div>
-            <div className="service-row">
-              <span className="service-num">03</span>
-              <h3>Drone Aerial Survey</h3>
-              <p>UAV photogrammetry, orthomosaics, and 3D terrain modeling</p>
-            </div>
-            <div className="service-row">
-              <span className="service-num">04</span>
-              <h3>GIS & Land Information Systems</h3>
-              <p>Custom database development, spatial analysis, and map production</p>
-            </div>
-            <div className="service-row">
-              <span className="service-num">05</span>
-              <h3>Digitization & Archiving</h3>
-              <p>Paper-to-digital conversion, historical map preservation, data migration</p>
-            </div>
-            <div className="service-row">
-              <span className="service-num">06</span>
-              <h3>Training & Capacity Building</h3>
-              <p>Corporate GIS training, surveying workshops, and technical courses</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section className="section" id="projects">
-        <div className="section-inner">
-          <div className="projects-header">
+      <section className="section bg-white border-t-2 border-b-2 border-brand-dark" id="about">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
             <div>
-              <span className="section-label">03 — Projects</span>
-              <h2 className="section-title">Recent Work</h2>
+              <span className="section-label">{content.pages.about.label}</span>
+              <h2 className="section-title mb-6">{content.pages.about.title}</h2>
+              <p className="text-brand-warm-gray leading-relaxed mb-4">{content.company.corporateInfo}</p>
+              <p className="text-brand-warm-gray leading-relaxed mb-4">{content.company.humanResources}</p>
+              <div className="mt-4 space-y-2">
+                <p className="font-mono text-xs uppercase tracking-widest text-brand-gold">Registered details</p>
+                <p className="text-sm text-brand-warm-gray">CAC registration: RC746106. Date of incorporation: November 2007.</p>
+                <p className="text-sm text-brand-warm-gray">Principal office: {content.company.address.suite}, {content.company.address.street}, {content.company.address.city}.</p>
+                <p className="text-sm text-brand-warm-gray">Postal address: {content.company.address.postal}</p>
+              </div>
+            </div>
+            <div className="about-image-grid grid grid-cols-2 gap-3">
+              {ABOUT_IMAGES.map((src, index) => (
+                <img key={src} src={src} alt={`Geomate Links field record ${index + 1}`} loading="lazy" className="w-full aspect-square object-cover rounded border border-black/10" />
+              ))}
             </div>
           </div>
-          
-          {/* Projects Grid */}
-          <div className="projects-grid">
-            {slides.slice(currentSlide * 2, (currentSlide + 1) * 2).map((project, index) => (
-              <div key={project.id} className="project-item">
-                <img src={project.image} alt={project.title} />
-                <div className="project-overlay">
-                  <span className="project-category">{project.category}</span>
-                  <span className="project-title">{project.title}</span>
+        </div>
+      </section>
+
+      <section className="section" id="services">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <span className="section-label">{content.pages.services.label}</span>
+          <h2 className="section-title mb-10">{content.pages.services.title}</h2>
+          <p className="text-brand-warm-gray max-w-2xl mb-10">{content.pages.services.body}</p>
+          <div className="services-list">
+            {content.services.map((service) => (
+              <div key={service.id} className="service-row">
+                <span className="service-num font-mono text-xs text-brand-gold tracking-[0.1em]">{service.num}</span>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-brand-dark tracking-tight">{service.title}</h3>
+                  <p className="text-sm text-brand-warm-gray mt-1 hidden sm:block">{service.blurb}</p>
                 </div>
-              ))}
-          </div>
-          
-          {/* Navigation Controls */}
-          { /* Projects Navigation Controls */}
-          <div className="projects-nav">
-            <button 
-              className="projects-nav-btn" 
-              onClick={() => goToSlide(currentSlide - 1)}
-              disabled={currentSlide === 0}
-              aria-label="Previous projects"
-            >
-              ←
-            </button>
-            <div className="projects-dots">
-              {slides.map((_, index) => (
-                <button 
-                  key={index}
-                  className={`projects-dot ${index === currentSlide ? 'active' : ''}`}
-                  onClick={() => goToSlide(index)}
-                  aria-label={`Go to projects page ${index + 1}`}
-                />
-              ))}
-            </div>
-            <button 
-              className="projects-nav-btn" 
-              onClick={() => goToSlide(currentSlide + 1)}
-              disabled={currentSlide === slides.length / 2 - 1}
-              aria-label="Next projects"
-            >
-              →
-            </button>
+                <p className="text-sm text-brand-warm-gray leading-relaxed hidden lg:block">{service.items.join(" · ")}</p>
+                <span className="service-arrow">→</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
+      <section className="section bg-brand-dark text-white" id="projects">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div>
+              <span className="section-label">{content.pages.projects.label}</span>
+              <h2 className="section-title text-white">{content.pages.projects.title}</h2>
+              <p className="text-white/60 mt-2 max-w-xl">{content.pages.projects.body}</p>
+            </div>
+            <div className="projects-nav flex items-center gap-3">
+              <button type="button" className="projects-nav-btn" onClick={() => goToSlide(currentSlide - 1)} disabled={currentSlide === 0} aria-label="Previous projects">←</button>
+              <div className="projects-dots flex items-center gap-2">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button key={index} type="button" className={`projects-dot h-2 w-2 rounded-full border-none transition-all ${index === currentSlide ? "bg-brand-gold scale-125" : "bg-white/20"}`} onClick={() => goToSlide(index)} aria-label={`Projects page ${index + 1}`} />
+                ))}
+              </div>
+              <button type="button" className="projects-nav-btn" onClick={() => goToSlide(currentSlide + 1)} disabled={currentSlide === totalSlides - 1} aria-label="Next projects">→</button>
+            </div>
+          </div>
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {visibleProjects.map((project) => (
+              <article key={project.id} className="project-item">
+                <img src={project.image} alt={project.alt} loading="lazy" />
+                <div className="project-overlay">
+                  <span className="project-category font-mono text-[0.625rem] uppercase tracking-[0.2em] text-brand-gold">{project.category}</span>
+                  <span className="project-title font-display text-base sm:text-lg font-semibold text-white mt-1">{project.title}</span>
+                  <span className="text-white/60 text-xs mt-1">{project.location} · {project.status}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="section" id="contact">
-        <div className="section-inner">
-          { /* Contact Content */}
-          <div className="contact-grid">
-            <div className="contact-details">
-              <span className="section-label">04 — Contact</span>
-              <h2 className="section-title">Reach Out</h2>
-              <h3>Let's Discuss Your Project</h3>
-              { /* Contact Details */}
-              <div className="contact-row">
-                <span className="label">Address</span>
-                <span className="value">Josbeed Mall, Ashi Bodija Rd, Ibadan</span>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            <div>
+              <span className="section-label">{content.pages.contact.label}</span>
+              <h2 className="section-title mb-3">{content.pages.contact.title}</h2>
+              <p className="text-brand-warm-gray mb-8">{content.pages.contact.body}</p>
+              <div className="space-y-0">
+                <div className="contact-row flex justify-between border-b border-black/10 py-3 text-sm">
+                  <span className="label font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-brand-warm-gray">Address</span>
+                  <span className="value text-brand-dark font-medium">{content.company.address.suite}, {content.company.address.street}, {content.company.address.city}, {content.company.address.state}</span>
+                </div>
+                <div className="contact-row flex justify-between border-b border-black/10 py-3 text-sm">
+                  <span className="label font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-brand-warm-gray">Phone</span>
+                  <span className="value font-medium">{content.company.phones.join(" · ")}</span>
+                </div>
+                <div className="contact-row flex justify-between border-b border-black/10 py-3 text-sm">
+                  <span className="label font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-brand-warm-gray">Email</span>
+                  <span className="value"><a href={`mailto:${content.company.emails[0]}`} className="text-brand-gold underline decoration-1 underline-offset-2">{content.company.emails[0]}</a></span>
+                </div>
+                <div className="contact-row flex justify-between border-b border-black/10 py-3 text-sm">
+                  <span className="label font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-brand-warm-gray">Hours</span>
+                  <span className="value font-medium">{content.company.hours}</span>
+                </div>
               </div>
-              { /* Contact Row Content */}
-              <div className="contact-row">
-                <span className="label">Phone</span>
-                <span className="value"><a href="tel:+2348033341424">+234 803 334 1424</a></span>
-              </div>
-              { /* Contact Row Content */}
-              <div className="contact-row">
-                <span className="label">Email</span>
-                <span className="value"><a href="mailto:geomatelinks@gmail.com">geomatelinks@gmail.com</a></span>
-              </div>
-              { /* Contact Row Content */}
-              <div className="contact-row">
-                <span className="label">Hours</span>
-                <span className="value">Mon–Fri: 8AM – 5PM WAT</span>
-              </div>
+              <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input name="name" value={form.name} onChange={updateField} placeholder="Full name" className="w-full rounded border border-input bg-background px-3 py-2 text-sm" />
+                  <input name="email" value={form.email} onChange={updateField} placeholder="Email" type="email" className="w-full rounded border border-input bg-background px-3 py-2 text-sm" />
+                </div>
+                <input name="phone" value={form.phone} onChange={updateField} placeholder="Phone" className="w-full rounded border border-input bg-background px-3 py-2 text-sm" />
+                <input name="subject" value={form.subject} onChange={updateField} placeholder="Subject" className="w-full rounded border border-input bg-background px-3 py-2 text-sm" />
+                <textarea name="message" value={form.message} onChange={updateField} placeholder="Project details" rows={4} className="w-full rounded border border-input bg-background px-3 py-2 text-sm" />
+                <button type="submit" className="btn btn-primary w-full justify-center">Send Enquiry</button>
+              </form>
             </div>
-            { /* Contact Map */}
             <div className="contact-map">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3952.123!2d3.9304994!3d7.4275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1039ed0e8bb16fcf%3A0xf4da9748b9909654!2sGeomate%20Links%20Consulting%20Ltd!5e0!3m2!1sen!2sng!4v1234567890"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                title="Geomate Links office location on Google Maps"
-              ></iframe>
+              <iframe src={MAP_SRC} loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Geomate Links office location on Google Maps" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      <footer className="bg-brand-dark text-white/40 border-t-2 border-brand-gold">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="font-mono text-xs uppercase tracking-[0.1em]">Geomate Links <span className="text-brand-gold">Consulting Ltd</span> — Est. 2007</div>
+          <nav className="flex gap-6" aria-label="Footer">
+            {FOOTER_LINKS.map((item) => (
+              <a key={item.label} href={item.href} className="font-mono text-[0.6875rem] uppercase tracking-[0.1em] hover:text-brand-gold transition-colors">{item.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div className="border-t border-white/10">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span className="text-xs">&copy; {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.</span>
+            <span className="text-xs">Registered with SURCON · RC746106</span>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
