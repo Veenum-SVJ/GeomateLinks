@@ -98,7 +98,7 @@ function checkBasicAuth(req) {
 }
 
 module.exports = async function handler(req, res) {
-  console.log('[admin.js] handler called', req.method, req.url);
+  console.log('[admin/index.js] handler called', req.method, req.url);
 
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
   const path = url.pathname.replace(/^\/admin/, '').replace(/^\/api\/admin/, '') || '/';
@@ -155,7 +155,7 @@ module.exports = async function handler(req, res) {
   // Content endpoints
   if (path === '/content' && req.method === 'GET') {
     try {
-      const fallback = require('./_data/content.json');
+      const fallback = require('../_data/content.json');
       return json(res, 200, fallback);
     } catch (e) {
       return json(res, 500, { error: 'Failed to load content' });
