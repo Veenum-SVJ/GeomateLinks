@@ -48,7 +48,7 @@ function verifyToken(token) {
 function readCookie(req) {
   const raw = req.headers.cookie;
   if (!raw) return undefined;
-  for (const part = raw.split(';')) {
+  for (const part of raw.split(';')) {
     const [key, ...rest] = part.trim().split('=');
     if (key === COOKIE_NAME) return rest.join('=');
   }
