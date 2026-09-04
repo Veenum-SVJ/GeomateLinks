@@ -1,5 +1,5 @@
 // Admin API endpoint — handles all /api/admin/* routes
-import crypto from 'crypto';
+const crypto = require('crypto');
 
 console.log('[admin.js] loaded');
 
@@ -64,7 +64,7 @@ function json(res, status, data) {
   res.status(status).json(data);
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   console.log('[admin.js] handler called', req.method, req.url);
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
   const path = url.pathname.replace(/^\/admin/, '').replace(/^\/api\/admin/, '') || '/';
