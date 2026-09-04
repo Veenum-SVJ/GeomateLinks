@@ -26,7 +26,7 @@ export default function HomePage() {
   const projects = content.projects ?? []
   const totalSlides = Math.max(1, Math.ceil(projects.length / 4))
   const visibleProjects = projects.slice(currentSlide * 4, currentSlide * 4 + 4)
-  const aboutImages = content.aboutImages ?? []
+  // const aboutImages = content.aboutImages ?? [] // removed per user request
 
   useEffect(() => {
     const handleScroll = () => {
