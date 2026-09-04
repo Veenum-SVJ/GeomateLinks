@@ -1,4 +1,4 @@
-// Unified admin API endpoint — handles all /api/admin/* routes
+// Admin API endpoint — consolidated
 const crypto = require('crypto');
 
 const COOKIE_NAME = 'gl_admin';
@@ -48,7 +48,7 @@ function verifyToken(token) {
 function readCookie(req) {
   const raw = req.headers.cookie;
   if (!raw) return undefined;
-  for (const part of raw.split(';')) {
+  for (const part = raw.split(';')) {
     const [key, ...rest] = part.trim().split('=');
     if (key === COOKIE_NAME) return rest.join('=');
   }
