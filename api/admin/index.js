@@ -23,17 +23,14 @@ function secret() {
   if (!value) throw new Error('SESSION_SECRET or ADMIN_PASSWORD missing');
   return value;
 }
-
 function sign(payload) {
   return crypto.createHmac('sha256', secret()).update(payload).digest('base64url');
 }
-
 function createToken() {
   const exp = Date.now() + SESSION_HOURS * 60 * 60 * 1000;
   const payload = Buffer.from(JSON.stringify({ exp }), 'utf8').toString('base64url');
   return `${payload}.${sign(payload)}`;
 }
-
 function verifyToken(token) {
   if (!token || !token.includes('.')) return false;
   const [payload, signature] = token.split('.');
