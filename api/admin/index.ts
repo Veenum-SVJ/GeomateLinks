@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import crypto from 'crypto'
 
-console.log('[admin.ts] loaded')
+console.log('[admin/index.ts] loaded')
 
 const COOKIE_NAME = 'gl_admin'
 const SESSION_HOURS = 8
@@ -65,7 +65,7 @@ function json(res: VercelResponse, status: number, data: unknown) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log('[admin.ts] handler called', req.method, req.url)
+  console.log('[admin/index.ts] handler called', req.method, req.url)
   const url = new URL(req.url || '/', `http://${req.headers.host}`)
   const path = url.pathname.replace(/^\/admin/, '').replace(/^\/api\/admin/, '') || '/'
 
@@ -117,7 +117,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (path === '/content' && req.method === 'GET') {
-    const fallback = require('./_data/content.json')
+    const fallback = require('../_data/content.json')
     return json(res, 200, fallback)
   }
 
