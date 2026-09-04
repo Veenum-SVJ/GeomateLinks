@@ -42,7 +42,7 @@ function verifyToken(token) {
   try {
     const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
     return typeof exp === 'number' && exp > Date.now();
-  } catch { return false; }
+  } catch (e) { return false; }
 }
 
 function readCookie(req) {
