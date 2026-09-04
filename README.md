@@ -1,19 +1,22 @@
-# Variant B: Field Notes
+# Geomate Links Consulting Limited
 
-## Design Stance
-Technical field-report aesthetic — clean, functional, and slightly industrial. Feels like a modern engineering firm's documentation system. Monospace type for labels and data, bold geometric sans for headlines.
+A geospatial solutions company based in Ibadan, Nigeria. Specializing in surveying, mapping, GIS, and drone services.
 
-## Key Choices
-- **Typography:** DM Sans (geometric sans) for headlines + Space Mono (monospace) for labels/data — creates a "field notes" feel
-- **Color:** Clean white base with strong dark borders (#1C1917), brand gold accents only
-- **Layout:** Bold diagonal hero split, list-based services (like a spec sheet), grid photo gallery
-- **Details:** Image filenames as metadata (IMG_20250502), coordinate overlays, numbered service rows, stats bar
+## Tech Stack
+- Vite + React + TypeScript
+- Tailwind CSS + shadcn/ui
+- Vercel for hosting and serverless functions
+- Vercel Blob for media storage
 
-## Trade-offs
-- **Strong at:** Technical credibility, clarity, unique personality that stands out from generic sites
-- **Weak at:** Could feel too "engineering" for some clients; monospace may read as cold to non-technical visitors
+## Admin Dashboard
+The admin dashboard is available at `/admin`. Login with the password set in the `ADMIN_PASSWORD` environment variable.
 
-## Best for
-- B2B clients who value precision and technical competence
-- Government and institutional contracts
-- Positioning as a serious technical partner, not just another surveyor
+## Development
+- `npm run dev` – start dev server
+- `npm run build` – build for production
+- `npm run preview` – preview production build
+
+## Deployment
+Automatic deploys from the `main` branch via Vercel.
+
+Updated: 2026-09-04
