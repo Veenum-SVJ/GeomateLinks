@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
-import { isAuthenticated } from '../../lib/auth'
+import { isAuthenticated } from './_lib/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

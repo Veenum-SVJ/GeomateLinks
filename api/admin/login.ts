@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createToken, passwordMatches, rateLimited, resetRateLimit, setSessionCookie } from '../../lib/auth'
+import { createToken, passwordMatches, rateLimited, resetRateLimit, setSessionCookie } from './_lib/auth'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

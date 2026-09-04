@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isAuthenticated } from '../../lib/auth'
-import { deleteMedia, listMedia } from '../../lib/cms'
+import { isAuthenticated } from './_lib/auth'
+import { deleteMedia, listMedia } from './_lib/cms'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!isAuthenticated(req)) {

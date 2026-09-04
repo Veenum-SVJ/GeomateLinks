@@ -1,0 +1,388 @@
+{
+  "company": {
+    "name": "Geomate Links Consulting Limited",
+    "shortName": "Geomate Links",
+    "discipline": "Surveying, Mapping and GIS Consultants",
+    "established": "November 2007",
+    "rcNumber": "RC746106",
+    "registrar": "Corporate Affairs Commission (CAC)",
+    "mission": "To be one of the most admired, profitable and competitive companies, noted for provision of quality services to our esteemed clients.",
+    "corporateInfo": "The strength of Geomate Links Consulting Limited lies in the ability of the company to satisfy the service specifications demanded by her clients. Our services are built on technical knowledge and professional experience. Part of our corporate mission is to influence the practice of surveying and geoinformatics positively — through modern methods of data collection, processing and presentation — and to set enduring principles of quality control and high ethical standards.",
+    "legalStructure": "Geomate Links Consulting Limited is a wholly Nigerian consultancy firm registered in November 2007 with the Corporate Affairs Commission (CAC), registration number RC746106. The company is directed by a Chairman/Managing Director alongside the board, with a mandate to bring professional surveying services within reach of every Nigerian.",
+    "humanResources": "Geomate Links maintains experienced permanent personnel and draws on resource persons from higher institutions and private organisations. The quality of our staff and associates ensures timely sourcing of every input required for speedy project execution and high-quality output.",
+    "address": {
+      "suite": "Suite S019, Josbeed Mall",
+      "street": "Ashi Bodija Road, Ashi",
+      "city": "Ibadan",
+      "state": "Oyo State",
+      "country": "Nigeria",
+      "postal": "P. O. Box 30216, Secretariat Post Office, Ibadan"
+    },
+    "phones": [
+      "0803 334 1424",
+      "0818 430 6060"
+    ],
+    "emails": [
+      "geomatelinks@gmail.com",
+      "info@geomatelinks.com"
+    ],
+    "website": "www.geomatelinks.com",
+    "facebook": "https://www.facebook.com/geomatelinks",
+    "hours": "Monday – Friday, 8:00 AM – 5:00 PM WAT",
+    "coordinates": {
+      "lat": 7.4275,
+      "lon": 3.9304994
+    },
+    "mapEmbed": "https://maps.google.com/maps?q=7.4275,3.9304994&hl=en&z=17&output=embed",
+    "mapLink": "https://www.google.com/maps/place/Geomate+Links+Consulting+Ltd/@7.4275,3.9279245,17z/data=!3m1!4b1!4m6!3m5!1s0x1039ed0e8bb16fcf:0xf4da9748b9909654!8m2!3d7.4275!4d3.9304994!16s%2Fg%2F11f5hkwrn1?hl=en-US&entry=ttu"
+  },
+  "hero": {
+    "tag": "Surveying · Mapping · GIS — Ibadan, Nigeria",
+    "headlineTop": "Ground Truth,",
+    "headlineAccent": "Measured",
+    "headlineBottom": "and Delivered",
+    "intro": "Cadastral, engineering, bathymetric and UAV survey services from a wholly Nigerian consultancy practising since 2007. Every deliverable is traceable to controlled observations.",
+    "primaryCta": "Request a Quote",
+    "secondaryCta": "Our Services",
+    "videoCaption": "FIELD RECORD — BATHYMETRIC MOBILISATION",
+    "videoCoords": "7.43°N 3.93°E",
+    "videoUrl": "/media/hero.mp4",
+    "posterUrl": "/media/hero-poster.jpg"
+  },
+  "stats": [
+    {
+      "value": "2007",
+      "label": "Established"
+    },
+    {
+      "value": "19 yrs",
+      "label": "In practice"
+    },
+    {
+      "value": "16",
+      "label": "Documented projects"
+    }
+  ],
+  "services": [
+    {
+      "id": "surveying",
+      "num": "01",
+      "title": "Surveying",
+      "blurb": "Controlled field observation across cadastral, engineering and hydrographic work.",
+      "items": [
+        "Cadastral surveys",
+        "Engineering surveys",
+        "Layout and route surveys",
+        "As-built surveys",
+        "Transmission line and pipeline surveys",
+        "Topographic surveys",
+        "Bathymetric and dam-site surveys",
+        "Deformation studies"
+      ]
+    },
+    {
+      "id": "mapping",
+      "num": "02",
+      "title": "Mapping",
+      "blurb": "Paper and digital map production from aerial and satellite imagery.",
+      "items": [
+        "Large, medium and small scale maps from UAV (drone) aerial photographs",
+        "Small scale mapping from 10 m resolution satellite imagery",
+        "Medium scale mapping from high resolution satellite imagery",
+        "Map updating and revision"
+      ]
+    },
+    {
+      "id": "digitization",
+      "num": "03",
+      "title": "Digitization, Vectorization & Archiving",
+      "blurb": "Conversion of paper records, plans, maps and charts into digital form.",
+      "items": [
+        "Digitizing tablet method",
+        "Semi-automatic raster chasing",
+        "Bundle (fully automatic) method",
+        "Manual on-screen vectorization"
+      ]
+    },
+    {
+      "id": "gis",
+      "num": "04",
+      "title": "Geographic & Land Information Systems",
+      "blurb": "End-to-end GIS/LIS delivery, from working document to live operation.",
+      "items": [
+        "Preparation of working documents",
+        "GIS/LIS laboratory set-up",
+        "Supply and installation of hardware and software",
+        "Project design, development and operationalization"
+      ]
+    },
+    {
+      "id": "training",
+      "num": "05",
+      "title": "Corporate Computer Training",
+      "blurb": "Practical training for organisations adopting geospatial workflows.",
+      "items": [
+        "Computer appreciation",
+        "Word processing and spreadsheets",
+        "AutoCAD",
+        "GIS and LIS"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "p01",
+      "title": "UAV topographic mapping of 200 acres of farmland",
+      "category": "UAV Mapping",
+      "location": "Ogbomosho, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_142334-1600.jpg",
+      "thumb": "/media/20260819_142334-800.jpg",
+      "alt": "Survey crew operating a UAV over open farmland during a mapping flight"
+    },
+    {
+      "id": "p02",
+      "title": "UAV topographic mapping of 300 hectares",
+      "category": "UAV Mapping",
+      "location": "Iroko, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_131304-1600.jpg",
+      "thumb": "/media/20260819_131304-800.jpg",
+      "alt": "Ground control station and UAV controller set up on a survey site"
+    },
+    {
+      "id": "p03",
+      "title": "Bathymetric survey of Kainji Dam reservoir for sediment determination",
+      "category": "Bathymetric",
+      "location": "Niger State",
+      "status": "Completed",
+      "image": "/media/20250502_123302-1600.jpg",
+      "thumb": "/media/20250502_123302-800.jpg",
+      "alt": "Survey team with echo sounding and UAV equipment mobilising on a reservoir platform"
+    },
+    {
+      "id": "p04",
+      "title": "Bathymetric survey of Jebba Dam reservoir for sediment determination",
+      "category": "Bathymetric",
+      "location": "Niger / Kwara State",
+      "status": "Completed",
+      "image": "/media/20250502_123312-1600.jpg",
+      "thumb": "/media/20250502_123312-800.jpg",
+      "alt": "Field briefing beside instrument cases before a hydrographic survey run"
+    },
+    {
+      "id": "p05",
+      "title": "Bathymetric survey of selected River Niger cross sections, Jidere Bode to Pategi",
+      "category": "Bathymetric",
+      "location": "Kebbi to Kwara State",
+      "status": "Completed",
+      "image": "/media/20250502_160800-1600.jpg",
+      "thumb": "/media/20250502_160800-800.jpg",
+      "alt": "Technicians deploying a tethered underwater vehicle from a rocky shoreline"
+    },
+    {
+      "id": "p06",
+      "title": "Consultant supervising cutting and filling of 1.95 hectares",
+      "category": "Engineering",
+      "location": "Gateway City, Ogun State",
+      "status": "Completed",
+      "image": "/media/20250502_123348-1600.jpg",
+      "thumb": "/media/20250502_123348-800.jpg",
+      "alt": "Project team assembled on site during an engineering supervision assignment"
+    },
+    {
+      "id": "p07",
+      "title": "Densification of Second Order GNSS control along Akinyele–Onidundu road",
+      "category": "Control",
+      "location": "Akinyele LGA, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_131307-1600.jpg",
+      "thumb": "/media/20260819_131307-800.jpg",
+      "alt": "GNSS field controller resting on an instrument case during control observation"
+    },
+    {
+      "id": "p08",
+      "title": "Comparative analysis of terrain representation by GDEM and topographic survey",
+      "category": "Research",
+      "location": "Oyo State",
+      "status": "Completed",
+      "image": "/media/20250502_135454-1600.jpg",
+      "thumb": "/media/20250502_135454-800.jpg",
+      "alt": "Terrain captured during comparative topographic data collection"
+    },
+    {
+      "id": "p09",
+      "title": "Map updating of part of Akobo Estate using high resolution satellite imagery",
+      "category": "Mapping",
+      "location": "Ibadan, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_130339-1600.jpg",
+      "thumb": "/media/20260819_130339-800.jpg",
+      "alt": "Field verification work supporting a map updating assignment"
+    },
+    {
+      "id": "p10",
+      "title": "Second Order GPS control survey along Iyana-Ofa to Ofatedo",
+      "category": "Control",
+      "location": "Lagelu LGA, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_131151-1600.jpg",
+      "thumb": "/media/20260819_131151-800.jpg",
+      "alt": "Control survey observation session in progress"
+    },
+    {
+      "id": "p11",
+      "title": "Topographic survey of Plot 872, Industrial Area Phase 1",
+      "category": "Topographic",
+      "location": "Abuja, FCT",
+      "status": "Completed",
+      "image": "/media/20250502_123315-1600.jpg",
+      "thumb": "/media/20250502_123315-800.jpg",
+      "alt": "Detail survey work recorded on an industrial plot"
+    },
+    {
+      "id": "p12",
+      "title": "19.2 km route survey of Ipapo–Alaga road",
+      "category": "Route",
+      "location": "Oke Ogun, Oyo State",
+      "status": "Completed",
+      "image": "/media/20260819_142334-1600.jpg",
+      "thumb": "/media/20260819_142334-800.jpg",
+      "alt": "Route corridor documented during a road survey"
+    },
+    {
+      "id": "p13",
+      "title": "Street mapping of part of Bodija and environs",
+      "category": "Mapping",
+      "location": "Ibadan, Oyo State",
+      "status": "Completed",
+      "image": "/media/20250502_123312-1600.jpg",
+      "thumb": "/media/20250502_123312-800.jpg",
+      "alt": "Survey team preparing instruments for urban street mapping"
+    },
+    {
+      "id": "p14",
+      "title": "33 hectare perimeter survey of PHCN transmission substation site",
+      "category": "Cadastral",
+      "location": "Igboora, Oyo State",
+      "status": "Completed",
+      "image": "/media/20250502_123348-1600.jpg",
+      "thumb": "/media/20250502_123348-800.jpg",
+      "alt": "Perimeter survey crew on a transmission substation site"
+    },
+    {
+      "id": "p15",
+      "title": "19 hectare perimeter survey of PHCN transmission substation site",
+      "category": "Cadastral",
+      "location": "Igangan, Oyo State",
+      "status": "Completed",
+      "image": "/media/20250502_123302-1600.jpg",
+      "thumb": "/media/20250502_123302-800.jpg",
+      "alt": "Instruments staged for a substation perimeter survey"
+    },
+    {
+      "id": "p16",
+      "title": "Detailed topographic survey of Jos University Teaching Hospital",
+      "category": "Topographic",
+      "location": "Jos, Plateau State",
+      "status": "Completed",
+      "image": "/media/20250502_160800-1600.jpg",
+      "thumb": "/media/20250502_160800-800.jpg",
+      "alt": "Detailed survey observations recorded on an institutional site"
+    }
+  ],
+  "equipment": {
+    "field": [
+      "2 × fixed wing and quadcopter unmanned aerial vehicles (UAV)",
+      "3 × Hi-Target V30 RTK dual frequency GNSS receivers",
+      "2 × Hi-Target HD380 dual frequency echo sounders",
+      "1 × Leica TC 305 total station",
+      "1 × South NTS-350R reflectorless total station",
+      "4 × Garmin handheld GPS units",
+      "1 pair Ashtech ProMark 2 single frequency differential GPS"
+    ],
+    "hardware": [
+      "Intel Xeon mapping workstations",
+      "Intel Core i7 laptops",
+      "A3 flatbed scanner",
+      "A0 HP DesignJet 510 plotter",
+      "HP Color LaserJet CP1215",
+      "OfficeJet 7000 A3 printer",
+      "A4 scanner, copier and printer"
+    ],
+    "software": [
+      "Photogrammetry processing suites",
+      "AutoCAD (multiple versions) and AutoCAD Land Development",
+      "ArcMap 10.0 and ArcView 3.2",
+      "AutoCAD Map LIS",
+      "CADOverlay on-screen raster-to-vector chasing",
+      "CivilCAD 2012 and Surfer 11",
+      "GNSS Solution, Trimble Geomatics Office, Spectrum Survey and Hi-Target Geomatics Office"
+    ]
+  },
+  "team": [
+    {
+      "name": "Surv. Adewale Adams Bankole",
+      "role": "Principal Consultant / Chief Executive Officer",
+      "note": "Registered with SURCON. Full member, Nigerian Institution of Surveyors. Specialises in bathymetric, ground control, topographic, as-built and route surveys."
+    },
+    {
+      "name": "Surv. Salau Adedayo",
+      "role": "Project Coordinator",
+      "note": "Field coordination and quality control."
+    },
+    {
+      "name": "Surv. Taiwo Wasiu",
+      "role": "Project Coordinator",
+      "note": "Field coordination and data processing."
+    },
+    {
+      "name": "Abdul Hakeem Abubakar",
+      "role": "Surveyor",
+      "note": "Field data acquisition."
+    },
+    {
+      "name": "Abiola Mubarak",
+      "role": "Surveyor",
+      "note": "Field data acquisition."
+    }
+  ],
+  "credentials": [
+    "Registered with the Surveyors Council of Nigeria (SURCON)",
+    "Full member, Nigerian Institution of Surveyors (NIS)",
+    "CAC registered — RC746106",
+    "CRAIG Award, Nigerian Institution of Surveyors (2000)"
+  ],
+  "pages": {
+    "about": {
+      "label": "01 — About",
+      "title": "A Nigerian practice built on measured evidence",
+      "body": "Geomate Links Consulting Limited has practised surveying, mapping and geoinformatics since November 2007 from its corporate office in Ibadan, Oyo State. Our work spans cadastral and engineering surveys, UAV and satellite mapping, bathymetric investigation of dam reservoirs, digitization of legacy records, and GIS/LIS deployment."
+    },
+    "services": {
+      "label": "02 — Services",
+      "title": "Five service lines",
+      "body": "The firm holds particular expertise in the following fields, as set out in our corporate profile."
+    },
+    "projects": {
+      "label": "03 — Projects",
+      "title": "Selected projects executed",
+      "body": "A record of completed assignments across Oyo, Ogun, Niger, Kwara, Kebbi, Plateau States and the Federal Capital Territory."
+    },
+    "contact": {
+      "label": "05 — Contact",
+      "title": "Talk to the practice",
+      "body": "Call the office, send an email, or use the form to open a message in your mail client."
+    }
+  },
+  "aboutImages": [
+    "/media/20250502_123302-800.jpg",
+    "/media/20250502_123312-800.jpg",
+    "/media/20250502_123315-800.jpg",
+    "/media/20250502_123348-800.jpg",
+    "/media/20250502_135454-800.jpg",
+    "/media/20250502_160800-800.jpg",
+    "/media/20260819_131304-800.jpg",
+    "/media/20260819_131307-800.jpg"
+  ]
+}
