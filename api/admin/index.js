@@ -1,5 +1,5 @@
-// Admin API endpoint — consolidated
-const crypto = require('crypto');
+// Admin API endpoint — consolidated (ES Module)
+import crypto from 'crypto';
 
 const COOKIE_NAME = 'gl_admin';
 const SESSION_HOURS = 8;
@@ -42,7 +42,7 @@ function verifyToken(token) {
   try {
     const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
     return typeof exp === 'number' && exp > Date.now();
-  } catch (e) { return false; }
+  } catch { return false; }
 }
 
 function readCookie(req) {
@@ -94,7 +94,7 @@ function checkBasicAuth(req) {
   return user === expectedUser && pass === expectedPass;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   console.log('[admin/index.js] handler called', req.method, req.url);
 
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
@@ -104,7 +104,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Text,Authorization');
     return res.status(200).end();
   }
 
@@ -152,8 +152,8 @@ module.exports = async function handler(req, res) {
   // Content endpoints
   if (path === '/content' && req.method === 'GET') {
     try {
-      const fallback = require('../_data/content.json');
-      return json(res, 200, fallback);
+      const fallback = await import('../_data/content.json');
+      return json(res, 200, fallback.default || fallback);
     } catch (e) {
       return json(res, 500, { error: 'Failed to load content' });
     }
@@ -192,4 +192,4 @@ module.exports = async function handler(req, res) {
   }
 
   return json(res, 404, { error: 'Not found' });
-};
+}
