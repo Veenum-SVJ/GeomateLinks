@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isAuthenticated } from '../lib/auth'
-import { getContent, saveContent } from '../lib/cms'
+import { isAuthenticated } from './_lib/auth'
+import { getContent, saveContent } from './_lib/cms'
 import defaultContent from './_data/content.json'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

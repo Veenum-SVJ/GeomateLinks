@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { isAuthenticated } from '../lib/auth'
-import { getMessages, saveMessages, type StoredMessage } from '../lib/cms'
+import { isAuthenticated } from './_lib/auth'
+import { getMessages, saveMessages, type StoredMessage } from './_lib/cms'
 
 const MAX_LEN = 4000
 
