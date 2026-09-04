@@ -3,15 +3,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 const HomePage = lazy(() => import("@/pages/HomePage"))
 const LoginPage = lazy(() => import("@/pages/LoginPage"))
-const DashboardLayout = lazy(() => import("@/pages/dashboard/DashboardLayout"))
-const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"))
-const PagesPage = lazy(() => import("@/pages/dashboard/PagesPage"))
-const ServicesPage = lazy(() => import("@/pages/dashboard/ServicesPage"))
-const ProjectsPage = lazy(() => import("@/pages/dashboard/ProjectsPage"))
-const MessagesPage = lazy(() => import("@/pages/dashboard/MessagesPage"))
-const MediaPage = lazy(() => import("@/pages/dashboard/MediaPage"))
-const SettingsPage = lazy(() => import("@/pages/dashboard/SettingsPage"))
-const ProfileSettingsPage = lazy(() => import("@/pages/dashboard/settings/ProfileSettingsPage"))
+const AdminLoginPage = lazy(() => import("@/pages/admin/AdminLoginPage"))
+const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"))
+const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage"))
+const AdminPagesPage = lazy(() => import("@/pages/admin/PagesPage"))
+const AdminServicesPage = lazy(() => import("@/pages/admin/ServicesPage"))
+const AdminProjectsPage = lazy(() => import("@/pages/admin/ProjectsPage"))
+const AdminMessagesPage = lazy(() => import("@/pages/admin/MessagesPage"))
+const AdminMediaPage = lazy(() => import("@/pages/admin/MediaPage"))
+const AdminSettingsPage = lazy(() => import("@/pages/admin/SettingsPage"))
+const AdminProfilePage = lazy(() => import("@/pages/admin/ProfilePage"))
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"))
 
 function RouteSkeleton() {
@@ -32,15 +33,16 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="pages" element={<PagesPage />} />
-            <Route path="services" element={<ServicesPage />} />
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="messages" element={<MessagesPage />} />
-            <Route path="media" element={<MediaPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="settings/profile" element={<ProfileSettingsPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="pages" element={<AdminPagesPage />} />
+            <Route path="services" element={<AdminServicesPage />} />
+            <Route path="projects" element={<AdminProjectsPage />} />
+            <Route path="messages" element={<AdminMessagesPage />} />
+            <Route path="media" element={<AdminMediaPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="settings/profile" element={<AdminProfilePage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
