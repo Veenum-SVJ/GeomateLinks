@@ -15,6 +15,7 @@
     }
   ],
   "rewrites": [
+      { "source": "/api/ping", "destination": "/api/ping" },
       { "source": "/api/admin/(.*)", "destination": "/api/admin" },
       { "source": "/api/admin", "destination": "/api/admin" },
       { "source": "/((?!api/).*)", "destination": "/index.html" }
