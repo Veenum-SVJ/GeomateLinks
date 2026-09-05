@@ -278,7 +278,14 @@ nav {
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
-.about { background: var(--brand-white); border-top: 2px solid var(--brand-dark); border-bottom: 2px solid var(--brand-dark); }
+.about { 
+  background: var(--brand-white); 
+  border-top: 2px solid var(--brand-dark); 
+  border-bottom: 2px solid var(--brand-dark);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(92, 58, 30, 0.03) 0%, transparent 10%),
+    radial-gradient(circle at 90% 80%, rgba(45, 106, 46, 0.03) 0%, transparent 10%);
+}
 .about-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

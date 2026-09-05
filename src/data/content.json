@@ -11,7 +11,7 @@
     "legalStructure": "Geomate Links Consulting Limited is a wholly Nigerian consultancy firm registered in November 2007 with the Corporate Affairs Commission (CAC), registration number RC746106. The company is directed by a Chairman/Managing Director alongside the board, with a mandate to bring professional surveying services within reach of every Nigerian.",
     "humanResources": "Geomate Links maintains experienced permanent personnel and draws on resource persons from higher institutions and private organisations. The quality of our staff and associates ensures timely sourcing of every input required for speedy project execution and high-quality output.",
     "address": {
-      "suite": "Suite S019, Josbeed Mall",
+      "suite": "S19, Josbeed Mall",
       "street": "Ashi Bodija Road, Ashi",
       "city": "Ibadan",
       "state": "Oyo State",
@@ -19,8 +19,8 @@
       "postal": "P. O. Box 30216, Secretariat Post Office, Ibadan"
     },
     "phones": [
-      "0803 334 1424",
-      "0818 430 6060"
+      "+234 803 334 1424",
+      "+234 818 430 6060"
     ],
     "emails": [
       "geomatelinks@gmail.com",
@@ -252,16 +252,6 @@
     },
     {
       "id": "p13",
-      "title": "Street mapping of part of Bodija and environs",
-      "category": "Mapping",
-      "location": "Ibadan, Oyo State",
-      "status": "Completed",
-      "image": "/media/20250502_123312-1600.jpg",
-      "thumb": "/media/20250502_123312-800.jpg",
-      "alt": "Survey team preparing instruments for urban street mapping"
-    },
-    {
-      "id": "p14",
       "title": "33 hectare perimeter survey of PHCN transmission substation site",
       "category": "Cadastral",
       "location": "Igboora, Oyo State",
@@ -271,7 +261,7 @@
       "alt": "Perimeter survey crew on a transmission substation site"
     },
     {
-      "id": "p15",
+      "id": "p14",
       "title": "19 hectare perimeter survey of PHCN transmission substation site",
       "category": "Cadastral",
       "location": "Igangan, Oyo State",
@@ -281,7 +271,7 @@
       "alt": "Instruments staged for a substation perimeter survey"
     },
     {
-      "id": "p16",
+      "id": "p15",
       "title": "Detailed topographic survey of Jos University Teaching Hospital",
       "category": "Topographic",
       "location": "Jos, Plateau State",
@@ -315,7 +305,6 @@
       "AutoCAD (multiple versions) and AutoCAD Land Development",
       "ArcMap 10.0 and ArcView 3.2",
       "AutoCAD Map LIS",
-      "CADOverlay on-screen raster-to-vector chasing",
       "CivilCAD 2012 and Surfer 11",
       "GNSS Solution, Trimble Geomatics Office, Spectrum Survey and Hi-Target Geomatics Office"
     ]

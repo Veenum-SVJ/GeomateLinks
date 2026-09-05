@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, LogOut, Menu, X } from "lucide-react"
-import { useState } from "react"
+import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -15,7 +15,30 @@ const navItems = [
 
 export default function AdminLayout() {
   const location = useLocation()
+  const { loading, authenticated, logout } = useAdminAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-full max-w-sm space-y-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">Admin Login</h1>
+            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
+          </div>
+          <AdminLogin onLoginSuccess={() => {}} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -28,9 +51,9 @@ export default function AdminLayout() {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-16 items-center justify-between px-6 border-b">
-          <Link to="/admin" className="flex items-center gap-2 font-mono text-sm font-bold text-brand-dark">
-            <div className="logo-mark">GL</div>
-            <span>ADMIN</span>
+          <Link to="/admin" className="flex items-center gap-2 font-mono text-sm font-bold tracking-tight text-brand-dark">
+            <img src="/favicon.ico" alt="Geomate Links Logo" className="h-6 w-6 rounded" />
+            GEOMATE LINKS CONSULTING LTD
           </Link>
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
@@ -63,6 +86,12 @@ export default function AdminLayout() {
             <LogOut className="h-4 w-4" />
             Back to Site
           </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <UserCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Profile</span>
+            </Link>
+          </div>
         </div>
       </aside>
 
@@ -85,6 +114,6 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
-    </div>
+    )
   )
 }

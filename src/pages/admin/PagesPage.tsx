@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Save, Plus, Trash2 } from "lucide-react"
+import { Save, Plus } from "lucide-react"
 import { useAdminAuth } from "@/hooks/useAdminAuth"
 
-export default function AdminServices() {
+export default function AdminPagesPage() {
   const { authenticated, login } = useAdminAuth()
   if (!authenticated) {
     return (
@@ -23,17 +23,18 @@ export default function AdminServices() {
     )
   }
 
+  // Placeholder: in a real app, you would fetch pages from API and allow editing
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Services Management</h1>
-        <p className="text-sm text-muted-foreground">Manage your company's services.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">Pages Management</h1>
+        <p className="text-sm text-muted-foreground">Edit website pages and content.</p>
       </div>
 
       <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-semibold text-lg mb-4">Example: Edit Services</h3>
-        <p className="text-sm text-muted-foreground mb-4">In a real implementation, you would fetch the services from the API and allow editing here.</p>
-        <Textarea rows={6} placeholder="Service details would appear here..." className="w-full mb-4" />
+        <h3 className="font-semibold text-lg mb-4">Example: Edit About Page</h3>
+        <p className="text-sm text-muted-foreground mb-4">In a real implementation, you would fetch the page content from the API and allow editing here.</p>
+        <Textarea rows={6} placeholder="Page content would appear here..." className="w-full mb-4" />
         <Button onClick={() => {/* Save changes */}} className="w-full">
           Save Changes
         </Button>

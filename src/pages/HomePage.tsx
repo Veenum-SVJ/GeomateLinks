@@ -26,7 +26,6 @@ export default function HomePage() {
   const projects = content.projects ?? []
   const totalSlides = Math.max(1, Math.ceil(projects.length / 4))
   const visibleProjects = projects.slice(currentSlide * 4, currentSlide * 4 + 4)
-  // const aboutImages = content.aboutImages ?? [] // removed per user request
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,9 +73,9 @@ export default function HomePage() {
             <div className="nav-progress-fill" style={{ width: `${scrollProgress}%` }} />
           </div>
           <a href="#top" className="logo">
-                      <img src="/favicon.ico" alt="Geomate Links Logo" className="h-6 w-6 rounded" />
-                      GEOMATE LINKS CONSULTING LTD
-                    </a>
+            <img src="/favicon.ico" alt="Geomate Links Logo" className="h-6 w-6 rounded" />
+            GEOMATE LINKS CONSULTING LTD
+          </a>
           <ul className="nav-links">
             <li><a href="#about">About</a></li>
             <li><a href="#services">Services</a></li>
@@ -302,12 +301,18 @@ export default function HomePage() {
                 {item.label}
               </a>
             ))}
-            <Link to="/admin">Admin</Link>
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.</span>
-          <span>Registered with SURCON · {content.company.rcNumber}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span>© {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.</span>
+              <Link to="/admin" aria-label="Admin Login" className="ml-2 inline-block">
+                <img src="/favicon.ico" alt="Admin" className="h-4 w-4 rounded hover:opacity-80 transition-opacity" />
+              </Link>
+            </div>
+            <span>Registered with SURCON · {content.company.rcNumber}</span>
+          </div>
         </div>
       </footer>
     </div>
