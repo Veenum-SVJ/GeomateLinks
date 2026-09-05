@@ -10,19 +10,13 @@ export function useSiteContent() {
     let active = true
 
     fetchContent()
-      .then((data) => {
-        if (active && data && typeof data === "object") setContent(data)
+      .then(res => {
+        if (active && res && typeof res === "object") setContent(res)
+        setLoading(false)
       })
       .catch(() => {
-        /* keep bundled fallback */
-      })
-      .finally(() => {
         if (active) setLoading(false)
       })
-
-    return () => {
-      active = false
-    }
   }, [])
 
   return { content, loading }
