@@ -1,26 +1,37 @@
-import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea>
-import { Save, Plus } from "lucide-react"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
+import { useState, useEffect } from "react"
 
 export default function AdminPagesPage() {
-  const { authenticated, login } = useAdminAuth()
-  if (!authenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
-          </div>
-          <AdminLogin onLoginSuccess={() => {}} />
-        </div>
-      </div>
-    )
+  const [content, setContent] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/admin/content')
+      .then(res => res.json())
+      .then(data => {
+        setContent(JSON.stringify(data, null, 2))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const handleSave = async () => {
+    try {
+      await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(JSON.parse(content))
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (err) {
+      console.error('Save failed:', err)
+    }
   }
 
   return (
@@ -30,14 +41,38 @@ export default function AdminPagesPage() {
         <p className="text-sm text-muted-foreground">Edit website pages and content.</p>
       </div>
 
-      <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-semibold text-lg mb-4">Example: Edit About Page</h3>
-        <p className="text-sm text-muted-foreground mb-4">In a real implementation, you would fetch the page content from the API and allow editing here.</p>
-        <Textarea rows={6} placeholder="Page content would appear here..." className="w-full mb-4" />
-        <Button onClick={() => {/* Save changes */}} className="w-full">
-          Save Changes
-        </Button>
-      </div>
-    )
+      <Card>
+        <CardHeader>
+          <CardTitle>Website Content</CardTitle>
+          <CardDescription>Edit the JSON configuration for your website content.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="content">Content (JSON)</Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={20}
+                  className="font-mono text-xs"
+                />
+              </div>
+              <Button 
+                onClick={handleSave} 
+                className={saved ? "bg-green-600 hover:bg-green-700" : ""}
+              >
+                {saved ? "Saved!" : "Save Changes"}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }

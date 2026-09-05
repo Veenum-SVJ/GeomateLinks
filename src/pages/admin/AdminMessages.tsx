@@ -1,24 +1,35 @@
-import { Link } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input>
-import { Label } = require("@/components/ui/label");
-import { Textarea } = require("@/components/ui/textarea")
-import { Save, Plus, Trash2 } from "lucide-react"
-import { useAdminAuth } = require("@/hooks/useAdminAuth")
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+
+interface Message {
+  id?: string
+  name?: string
+  email?: string
+  message?: string
+  read?: boolean
+  timestamp?: string
+}
 
 export default function AdminMessages() {
-  const { authenticated, login } = useAdminAuth()
-  if (!authenticated) {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/messages')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setMessages(data)
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
-          </div>
-          <AdminLogin onLoginSuccess={() => {}} />
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
       </div>
     )
   }
@@ -30,14 +41,31 @@ export default function AdminMessages() {
         <p className="text-sm text-muted-foreground">View and manage contact form submissions.</p>
       </div>
 
-      <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-semibold text-lg mb-4">Example: Inbox</h3>
-        <p className="text-sm text-muted-foreground mb-4">In a real implementation, you would fetch messages from the API and display them here.</p>
-        <Textarea rows={6} placeholder="Messages would appear here..." className="w-full mb-4" />
-        <Button onClick={() => {/* Save changes */}} className="w-full">
-          Save Changes
-        </Button>
-      </div>
-    )
+      <Card>
+        <CardHeader>
+          <CardTitle>Inbox ({messages.length} messages)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {messages.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No messages yet</div>
+          ) : (
+            <div className="space-y-3">
+              {messages.map((msg) => (
+                <div key={msg.id} className="flex items-start justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{msg.name}</span>
+                      {!msg.read && <span className="text-xs bg-secondary px-2 py-0.5 rounded">New</span>}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{msg.email}</p>
+                    <p className="text-sm mt-2">{msg.message}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }

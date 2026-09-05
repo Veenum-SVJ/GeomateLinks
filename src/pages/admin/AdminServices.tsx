@@ -1,24 +1,32 @@
-import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea>
-import { Save, Plus, Trash2 } from "lucide-react"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
+import { useState, useEffect } from "react"
+
+interface Service {
+  title?: string
+  subtitle?: string
+  description?: string
+}
 
 export default function AdminServices() {
-  const { authenticated, login } = useAdminAuth()
-  if (!authenticated) {
+  const [services, setServices] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/content')
+      .then(res => res.json())
+      .then(data => {
+        if (data.company?.services) {
+          setServices(data.company.services)
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
-          </div>
-          <AdminLogin onLoginSuccess={() => {}} />
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
       </div>
     )
   }
@@ -30,14 +38,19 @@ export default function AdminServices() {
         <p className="text-sm text-muted-foreground">Manage your company's services.</p>
       </div>
 
-      <div className="bg-white rounded-xl border p-6">
-        <h3 className="font-semibold text-lg mb-4">Example: Edit Services</h3>
-        <p className="text-sm text-muted-foreground mb-4">In a real implementation, you would fetch the services from the API and allow editing here.</p>
-        <Textarea rows={6} placeholder="Service details would appear here..." className="w-full mb-4" />
-        <Button onClick={() => {/* Save changes */}} className="w-full">
-          Save Changes
-        </Button>
+      <div className="grid gap-4">
+        {services.map((service, index) => (
+          <Card key={index} className="bg-white">
+            <CardHeader>
+              <CardTitle>{service.title}</CardTitle>
+              <CardDescription>{service.subtitle}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{service.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    )
+    </div>
   )
 }

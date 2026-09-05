@@ -1,74 +1,64 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 export default function AdminHome() {
-  const { authenticated, login } = useAdminAuth()
-  if (!authenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
-          </div>
-          <AdminLogin onLoginSuccess={() => {}} />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Welcome to the admin dashboard. Use the navigation to manage your website.</p>
+        <p className="text-sm text-muted-foreground">Welcome to the admin dashboard.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-white rounded-xl border p-6">
-          <h3 className="font-semibold text-lg mb-4">Pages Management</h3>
-          <p className="text-sm text-muted-foreground mb-4">Edit website pages and content.</p>
-          <Button onClick={() => {/* navigate to pages */}} className="w-full mb-2">
-            <Link to="/admin/pages">Go to Pages</Link>
-          </Button>
-        </div>
-        <div className="bg-white rounded-xl border p-6">
-          <h3 className="font-semibold text-lg mb-4">Services</h3>
-          <p className="text-sm text-muted-foreground mb-4">Manage your company's services.</p>
-          <Button onClick={() => {/* navigate to services */}} className="w-full mb-2">
-            <Link to="/admin/services">Go to Services</Link>
-          </Button>
-        </div>
-        <div className="bg-white rounded-xl border p-6">
-          <h3 className="font-semibold text-lg mb-4">Projects</h3>
-          <p className="text-sm text-muted-foreground mb-4">Manage your project gallery.</p>
-          <Button onClick={() => {/* navigate to projects */}} className="w-full mb-2">
-            <Link to="/admin/projects">Go to Projects</Link>
-          </Button>
-        </div>
-        <div className="bg-white rounded-xl border p-6>
-          <h3 className="font-semibold text-lg mb-4">Messages</h3>
-          <p className="text-sm text-muted-foreground mb-4">View and manage contact form submissions.</p>
-          <Button onClick={() => {/* navigate to messages */}} className="w-full mb-2">
-            <Link to="/admin/messages">Go to Messages</Link>
-          </Button>
-        </div>
-        <div className="bg-white rounded-xl border p-6>
-          <h3 className="font-semibold text-lg mb-4">Media Library</h3>
-          <p className="text-sm text-muted-foreground mb-4">Upload and manage images, videos, and documents.</p>
-          <Button onClick={() => {/* navigate to media */}} className="w-full mb-2">
-            <Link to="/admin/media">Go to Media</Link>
-          </Button>
-        </div>
-        <div className="bg-white rounded-xl border p-6>
-          <h3 className="font-semibold text-lg mb-4">Settings</h3>
-          <p className="text-sm text-muted-foreground mb-4">Manage website settings and contact information.</p>
-          <Button onClick={() => {/* navigate to settings */}} className="w-full mb-2">
-            <Link to="/admin/settings">Go to Settings</Link>
-          </Button>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/pages">Pages</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Manage website pages</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/services">Services</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Manage services</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/projects">Projects</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Manage projects</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/media">Media</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Upload media</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/messages">Messages</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">View messages</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Link to="/admin/settings">Settings</Link></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Manage settings</p>
+          </CardContent>
+        </Card>
       </div>
-    )
+    </div>
   )
 }
