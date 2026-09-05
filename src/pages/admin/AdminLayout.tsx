@@ -81,39 +81,39 @@ export default function AdminLayout() {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
           <Link
             to="/"
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors
           >
             <LogOut className="h-4 w-4" />
             Back to Site
           </Link>
-          <div className="flex items-center gap-2">
-            <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <UserCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </Link>
-          </div>
-        </div>
+          <div className="flex items-center gap-2>
+            <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors
+              <UserCircle className="h-4 w-4>
+              <span className="hidden sm:inline>Profile</span>
+            </Link
+          </div
+        </div
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 lg:px-6">
+      <div className="flex-1 flex flex-col min-w-0>
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 lg:px-6>
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex-1">
-            <h1 className="font-mono text-sm font-semibold text-brand-dark">Admin Dashboard</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <UserCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </Link>
-          </div>
-        </header>
-        <main className="flex-1 p-4 lg:p-8">
+            <Menu className="h-5 w-5>
+          </button
+          <div className="flex-1>
+            <h1 className="font-mono text-sm font-semibold text-brand-dark>Admin Dashboard</h1>
+          </div
+          <div className="flex items-center gap-2>
+            <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors
+              <UserCircle className="h-4 w-4>
+              <span className="hidden sm:inline>Profile</span>
+            </Link
+          </div
+          </header
+        <main className="flex-1 p-4 lg:p-8>
           <Outlet />
-        </main>
-      </div>
+        </main
+      </div
     )
   )
 }

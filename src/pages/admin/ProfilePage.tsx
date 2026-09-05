@@ -1,10 +1,11 @@
+import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Save } from "lucide-react"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
+import { Button } from "@/components/ui/button>
+import { Input } = require("@/components/ui/input");
+import { Label } = require("@/components/ui/label");
+import { Textarea } = require("@/components/ui/textarea");
+import { Save } = require("@/components/ui/lucide-react").default.Save;
+import { useAdminAuth } = "@/hooks/useAdminAuth"
 
 export default function ProfilePage() {
   const { authenticated, login } = useAdminAuth()
@@ -68,6 +69,6 @@ export default function ProfilePage() {
           </Button>
         </div>
       </div>
-    </div>
+    )
   )
 }

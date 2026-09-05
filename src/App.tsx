@@ -1,18 +1,20 @@
 import { lazy, Suspense } from "react"
-import { Routes, Route, Navigate } from "react-router-dom"
-import { AdminProvider } from "@/lib/adminStore"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
 const HomePage = lazy(() => import("@/pages/HomePage"))
-const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"))
-const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"))
+const LoginPage = lazy(() => import("@/pages/LoginPage"))
+const AdminLoginPage = lazy(() => import("@/pages/admin/AdminLoginPage"))
+const AdminProvider = lazy(() => import("@/hooks/useAdminAuth"))
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"))
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"))
 const AdminHome = lazy(() => import("@/pages/admin/AdminHome"))
 const AdminServices = lazy(() => import("@/pages/admin/AdminServices"))
 const AdminProjects = lazy(() => import("@/pages/admin/AdminProjects"))
+const AdminMessages = lazy(() => import("@/pages/admin/AdminMessages"))
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"))
-const AdminMessages = lazy(()=> import("@/pages/admin/AdminMessages"))
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"))
+const AdminProfilePage = lazy(() => import("@/pages/admin/ProfilePage"))
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"))
 
 function RouteSkeleton() {
   return (
@@ -27,25 +29,29 @@ function RouteSkeleton() {
 
 export default function App() {
   return (
-    <Suspense fallback={<RouteSkeleton />}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminProvider>}>
-          <AdminLayout>
-            <Routes>
-              <Route index element={<AdminOverview />} />
-              <Route path="home" element={<AdminHome />} />
-              <Route path="services" element={<AdminServices />} />
-              <Route path="projects" element={<AdminProjects />} />
-              <Route path="media" element={<AdminMedia />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Routes>
-          </AdminLayout>
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
+    <BrowserRouter>
+      <Suspense fallback={<RouteSkeleton />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminProvider>}>
+            <AdminLayout>
+              <Routes>
+                <Route index element={<AdminOverview />} />
+                <Route path="home" element={<AdminHome />} />
+                <Route path="services" element={<AdminServices />} />
+                <Route path="projects" element={<AdminProjects />} />
+                <Route path="media" element={<AdminMedia />} />
+                <Route path="messages" element={<AdminMessages />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="settings/profile" element={<AdminProfilePage />} />
+              </Routes>
+            </AdminLayout>
+          </AdminProvider>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   )
 }
