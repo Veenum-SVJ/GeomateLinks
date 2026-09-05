@@ -11,14 +11,14 @@
     "legalStructure": "Geomate Links Consulting Limited is a wholly Nigerian consultancy firm registered in November 2007 with the Corporate Affairs Commission (CAC), registration number RC746106. The company is directed by a Chairman/Managing Director alongside the board, with a mandate to bring professional surveying services within reach of every Nigerian.",
     "humanResources": "Geomate Links maintains experienced permanent personnel and draws on resource persons from higher institutions and private organisations. The quality of our staff and associates ensures timely sourcing of every input required for speedy project execution and high-quality output.",
     "address": {
-      "suite": "Suite S019, Josbeed Mall",
+      "suite": "S19, Josbeed Mall",
       "street": "Ashi Bodija Road, Ashi",
       "city": "Ibadan",
       "state": "Oyo State",
       "country": "Nigeria",
       "postal": "P. O. Box 30216, Secretariat Post Office, Ibadan"
     },
-    "phones": ["0803 334 1424", "0818 430 6060"],
+    "phones": ["+234 803 334 1424", "+234 818 430 6060"],
     "emails": ["geomatelinks@gmail.com", "info@geomatelinks.com"],
     "website": "www.geomatelinks.com",
     "facebook": "https://www.facebook.com/geomatelinks",
@@ -51,7 +51,7 @@
   "team": [],
   "credentials": [],
   "pages": {
-    "about": { "label": "01 — About", "title": "A Nigerian practice built on measured evidence", "body": "Geomate Links Consulting Limited has practised surveying, mapping and geoinformatics since November 2007 from its corporate office in Ibadan, Oyo State. Our work spans cadastral and engineering surveys, UAV and satellite mapping, bathymetric investigation of dam reservoirs, digitization of legacy records, and GIS/LIS deployment." },
+    "about": { "label": "01 — About", "title": "A Nigerian practice built on measured evidence", "body": "Geomate Links Consulting Limited has practised surveying, mapping and geoinformatics since November 2007 from its corporate office in Ibadan, Oyo State. Our work spans cadastral and engineering surveys, UAV and satellite mapping, bathymetric investigation of dam reservoirs, digitization of legacy records, and GIS/LIS deployment.", "description": "<p>Geomate Links Consulting Limited has practised surveying, mapping and geoinformatics since November 2007 from its corporate office in Ibadan, Oyo State. Our work spans cadastral and engineering surveys, UAV and satellite mapping, bathymetric investigation of dam reservoirs, digitization of legacy records, and GIS/LIS deployment.</p>" },
     "services": { "label": "02 — Services", "title": "Five service lines", "body": "The firm holds particular expertise in the following fields, as set out in our corporate profile." },
     "projects": { "label": "03 — Projects", "title": "Selected projects executed", "body": "A record of completed assignments across Oyo, Ogun, Niger, Kwara, Kebbi, Plateau States and the Federal Capital Territory." },
     "contact": { "label": "05 — Contact", "title": "Talk to the practice", "body": "Call the office, send an email, or use the form to open a message in your mail client." }
