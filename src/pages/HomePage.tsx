@@ -129,7 +129,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section about" id="about">
+      <section className="section about survey-sheet" id="about">
         <div className="section-inner">
           <div className="about-grid">
             <div className="about-text">

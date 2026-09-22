@@ -2,8 +2,6 @@ import { useState } from 'react'
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, LogOut, Menu, X } from "lucide-react"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
-import AdminLogin from "./AdminLogin"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -17,30 +15,7 @@ const navItems = [
 
 export default function AdminLayout() {
   const location = useLocation()
-  const { loading, authenticated } = useAdminAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
-      </div>
-    )
-  }
-
-  if (!authenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Please log in to access the admin dashboard.</p>
-          </div>
-          <AdminLogin onLoginSuccess={() => {}} />
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -102,8 +77,12 @@ export default function AdminLayout() {
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex-1">
+          <div className="flex-1 flex items-center gap-2">
             <h1 className="font-mono text-sm font-semibold text-brand-dark">Admin Dashboard</h1>
+            {/* DEV MODE marker: reminder that password protection is off until launch. */}
+            <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+              Dev mode · no password
+            </span>
           </div>
         </header>
         <main className="flex-1 p-4 lg:p-8">

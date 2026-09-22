@@ -31,7 +31,7 @@ function App() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/admin/login" element={<LoginPage onLoginSuccess={() => {}} />} />
+            <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
               <Route path="pages" element={<PagesPage />} />

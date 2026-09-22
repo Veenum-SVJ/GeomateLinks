@@ -285,10 +285,11 @@ nav {
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
-.about {
+/* Shared survey-sheet backdrop (cream + faint grid + inline SVG linework).
+   Mirrors the .about band on the homepage so admin surfaces feel part of the
+   same visual system. */
+.survey-sheet {
   background-color: var(--brand-cream);
-  border-top: 2px solid var(--brand-dark);
-  border-bottom: 2px solid var(--brand-dark);
   /* Survey-sheet backdrop: faint survey grid plus inline SVG linework
      (contours, a traverse with station marks, a theodolite on a tripod). */
   background-image:
@@ -298,6 +299,11 @@ nav {
   background-repeat: no-repeat, repeat, repeat;
   background-position: center center, left top, left top;
   background-size: cover, auto, auto;
+}
+
+.about {
+  border-top: 2px solid var(--brand-dark);
+  border-bottom: 2px solid var(--brand-dark);
 }
 .about-grid {
   display: grid;

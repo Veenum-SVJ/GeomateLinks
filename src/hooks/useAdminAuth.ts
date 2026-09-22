@@ -1,49 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+// DEV MODE: password protection is intentionally disabled while the site is
+// under construction — the dashboard opens directly. Before going to
+// production, restore the session check and the login form (AdminLogin)
+// so /api/admin/session gates access again.
 export const useAdminAuth = () => {
-  const [loading, setLoading] = useState(true)
-  const [authenticated, setAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [authenticated, setAuthenticated] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch('/api/admin/session', { credentials: 'include' })
-        const data = await res.json()
-        setAuthenticated(data.authenticated || false)
-      } catch (err) {
-        setAuthenticated(false)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkSession()
+    // Session check disabled while password protection is off.
+    setLoading(false)
   }, [])
 
-  const login = async (password: string) => {
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password })
-      })
-      if (res.ok) {
-        setAuthenticated(true)
-        navigate('/admin', { replace: true })
-      } else {
-        const data = await res.json()
-        throw new Error(data.error || 'Login failed')
-      }
-    } catch (err) {
-      throw err
-    }
+  const login = async (_password?: string): Promise<boolean> => {
+    setAuthenticated(true)
+    navigate('/admin', { replace: true })
+    return true
   }
 
   const logout = async () => {
-    await fetch('/api/admin/session', { method: 'DELETE', credentials: 'include' })
     setAuthenticated(false)
     navigate('/admin/login', { replace: true })
   }
