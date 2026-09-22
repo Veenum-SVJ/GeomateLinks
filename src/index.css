@@ -528,6 +528,13 @@ nav {
   flex-direction: column;
   gap: 0.75rem;
 }
+/* On wide screens the 1200px grid leaves a large outer margin, so the map is
+   allowed to bleed right until its edge sits 5vw from the viewport edge. It
+   then reads as right-hand side furniture, well clear of the contact details,
+   instead of hugging the info column. */
+@media (min-width: 1400px) {
+  .contact-map-wrap { transform: translateX(calc(45vw - 600px)); }
+}
 .contact-map {
   border-radius: 4px;
   overflow: hidden;
@@ -650,7 +657,11 @@ footer {
   border-top: 1px solid rgba(255,255,255,0.1);
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  /* generous separation so the copyright line and the legal line never read
+     as one run-on sentence */
+  column-gap: 3rem;
+  row-gap: 0.75rem;
   flex-wrap: wrap;
   font-size: 0.75rem;
 }
