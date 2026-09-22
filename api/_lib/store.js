@@ -1,0 +1,103 @@
+// Shared Vercel Blob-backed store for site content and contact messages.
+// All admin mutations and the public homepage read go through here so the
+// site always shows what the admin last published.
+import { put, head } from '@vercel/blob'
+
+const CONTENT_BLOB = 'site-content.json'
+const MESSAGES_BLOB = 'contact-messages.json'
+const MAX_MESSAGES = 500
+
+function hasStorage() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+}
+
+function safeParse(raw, fallback) {
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return fallback
+  }
+}
+
+// ---- Content ----------------------------------------------------------
+
+export async function readContent(fallback) {
+  if (!hasStorage()) return fallback
+  try {
+    const meta = await head(CONTENT_BLOB)
+    const res = await fetch(meta.url, { cache: 'no-store' })
+    if (!res.ok) return fallback
+    const data = await safeParse(await res.text(), null)
+    return data && typeof data === 'object' ? data : fallback
+  } catch {
+    // head() throws when the blob does not exist yet — that is a normal
+    // first-run state, not an error.
+    return fallback
+  }
+}
+
+export async function writeContent(content) {
+  const body = JSON.stringify(content, null, 2)
+  // Random suffix avoids any CDN caching races between successive saves.
+  await put(CONTENT_BLOB, body, {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    cacheControlMaxAge: 0,
+  })
+  return body
+}
+
+// ---- Messages ---------------------------------------------------------
+
+export async function readMessages() {
+  if (!hasStorage()) return []
+  try {
+    const meta = await head(MESSAGES_BLOB)
+    const res = await fetch(meta.url, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = await safeParse(await res.text(), [])
+    return Array.isArray(data) ? data : []
+  } catch {
+    return []
+  }
+}
+
+export async function writeMessages(messages) {
+  const body = JSON.stringify(messages, null, 2)
+  await put(MESSAGES_BLOB, body, {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    cacheControlMaxAge: 0,
+  })
+  return messages
+}
+
+export async function appendMessage(entry) {
+  const messages = await readMessages()
+  messages.unshift(entry)
+  if (messages.length > MAX_MESSAGES) messages.length = MAX_MESSAGES
+  await writeMessages(messages)
+  return entry
+}
+
+export function normaliseMessage(payload) {
+  const now = new Date().toISOString()
+  const str = (value, max) =>
+    String(value ?? '').trim().slice(0, max)
+  return {
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    name: str(payload?.name, 120),
+    email: str(payload?.email, 200),
+    phone: str(payload?.phone, 40),
+    subject: str(payload?.subject, 200),
+    message: str(payload?.message, 5000),
+    createdAt: now,
+    read: false,
+  }
+}
+
+export function isValidMessage(entry) {
+  return Boolean(entry.name && entry.email && entry.message)
+}

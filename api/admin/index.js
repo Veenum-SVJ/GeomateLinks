@@ -1,8 +1,16 @@
 // Admin API endpoint — consolidated (ES Module)
 import crypto from 'crypto';
+import fallbackContent from '../_data/content.json';
+import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage } from '../_lib/store.js';
 
 const COOKIE_NAME = 'gl_admin';
 const SESSION_HOURS = 8;
+
+// Password protection is switched off while the site is under construction;
+// remove ADMIN_AUTH_DISABLED (or set it to 0) at launch to restore the gate.
+function authDisabled() {
+  return process.env.ADMIN_AUTH_DISABLED === '1';
+}
 
 // Simple in-memory rate limiting
 const attempts = new Map();
@@ -130,7 +138,7 @@ export default async function handler(req, res) {
 
   // Session endpoints
   if (path === '/session' && req.method === 'GET') {
-    return json(res, 200, { authenticated: isAuthenticated(req) });
+    return json(res, 200, { authenticated: authDisabled() || isAuthenticated(req) });
   }
   if (path === '/session' && (req.method === 'POST' || req.method === 'DELETE')) {
     clearSessionCookie(res);
@@ -138,7 +146,7 @@ export default async function handler(req, res) {
   }
 
   // Check authentication for all other endpoints
-  if (!isAuthenticated(req)) {
+  if (!authDisabled() && !isAuthenticated(req)) {
     // Allow basic auth as fallback (extra security)
     if (checkBasicAuth(req)) {
       setSessionCookie(res, createToken());
@@ -149,28 +157,58 @@ export default async function handler(req, res) {
     }
   }
 
-  // Content endpoints
+  // Content endpoints — stored in Vercel Blob so the homepage shows what the
+  // admin last published.
   if (path === '/content' && req.method === 'GET') {
     try {
-      const fallback = await import('../_data/content.json');
-      return json(res, 200, fallback.default || fallback);
+      const content = await readContent(fallbackContent.default || fallbackContent);
+      return json(res, 200, content);
     } catch (e) {
       return json(res, 500, { error: 'Failed to load content' });
     }
   }
-  if (path === '/content' && req.method === 'PUT') {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    return json(res, 200, { ok: true });
+  if (path === '/content' && (req.method === 'PUT' || req.method === 'POST')) {
+    try {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      if (!body || typeof body !== 'object' || !body.company || !body.hero) {
+        return json(res, 400, { error: 'Invalid content payload' });
+      }
+      await writeContent(body);
+      return json(res, 200, { ok: true });
+    } catch (e) {
+      console.error('[admin] content write failed', e);
+      return json(res, 500, { error: 'Failed to save content' });
+    }
   }
 
-  // Messages
+  // Messages — Blob-backed inbox shared with the public /api/messages route.
   if (path === '/messages') {
     if (req.method === 'GET') {
-      return json(res, 200, { messages: [] });
+      const messages = await readMessages();
+      return json(res, 200, { messages });
     }
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const entry = normaliseMessage(body);
+      if (!isValidMessage(entry)) {
+        return json(res, 400, { error: 'Name, email and message are required' });
+      }
+      await appendMessage(entry);
       return json(res, 201, { ok: true });
+    }
+    if (req.method === 'PATCH' || req.method === 'DELETE') {
+      const id = url.searchParams.get('id');
+      if (!id) return json(res, 400, { error: 'Missing id' });
+      const messages = await readMessages();
+      const next =
+        req.method === 'PATCH'
+          ? messages.map((m) => (m.id === id ? { ...m, read: true } : m))
+          : messages.filter((m) => m.id !== id);
+      if (next.length === messages.length && req.method === 'DELETE') {
+        return json(res, 404, { error: 'Message not found' });
+      }
+      await writeMessages(next);
+      return json(res, 200, { ok: true, messages: next });
     }
   }
 

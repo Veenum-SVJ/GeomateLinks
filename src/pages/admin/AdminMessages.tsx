@@ -1,30 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useState, useEffect } from "react"
-
-interface Message {
-  id?: string
-  name?: string
-  email?: string
-  message?: string
-  read?: boolean
-  timestamp?: string
-}
+import { fetchMessages, markMessageRead, deleteMessage } from "@/lib/api"
+import type { StoredMessage } from "@/types/content"
 
 export default function AdminMessages() {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<StoredMessage[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    fetch('/api/admin/messages')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setMessages(data)
-        }
+    fetchMessages()
+      .then((data) => {
+        setMessages(data.messages ?? [])
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setError("Could not load messages")
+        setLoading(false)
+      })
   }, [])
+
+  const handleRead = async (id: string) => {
+    try {
+      const data = await markMessageRead(id)
+      setMessages(data.messages ?? [])
+    } catch {
+      setError("Could not update the message")
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      const data = await deleteMessage(id)
+      setMessages(data.messages ?? [])
+    } catch {
+      setError("Could not delete the message")
+    }
+  }
 
   if (loading) {
     return (
@@ -38,12 +50,14 @@ export default function AdminMessages() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Messages</h1>
-        <p className="text-sm text-muted-foreground">View and manage contact form submissions.</p>
+        <p className="text-sm text-muted-foreground">Enquiries submitted through the contact form.</p>
       </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
 
       <Card>
         <CardHeader>
-          <CardTitle>Inbox ({messages.length} messages)</CardTitle>
+          <CardTitle>Inbox ({messages.length} message{messages.length === 1 ? "" : "s"})</CardTitle>
         </CardHeader>
         <CardContent>
           {messages.length === 0 ? (
@@ -51,14 +65,37 @@ export default function AdminMessages() {
           ) : (
             <div className="space-y-3">
               {messages.map((msg) => (
-                <div key={msg.id} className="flex items-start justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
+                <div key={msg.id} className="flex items-start justify-between gap-4 p-4 border rounded-lg">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium">{msg.name}</span>
                       {!msg.read && <span className="text-xs bg-secondary px-2 py-0.5 rounded">New</span>}
                     </div>
-                    <p className="text-sm text-muted-foreground">{msg.email}</p>
-                    <p className="text-sm mt-2">{msg.message}</p>
+                    <p className="text-sm text-muted-foreground">
+                      <a href={`mailto:${msg.email}`} className="hover:underline">{msg.email}</a>
+                      {msg.phone ? <span> · {msg.phone}</span> : null}
+                    </p>
+                    {msg.subject ? <p className="text-sm font-medium mt-2">{msg.subject}</p> : null}
+                    <p className="text-sm mt-1 whitespace-pre-wrap">{msg.message}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {new Date(msg.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 shrink-0">
+                    {!msg.read && (
+                      <button
+                        onClick={() => handleRead(msg.id)}
+                        className="text-xs px-2 py-1 border rounded hover:bg-muted"
+                      >
+                        Mark read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(msg.id)}
+                      className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}
