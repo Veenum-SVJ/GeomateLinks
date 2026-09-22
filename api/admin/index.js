@@ -1,7 +1,11 @@
 // Admin API endpoint — consolidated (ES Module)
 import crypto from 'crypto';
-import fallbackContent from '../_data/content.json';
+import { createRequire } from 'module';
 import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage } from '../_lib/store.js';
+
+// Node ESM cannot import JSON statically; use CJS require instead.
+const require = createRequire(import.meta.url);
+const fallbackModule = require('../_data/content.json');const fallbackContent = fallbackModule.default || fallbackModule;
 
 const COOKIE_NAME = 'gl_admin';
 const SESSION_HOURS = 8;
@@ -161,7 +165,7 @@ export default async function handler(req, res) {
   // admin last published.
   if (path === '/content' && req.method === 'GET') {
     try {
-      const content = await readContent(fallbackContent.default || fallbackContent);
+      const content = await readContent(fallbackContent);
       return json(res, 200, content);
     } catch (e) {
       return json(res, 500, { error: 'Failed to load content' });
