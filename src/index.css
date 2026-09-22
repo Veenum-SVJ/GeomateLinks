@@ -97,6 +97,8 @@ nav {
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--brand-brown); }
+.nav-toggle,
+.nav-mobile { display: none; }
 .nav-cta {
   background: var(--brand-brown) !important;
   color: white !important;
@@ -605,14 +607,81 @@ footer {
 }
 .footer-links a:hover { color: var(--brand-gold); }
 
+/* ============================= MOBILE =============================
+   Phone-width fixes: restore navigation, give text room to breathe,
+   stack the contact rows and tame oversized type. */
 @media (max-width: 768px) {
+  /* --- header: hamburger + slide-down menu instead of hidden links --- */
+  .nav { padding: 0 1.25rem; }
+  .nav-inner { height: 56px; gap: 1rem; }
+  .nav-links { display: none; }
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(28,25,23,0.18);
+    border-radius: 4px;
+    background: var(--brand-white);
+    color: var(--brand-dark);
+    cursor: pointer;
+  }
+  .nav-mobile {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--brand-white);
+    border-bottom: 1px solid rgba(28,25,23,0.12);
+    padding: 0.5rem 1.25rem 1rem;
+    box-shadow: 0 12px 24px rgba(28,25,23,0.08);
+    z-index: 110;
+  }
+  .nav-mobile a {
+    display: block;
+    padding: 0.8rem 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--brand-dark);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(28,25,23,0.08);
+  }
+  .nav-mobile a.nav-cta {
+    margin-top: 0.75rem;
+    text-align: center;
+    border-bottom: none;
+    padding: 0.7rem 1rem;
+  }
+
+  /* --- layout: stack the section grids, keep rows tappable --- */
   .hero-grid, .about-grid, .contact-grid { grid-template-columns: 1fr; }
   .hero::before { display: none; }
   .service-row { grid-template-columns: 60px 1fr auto; }
   .service-row p { display: none; }
   .projects-grid { grid-template-columns: 1fr; }
   .projects-slide { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
+
+  /* --- hero: calmer display type, tighter stat row --- */
+  .hero h1 { font-size: clamp(1.75rem, 8.5vw, 2.25rem); margin-bottom: 1.1rem; }
+  .hero-actions .btn { flex: 1 1 auto; justify-content: center; }
+  .hero-stats { gap: 1.25rem; }
+
+  /* --- about: comfortable line length and section rhythm --- */
+  .about-text p { font-size: 0.9375rem; line-height: 1.75; }
+
+  /* --- contact: stack label above value so nothing wraps awkwardly --- */
+  .contact-row { flex-direction: column; align-items: flex-start; gap: 0.3rem; padding: 1.1rem 0; }
+  .contact-row .value { font-size: 0.9375rem; word-break: break-word; }
+
+  /* --- footer: single readable column --- */
+  .footer-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .footer-links { flex-wrap: wrap; gap: 1.25rem; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
 }
 
 .project-meta {

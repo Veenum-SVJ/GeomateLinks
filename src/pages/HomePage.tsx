@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
+import { Menu, X } from "lucide-react"
 import useSEO from "@/hooks/useSEO"
 import { useSiteContent } from "@/hooks/useSiteContent"
 import { submitMessage } from "@/lib/api"
@@ -19,6 +20,7 @@ export default function HomePage() {
 
   const [currentSlide, setCurrentSlide] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
   const [statusMessage, setStatusMessage] = useState("")
@@ -83,6 +85,31 @@ export default function HomePage() {
             <li><a href="#contact">Contact</a></li>
             <li><a href="#contact" className="nav-cta">Get Quote</a></li>
           </ul>
+          <button
+            className="nav-toggle"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          {menuOpen && (
+            <ul className="nav-mobile">
+              {[
+                ["About", "#about"],
+                ["Services", "#services"],
+                ["Projects", "#projects"],
+                ["Contact", "#contact"],
+              ].map(([label, href]) => (
+                <li key={href}>
+                  <a href={href} onClick={() => setMenuOpen(false)}>{label}</a>
+                </li>
+              ))}
+              <li>
+                <a href="#contact" className="nav-cta" onClick={() => setMenuOpen(false)}>Get Quote</a>
+              </li>
+            </ul>
+          )}
         </div>
       </nav>
 
