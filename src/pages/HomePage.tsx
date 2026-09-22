@@ -316,10 +316,17 @@ export default function HomePage() {
         <div className="footer-bottom">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span>© {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.</span>
-              <Link to="/admin" aria-label="Admin dashboard" title="Admin dashboard" className="ml-2 inline-block">
-                <img src="/favicon.ico" alt="Admin" className="h-4 w-4 rounded hover:opacity-80 transition-opacity" />
-              </Link>
+              <span>
+                <Link
+                  to="/admin"
+                  aria-label="Admin dashboard"
+                  title="Admin dashboard"
+                  className="footer-copyright-mark"
+                >
+                  ©
+                </Link>{" "}
+                {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.
+              </span>
             </div>
             <span>Registered with SURCON · {content.company.rcNumber}</span>
           </div>

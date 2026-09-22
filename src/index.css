@@ -494,7 +494,10 @@ nav {
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  /* a wide column gap gives the map air on its left and pushes it flush to the
+     right edge, so it reads as centred in the blank right-hand half */
+  row-gap: 4rem;
+  column-gap: clamp(4rem, 9vw, 9.5rem);
 }
 .contact-details h3 {
   font-family: var(--font-display);
@@ -651,6 +654,14 @@ footer {
   flex-wrap: wrap;
   font-size: 0.75rem;
 }
+/* the copyright mark is the discreet admin entry point: it keeps the plain
+   text look and only warms up on hover */
+.footer-copyright-mark {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-copyright-mark:hover { color: var(--brand-gold); }
 
 @media (max-width: 768px) {
   .contact-form-row { grid-template-columns: 1fr; }
