@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import { AdminAuthProvider } from "./contexts/AdminAuthProvider"
 import { ErrorBoundary } from "./components/ErrorBoundary"
 
@@ -26,28 +26,26 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <AdminAuthProvider>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/admin/login" element={<LoginPage onLoginSuccess={() => {}} />} />
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminOverview />} />
-                <Route path="pages" element={<PagesPage />} />
-                <Route path="services" element={<AdminServices />} />
-                <Route path="projects" element={<AdminProjects />} />
-                <Route path="messages" element={<AdminMessages />} />
-                <Route path="media" element={<AdminMedia />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="settings/profile" element={<ProfilePage />} />
-              </Route>
-            </Routes>
-          </Suspense>
-        </AdminAuthProvider>
-      </ErrorBoundary>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <AdminAuthProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/admin/login" element={<LoginPage onLoginSuccess={() => {}} />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="pages" element={<PagesPage />} />
+              <Route path="services" element={<AdminServices />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="settings/profile" element={<ProfilePage />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </AdminAuthProvider>
+    </ErrorBoundary>
   )
 }
 
