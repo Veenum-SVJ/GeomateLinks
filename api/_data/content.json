@@ -24,7 +24,7 @@
     "facebook": "https://www.facebook.com/geomatelinks",
     "hours": "Monday – Friday, 8:00 AM – 5:00 PM WAT",
     "coordinates": { "lat": 7.4275, "lon": 3.9304994 },
-    "mapEmbed": "https://maps.google.com/maps?q=7.4275,3.9304994&hl=en&z=17&output=embed",
+    "mapEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.71!2d3.9304994!3d7.4275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1039ed0e8bb16fcf%3A0xf4da9748b9909654!2sGeomate%20Links%20Consulting%20Ltd!5e0!3m2!1sen!2sng!4v1758550000000",
     "mapLink": "https://www.google.com/maps/place/Geomate+Links+Consulting+Ltd/@7.4275,3.9279245,17z/data=!3m1!4b1!4m6!3m5!1s0x1039ed0e8bb16fcf:0xf4da9748b9909654!8m2!3d7.4275!4d3.9304994!16s%2Fg%2F11f5hkwrn1?hl=en-US&entry=ttu"
   },
   "hero": {

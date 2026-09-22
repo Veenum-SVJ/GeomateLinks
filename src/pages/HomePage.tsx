@@ -278,13 +278,23 @@ export default function HomePage() {
                 )}
               </form>
             </div>
-            <div className="contact-map">
-              <iframe
-                src={content.company.mapEmbed}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Geomate Links office location on Google Maps"
-              />
+            <div className="contact-map-wrap">
+              <div className="contact-map">
+                <iframe
+                  src={content.company.mapEmbed}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Geomate Links office location on Google Maps"
+                />
+              </div>
+              <a
+                className="contact-map-link"
+                href={content.company.mapLink}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open in Google Maps →
+              </a>
             </div>
           </div>
         </div>
@@ -307,7 +317,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span>© {new Date().getFullYear()} Geomate Links Consulting Limited. All rights reserved.</span>
-              <Link to="/admin" aria-label="Admin Login" className="ml-2 inline-block">
+              <Link to="/admin" aria-label="Admin dashboard" title="Admin dashboard" className="ml-2 inline-block">
                 <img src="/favicon.ico" alt="Admin" className="h-4 w-4 rounded hover:opacity-80 transition-opacity" />
               </Link>
             </div>

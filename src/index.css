@@ -518,14 +518,34 @@ nav {
 }
 .contact-row .value { color: var(--brand-dark); font-weight: 500; }
 .contact-row .value a { color: var(--brand-gold); text-decoration: none; }
+.contact-map-wrap {
+  /* sit in the middle of the right column, aligned with the contact details */
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 .contact-map {
   border-radius: 4px;
   overflow: hidden;
   border: 2px solid var(--brand-dark);
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   position: relative;
-  /* centre the map against the contact details column */
-  align-self: center;
+}
+.contact-map-link {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+  text-decoration: none;
+  align-self: flex-end;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+.contact-map-link:hover {
+  color: var(--brand-brown);
+  border-bottom-color: var(--brand-brown);
 }
 .contact-map iframe {
   width: 100%;
