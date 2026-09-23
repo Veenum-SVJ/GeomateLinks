@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { describeChanges } from "@/lib/describeChanges"
 import type { SiteContent } from "@/types/content"
 import { fetchContent, saveContent as persistContent, checkSession, logout as endSession } from "@/lib/api"
 
@@ -10,6 +11,7 @@ type AdminStore = {
   saving: boolean
   error: string
   notice: string
+  lastPublishSummary: string
   update: (updater: (draft: SiteContent) => SiteContent) => void
   save: () => Promise<void>
   reload: () => Promise<void>
@@ -27,6 +29,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [notice, setNotice] = useState("")
+  const [lastPublishSummary, setLastPublishSummary] = useState("")
 
   const bootstrap = useCallback(async () => {
     setLoading(true)
@@ -58,6 +61,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setNotice("")
   }, [])
 
+  // The last known-published document, for summarising what each publish
+  // changed. The server computes the authoritative summary too; this client
+  // copy exists only to update the feed instantly after saving.
+  const lastPublishedRef = useRef<SiteContent | null>(null)
+  useEffect(() => {
+    if (content && !dirty && !lastPublishedRef.current) lastPublishedRef.current = content
+  }, [content, dirty])
+
   const save = useCallback(async () => {
     if (!content) return
     setSaving(true)
@@ -65,6 +76,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     try {
       await persistContent(content)
       setDirty(false)
+      setLastPublishSummary(describeChanges(lastPublishedRef.current, content))
+      lastPublishedRef.current = content
       setNotice("Changes published to the live site.")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save changes")
@@ -90,13 +103,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       saving,
       error,
       notice,
+      lastPublishSummary,
       update,
       save,
       reload: bootstrap,
       signOut,
       setNotice,
     }),
-    [content, loading, authenticated, dirty, saving, error, notice, update, save, bootstrap, signOut]
+    [content, loading, authenticated, dirty, saving, error, notice, lastPublishSummary, update, save, bootstrap, signOut]
   )
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>

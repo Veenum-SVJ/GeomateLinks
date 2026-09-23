@@ -54,6 +54,19 @@ export function fetchMessages() {
   return request<{ messages: StoredMessage[] }>("/api/messages")
 }
 
+export type PublishEvent = {
+  id: string
+  type: "publish"
+  summary: string
+  at: string
+}
+
+export type ActivityMessage = Pick<StoredMessage, "id" | "name" | "subject" | "read" | "createdAt">
+
+export function fetchActivity() {
+  return request<{ activity: PublishEvent[]; messages: ActivityMessage[] }>("/api/admin/activity")
+}
+
 export function submitMessage(payload: Record<string, string>) {
   return request<{ ok: true }>("/api/messages", {
     method: "POST",

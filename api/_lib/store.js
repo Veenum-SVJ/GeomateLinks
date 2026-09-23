@@ -1,11 +1,14 @@
-// Shared Vercel Blob-backed store for site content and contact messages.
+// Shared Vercel Blob-backed store for site content, contact messages and the
+// dashboard activity log.
 // All admin mutations and the public homepage read go through here so the
 // site always shows what the admin last published.
 import { put, head, list, del } from '@vercel/blob'
 
 const CONTENT_BLOB = 'site-content.json'
 const MESSAGES_BLOB = 'contact-messages.json'
+const ACTIVITY_BLOB = 'activity-log.json'
 const MAX_MESSAGES = 500
+const MAX_ACTIVITY = 30
 
 function hasStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
@@ -48,7 +51,42 @@ export async function writeContent(content) {
   return body
 }
 
-// ---- Media -----------------------------------------------------------
+// ---- Activity log -----------------------------------------------------
+// Best-effort append-only feed of publishes for the dashboard. Logging never
+// blocks or fails a publish: a lost activity entry is preferable to a lost
+// publish.
+
+export async function readActivity() {
+  if (!hasStorage()) return []
+  try {
+    const meta = await head(ACTIVITY_BLOB)
+    const res = await fetch(meta.url, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = await safeParse(await res.text(), [])
+    return Array.isArray(data) ? data : []
+  } catch {
+    return []
+  }
+}
+
+export async function logActivity(entry) {
+  try {
+    const log = await readActivity()
+    log.unshift(entry)
+    if (log.length > MAX_ACTIVITY) log.length = MAX_ACTIVITY
+    const body = JSON.stringify(log, null, 2)
+    await put(ACTIVITY_BLOB, body, {
+      access: 'public',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      cacheControlMaxAge: 0,
+    })
+  } catch {
+    // Activity logging is best-effort by design — never fail the publish.
+  }
+}
+
+// ---- Media ------------------------------------------------------------
 
 export async function listMedia() {
   if (!hasStorage()) return []

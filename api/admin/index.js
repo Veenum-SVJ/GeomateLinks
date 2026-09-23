@@ -2,7 +2,8 @@
 import crypto from 'crypto';
 import { createRequire } from 'module';
 import { handleUpload as blobHandleUpload } from '@vercel/blob/client';
-import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage, listMedia, deleteMediaByUrl } from '../_lib/store.js';
+import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage, listMedia, deleteMediaByUrl, readActivity, logActivity } from '../_lib/store.js';
+import { describeChanges } from '../_lib/describeChanges.js';
 
 // Node ESM cannot import JSON statically; use CJS require instead.
 const require = createRequire(import.meta.url);
@@ -191,11 +192,40 @@ export default async function handler(req, res) {
       if (!body || typeof body !== 'object' || !body.company || !body.hero) {
         return json(res, 400, { error: 'Invalid content payload' });
       }
+      const before = await readContent(fallbackContent);
       await writeContent(body);
+      await logActivity({
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        type: 'publish',
+        summary: describeChanges(before, body),
+        at: new Date().toISOString(),
+      });
       return json(res, 200, { ok: true });
     } catch (e) {
       console.error('[admin] content write failed', e);
       return json(res, 500, { error: 'Failed to save content' });
+    }
+  }
+
+  // Activity feed — recent publishes plus the newest contact messages.
+  if (path === '/activity' && req.method === 'GET') {
+    try {
+      const [activity, messages] = await Promise.all([readActivity(), readMessages()]);
+      const newestMessages = messages
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+        .slice(0, 3)
+        .map((m) => ({
+          id: m.id,
+          type: 'message',
+          name: m.name,
+          subject: m.subject,
+          read: m.read,
+          createdAt: m.createdAt,
+        }));
+      return json(res, 200, { activity: activity.slice(0, 8), messages: newestMessages });
+    } catch (e) {
+      console.error('[admin] activity failed', e);
+      return json(res, 500, { error: 'Failed to load activity' });
     }
   }
 

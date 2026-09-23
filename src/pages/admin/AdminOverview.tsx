@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAdmin } from "@/lib/adminStore"
 import { useEffect, useState } from "react"
-import { fetchMessages } from "@/lib/api"
+import { fetchMessages, fetchActivity, type PublishEvent, type ActivityMessage } from "@/lib/api"
 import type { StoredMessage } from "@/types/content"
-import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe } from "lucide-react"
+import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe, History, UploadCloud as PublishIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const quickLinks = [
@@ -26,16 +26,28 @@ function timeAgo(iso: string) {
   return `${Math.floor(hours / 24)}d ago`
 }
 
+type FeedEntry =
+  | { kind: "publish"; id: string; at: string; summary: string }
+  | { kind: "message"; id: string; at: string; name: string; subject: string; read: boolean }
+
 export default function AdminOverview() {
-  const { content, loading, error, dirty, saving, save } = useAdmin()
+  const { content, loading, error, dirty, saving, save, lastPublishSummary } = useAdmin()
   const [messages, setMessages] = useState<StoredMessage[]>([])
   const [unread, setUnread] = useState(0)
+  const [publishes, setPublishes] = useState<PublishEvent[]>([])
+  const [feedMessages, setFeedMessages] = useState<ActivityMessage[]>([])
 
   useEffect(() => {
     fetchMessages()
       .then((res) => {
         setMessages(res.messages ?? [])
         setUnread((res.messages ?? []).filter((m) => !m.read).length)
+      })
+      .catch(() => {})
+    fetchActivity()
+      .then((res) => {
+        setPublishes(res.activity ?? [])
+        setFeedMessages(res.messages ?? [])
       })
       .catch(() => {})
   }, [])
@@ -138,6 +150,79 @@ export default function AdminOverview() {
           ))}
         </div>
       </div>
+
+      {/* Recent activity: last publishes (server-logged) interleaved with the
+          newest contact messages. A fresh publish updates the first row
+          instantly from the client-side summary. */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <History className="h-5 w-5 text-brand-brown" /> Recent activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {(() => {
+            const entries: FeedEntry[] = [
+              ...(lastPublishSummary
+                ? [{
+                    kind: "publish" as const,
+                    id: "local-" + Date.now(),
+                    at: new Date().toISOString(),
+                    summary: lastPublishSummary,
+                  }]
+                : []),
+              ...publishes.map((p) => ({ kind: "publish" as const, ...p })),
+              ...feedMessages.map((m) => ({
+                kind: "message" as const,
+                id: m.id,
+                at: m.createdAt,
+                name: m.name,
+                subject: m.subject,
+                read: m.read,
+              })),
+            ]
+            entries.sort((a, b) => +new Date(b.at) - +new Date(a.at))
+            const top = entries.slice(0, 6)
+            if (!top.length) {
+              return <p className="py-3 text-sm text-muted-foreground">No activity yet — publishes and new enquiries will appear here.</p>
+            }
+            return top.map((e, i) => (
+              <div
+                key={e.id + "-" + i}
+                className="flex items-start justify-between gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/40"
+              >
+                <div className="flex min-w-0 items-start gap-2.5">
+                  <span
+                    className={cn(
+                      "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+                      e.kind === "publish" ? "bg-brand-brown/10 text-brand-brown" : "bg-amber-100 text-amber-700",
+                    )}
+                  >
+                    {e.kind === "publish" ? <PublishIcon className="h-3.5 w-3.5" /> : <Mail className="h-3.5 w-3.5" />}
+                  </span>
+                  <p className="min-w-0 text-sm leading-snug">
+                    {e.kind === "publish" ? (
+                      <>
+                        <span className="font-medium">Published to live site</span>
+                        <span className="text-muted-foreground"> — {e.summary}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-medium">{e.name}</span>
+                        {!e.read && (
+                          <span className="ml-1 rounded bg-brand-brown px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-white">New</span>
+                        )}
+                        <span className="truncate text-muted-foreground">— {e.subject || "(no subject)"}</span>
+                      </>
+                    )}
+                  </p>
+                </div>
+                <time className="shrink-0 pt-0.5 text-xs text-muted-foreground">{timeAgo(e.at)}</time>
+              </div>
+            ))
+          })()}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>

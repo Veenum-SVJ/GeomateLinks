@@ -3,7 +3,8 @@
 //              content.json until an admin saves for the first time).
 // PUT / POST → replace the published content (used by the admin editors).
 import { createRequire } from 'module'
-import { readContent, writeContent } from './_lib/store.js'
+import { readContent, writeContent, readActivity, logActivity } from './_lib/store.js'
+import { describeChanges } from './_lib/describeChanges.js'
 
 // Node ESM cannot import JSON statically; use CJS require instead.
 const require = createRequire(import.meta.url)
@@ -40,7 +41,14 @@ export default async function handler(req, res) {
       return json(res, 400, { error: 'Invalid content payload' })
     }
     try {
+      const before = await readContent(fallbackContent)
       await writeContent(body)
+      await logActivity({
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        type: 'publish',
+        summary: describeChanges(before, body),
+        at: new Date().toISOString(),
+      })
       return json(res, 200, { ok: true })
     } catch (err) {
       console.error('[api/content] write failed', err)
