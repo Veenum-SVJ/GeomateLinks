@@ -110,10 +110,13 @@ function checkBasicAuth(req) {
 // Client-upload handshake for @vercel/blob/client's upload(). This is called
 // by the browser before the file bytes are sent directly to Blob storage.
 async function handleUpload(req, res) {
-  await blobHandleUpload({ request: req, onUploadCompleted: async () => {} });
-  if (!res.writableEnded) {
-    return json(res, 200, { ok: true });
-  }
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  const jsonResponse = await blobHandleUpload({
+    body,
+    request: req,
+    onUploadCompleted: async () => {},
+  });
+  return json(res, 200, jsonResponse);
 }
 
 export default async function handler(req, res) {
@@ -255,7 +258,7 @@ export default async function handler(req, res) {
       return await handleUpload(req, res);
     } catch (e) {
       console.error('[admin] upload handshake failed', e);
-      return json(res, 500, { error: 'Upload failed' });
+      return json(res, 500, { error: e?.message || 'Upload failed' });
     }
   }
 
