@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAdmin } from "@/lib/adminStore"
 import { useEffect, useState } from "react"
-import { fetchMessages, fetchActivity, type PublishEvent, type ActivityMessage } from "@/lib/api"
-import type { StoredMessage } from "@/types/content"
+import { fetchActivity, type PublishEvent, type ActivityMessage } from "@/lib/api"
+import { useUnreadMessages } from "@/hooks/useUnreadMessages"
 import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe, History, UploadCloud as PublishIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -32,18 +32,11 @@ type FeedEntry =
 
 export default function AdminOverview() {
   const { content, loading, error, dirty, saving, save, lastPublishSummary } = useAdmin()
-  const [messages, setMessages] = useState<StoredMessage[]>([])
-  const [unread, setUnread] = useState(0)
+  const { messages, unread, newest } = useUnreadMessages()
   const [publishes, setPublishes] = useState<PublishEvent[]>([])
   const [feedMessages, setFeedMessages] = useState<ActivityMessage[]>([])
 
   useEffect(() => {
-    fetchMessages()
-      .then((res) => {
-        setMessages(res.messages ?? [])
-        setUnread((res.messages ?? []).filter((m) => !m.read).length)
-      })
-      .catch(() => {})
     fetchActivity()
       .then((res) => {
         setPublishes(res.activity ?? [])
@@ -59,8 +52,6 @@ export default function AdminOverview() {
       </div>
     )
   }
-
-  const newest = [...messages].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))[0]
 
   const sections = [
     { name: "Pages", href: "/admin/pages", icon: FileText, description: "Hero, section headings and homepage copy", meta: `${(content.stats ?? []).length} stats · 4 sections` },

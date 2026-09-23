@@ -1,33 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState, useEffect } from "react"
-import { fetchMessages, markMessageRead, deleteMessage } from "@/lib/api"
+import { useState } from "react"
+import { markMessageRead, deleteMessage } from "@/lib/api"
 import { useUnreadMessages } from "@/hooks/useUnreadMessages"
-import type { StoredMessage } from "@/types/content"
 
 export default function AdminMessages() {
-  const [messages, setMessages] = useState<StoredMessage[]>([])
-  const [loading, setLoading] = useState(true)
+  // The inbox is owned by the shared provider (single poll loop feeding the
+  // sidebar badge and the dashboard too) — this page only renders it and
+  // syncs mutation responses back into it.
+  const { messages, loading, syncFromMessages } = useUnreadMessages()
   const [error, setError] = useState("")
-  const { syncFromMessages } = useUnreadMessages()
-
-  useEffect(() => {
-    fetchMessages()
-      .then((data) => {
-        setMessages(data.messages ?? [])
-        syncFromMessages(data.messages ?? [])
-        setLoading(false)
-      })
-      .catch(() => {
-        setError("Could not load messages")
-        setLoading(false)
-      })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const handleRead = async (id: string) => {
     try {
       const data = await markMessageRead(id)
-      setMessages(data.messages ?? [])
       syncFromMessages(data.messages ?? [])
     } catch {
       setError("Could not update the message")
@@ -37,7 +22,6 @@ export default function AdminMessages() {
   const handleDelete = async (id: string) => {
     try {
       const data = await deleteMessage(id)
-      setMessages(data.messages ?? [])
       syncFromMessages(data.messages ?? [])
     } catch {
       setError("Could not delete the message")
