@@ -1,42 +1,16 @@
-import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useAdmin } from "@/lib/adminStore"
+import type { SiteContent } from "@/types/content"
+
+type PageKey = keyof SiteContent["pages"]
 
 export default function PagesPage() {
-  const [content, setContent] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const { content, loading, update } = useAdmin()
 
-  useEffect(() => {
-    fetch('/api/admin/content')
-      .then(res => res.json())
-      .then(data => {
-        setContent(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
-
-  const handleSave = async () => {
-    if (!content) return
-    setSaving(true)
-    try {
-      await fetch('/api/admin/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(content)
-      })
-      alert('Content saved!')
-    } catch (err) {
-      console.error('Save failed:', err)
-      alert('Failed to save content')
-    }
-    setSaving(false)
-  }
-
-  if (loading) {
+  if (loading || !content) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-brown border-t-transparent" />
@@ -44,36 +18,121 @@ export default function PagesPage() {
     )
   }
 
-  if (!content) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">No content found</p>
-      </div>
-    )
-  }
+  const setHero = (field: keyof SiteContent["hero"], value: string) =>
+    update((draft) => {
+      draft.hero[field] = value
+      return draft
+    })
+
+  const setPage = (key: PageKey, field: "label" | "title" | "body", value: string) =>
+    update((draft) => {
+      draft.pages[key][field] = value
+      return draft
+    })
+
+  const setStat = (index: number, field: "value" | "label", value: string) =>
+    update((draft) => {
+      draft.stats[index][field] = value
+      return draft
+    })
+
+  const pageMeta: { key: PageKey; name: string; hint: string }[] = [
+    { key: "about", name: "About section", hint: "The band below the hero on the homepage." },
+    { key: "services", name: "Services section", hint: "Heading above the service list." },
+    { key: "projects", name: "Projects section", hint: "Heading above the project grid." },
+    { key: "contact", name: "Contact section", hint: "Heading and strapline of the contact area." },
+  ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Pages Management</h1>
-        <p className="text-sm text-muted-foreground">Edit website pages and content.</p>
+        <h1 className="text-2xl font-semibold tracking-tight">Pages</h1>
+        <p className="text-sm text-muted-foreground">
+          Headings and copy for the homepage. Publish when you are done.
+        </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>About Section</CardTitle>
-          <CardDescription>Edit the content for the about section of your website.</CardDescription>
+          <CardTitle>Hero (top of homepage)</CardTitle>
+          <CardDescription>The first thing visitors read.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Textarea
-            rows={10}
-            value={content.about?.description || ""}
-            onChange={(e) => setContent({ ...content, about: { ...content.about, description: e.target.value } })}
-            className="w-full"
-          />
-          <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? "Saving..." : "Save Changes"}
-          </Button>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="hero-tag">Tag</Label>
+            <Input id="hero-tag" value={content.hero.tag} onChange={(e) => setHero("tag", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-top">Headline — first line</Label>
+            <Input id="hero-top" value={content.hero.headlineTop} onChange={(e) => setHero("headlineTop", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-accent">Headline — highlighted word</Label>
+            <Input id="hero-accent" value={content.hero.headlineAccent} onChange={(e) => setHero("headlineAccent", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-bottom">Headline — last line</Label>
+            <Input id="hero-bottom" value={content.hero.headlineBottom} onChange={(e) => setHero("headlineBottom", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-intro">Intro paragraph</Label>
+            <Textarea id="hero-intro" rows={3} value={content.hero.intro} onChange={(e) => setHero("intro", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-cta1">Primary button</Label>
+            <Input id="hero-cta1" value={content.hero.primaryCta} onChange={(e) => setHero("primaryCta", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-cta2">Secondary button</Label>
+            <Input id="hero-cta2" value={content.hero.secondaryCta} onChange={(e) => setHero("secondaryCta", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-cap">Video caption</Label>
+            <Input id="hero-cap" value={content.hero.videoCaption} onChange={(e) => setHero("videoCaption", e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-coords">Video coordinates</Label>
+            <Input id="hero-coords" value={content.hero.videoCoords} onChange={(e) => setHero("videoCoords", e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {pageMeta.map(({ key, name, hint }) => (
+        <Card key={key}>
+          <CardHeader>
+            <CardTitle>{name}</CardTitle>
+            <CardDescription>{hint}</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor={`${key}-label`}>Label</Label>
+              <Input id={`${key}-label`} value={content.pages[key].label} onChange={(e) => setPage(key, "label", e.target.value)} />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor={`${key}-title`}>Title</Label>
+              <Input id={`${key}-title`} value={content.pages[key].title} onChange={(e) => setPage(key, "title", e.target.value)} />
+            </div>
+            <div className="space-y-2 sm:col-span-3">
+              <Label htmlFor={`${key}-body`}>Body</Label>
+              <Textarea id={`${key}-body`} rows={4} value={content.pages[key].body} onChange={(e) => setPage(key, "body", e.target.value)} />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Hero stats</CardTitle>
+          <CardDescription>The numbers under the hero intro.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-3">
+          {content.stats.map((stat, index) => (
+            <div key={index} className="space-y-2">
+              <Label htmlFor={`stat-${index}`}>Stat {index + 1}</Label>
+              <Input id={`stat-${index}`} value={stat.value} onChange={(e) => setStat(index, "value", e.target.value)} />
+              <Input value={stat.label} onChange={(e) => setStat(index, "label", e.target.value)} />
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>

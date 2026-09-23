@@ -1,7 +1,7 @@
 // Shared Vercel Blob-backed store for site content and contact messages.
 // All admin mutations and the public homepage read go through here so the
 // site always shows what the admin last published.
-import { put, head } from '@vercel/blob'
+import { put, head, list, del } from '@vercel/blob'
 
 const CONTENT_BLOB = 'site-content.json'
 const MESSAGES_BLOB = 'contact-messages.json'
@@ -46,6 +46,30 @@ export async function writeContent(content) {
     cacheControlMaxAge: 0,
   })
   return body
+}
+
+// ---- Media -----------------------------------------------------------
+
+export async function listMedia() {
+  if (!hasStorage()) return []
+  try {
+    const result = await list({ prefix: 'media/' })
+    return (result.blobs || [])
+      .map((blob) => ({
+        pathname: blob.pathname,
+        url: blob.url,
+        size: blob.size,
+        uploadedAt: blob.uploadedAt,
+      }))
+      .sort((a, b) => String(b.uploadedAt).localeCompare(String(a.uploadedAt)))
+  } catch {
+    return []
+  }
+}
+
+export async function deleteMediaByUrl(url) {
+  if (!hasStorage()) throw new Error('Blob storage is not configured')
+  await del(url)
 }
 
 // ---- Messages ---------------------------------------------------------

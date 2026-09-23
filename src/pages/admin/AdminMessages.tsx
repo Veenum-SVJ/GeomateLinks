@@ -68,8 +68,14 @@ export default function AdminMessages() {
                 <div key={msg.id} className="flex items-start justify-between gap-4 p-4 border rounded-lg">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">{msg.name}</span>
-                      {!msg.read && <span className="text-xs bg-secondary px-2 py-0.5 rounded">New</span>}
+                      <span className={msg.read ? "font-medium" : "font-semibold"}>
+                        {msg.name}
+                      </span>
+                      {!msg.read && (
+                        <span className="rounded bg-brand-brown px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                          New
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       <a href={`mailto:${msg.email}`} className="hover:underline">{msg.email}</a>

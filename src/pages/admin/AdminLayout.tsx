@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, LogOut, Menu, X } from "lucide-react"
+import { AdminProvider, useAdmin } from "@/lib/adminStore"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -14,8 +15,17 @@ const navItems = [
 ]
 
 export default function AdminLayout() {
+  return (
+    <AdminProvider>
+      <AdminShell />
+    </AdminProvider>
+  )
+}
+
+function AdminShell() {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { dirty, saving, error, notice, save, reload } = useAdmin()
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -60,8 +70,8 @@ export default function AdminLayout() {
             to="/"
             className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
-            <LogOut className="h-4 w-4" />
-            Back to Site
+            <ExternalLink className="h-4 w-4" />
+            View Site
           </Link>
           <div className="flex items-center gap-2 mt-2">
             <Link to="/admin/settings/profile" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
@@ -85,6 +95,37 @@ export default function AdminLayout() {
             </span>
           </div>
         </header>
+        {(dirty || saving) && (
+          <div className="sticky top-16 z-20 flex flex-wrap items-center gap-3 border-b bg-amber-50 px-4 py-2.5 lg:px-6">
+            <span className="text-sm font-medium text-amber-800">
+              {saving ? "Publishing…" : "You have unpublished changes"}
+            </span>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={() => reload()}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Discard
+              </button>
+              <button
+                onClick={() => save()}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-md bg-brand-brown px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-brown/90 disabled:opacity-50"
+              >
+                <UploadCloud className="h-3.5 w-3.5" />
+                {saving ? "Publishing…" : "Publish to live site"}
+              </button>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="border-b bg-red-50 px-4 py-2 text-sm text-red-700 lg:px-6">{error}</div>
+        )}
+        {notice && !dirty && !error && (
+          <div className="border-b bg-green-50 px-4 py-2 text-sm text-green-700 lg:px-6">{notice}</div>
+        )}
         <main className="flex-1 p-4 lg:p-8">
           <Outlet />
         </main>

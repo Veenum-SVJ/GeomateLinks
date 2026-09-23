@@ -1,7 +1,8 @@
 // Admin API endpoint — consolidated (ES Module)
 import crypto from 'crypto';
 import { createRequire } from 'module';
-import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage } from '../_lib/store.js';
+import { handleUpload as blobHandleUpload } from '@vercel/blob/client';
+import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage, listMedia, deleteMediaByUrl } from '../_lib/store.js';
 
 // Node ESM cannot import JSON statically; use CJS require instead.
 const require = createRequire(import.meta.url);
@@ -104,6 +105,15 @@ function checkBasicAuth(req) {
   const expectedPass = process.env.BASIC_AUTH_PASSWORD;
   if (!expectedPass) return false;
   return user === expectedUser && pass === expectedPass;
+}
+
+// Client-upload handshake for @vercel/blob/client's upload(). This is called
+// by the browser before the file bytes are sent directly to Blob storage.
+async function handleUpload(req, res) {
+  await blobHandleUpload({ request: req, onUploadCompleted: async () => {} });
+  if (!res.writableEnded) {
+    return json(res, 200, { ok: true });
+  }
 }
 
 export default async function handler(req, res) {
@@ -216,21 +226,37 @@ export default async function handler(req, res) {
     }
   }
 
-  // Media
+  // Media — real Blob listing and deletion. Uploads go through
+  // /api/admin/upload (client-upload flow), handled further below.
   if (path === '/media' && req.method === 'GET') {
-    return json(res, 200, { media: [] });
+    try {
+      const media = await listMedia();
+      return json(res, 200, { media });
+    } catch (e) {
+      console.error('[admin] media list failed', e);
+      return json(res, 500, { error: 'Failed to list media' });
+    }
   }
-  if (path === '/media/upload' && req.method === 'POST') {
-    return json(res, 200, { ok: true });
+  if (path === '/media' && req.method === 'DELETE') {
+    const mediaUrl = url.searchParams.get('url');
+    if (!mediaUrl) return json(res, 400, { error: 'Missing url parameter' });
+    try {
+      await deleteMediaByUrl(mediaUrl);
+      return json(res, 200, { ok: true });
+    } catch (e) {
+      console.error('[admin] media delete failed', e);
+      return json(res, 500, { error: 'Failed to delete media' });
+    }
   }
 
-  // Settings
-  if (path === '/settings' && req.method === 'GET') {
-    return json(res, 200, {});
-  }
-  if (path === '/settings' && req.method === 'PUT') {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    return json(res, 200, { ok: true });
+  // Client-upload handshake for @vercel/blob/client upload().
+  if (path === '/upload' && req.method === 'POST') {
+    try {
+      return await handleUpload(req, res);
+    } catch (e) {
+      console.error('[admin] upload handshake failed', e);
+      return json(res, 500, { error: 'Upload failed' });
+    }
   }
 
   return json(res, 404, { error: 'Not found' });
