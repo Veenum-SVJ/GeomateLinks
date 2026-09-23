@@ -6,7 +6,7 @@ import { put, head, list, del } from '@vercel/blob'
 
 const CONTENT_BLOB = 'site-content.json'
 const MESSAGES_BLOB = 'contact-messages.json'
-const ACTIVITY_BLOB = 'activity-log.json'
+const ACTIVITY_PREFIX = 'activity/'
 const MAX_MESSAGES = 500
 const MAX_ACTIVITY = 30
 
@@ -52,18 +52,32 @@ export async function writeContent(content) {
 }
 
 // ---- Activity log -----------------------------------------------------
-// Best-effort append-only feed of publishes for the dashboard. Logging never
-// blocks or fails a publish: a lost activity entry is preferable to a lost
-// publish.
+// Best-effort feed of publishes for the dashboard. Each entry is its own Blob
+// object (activity/<base36-timestamp>-<id>.json), so logging is a true append:
+// rapid successive publishes can never overwrite each other, which a single
+// log document would (Blob is last-write-wins with read-after-write lag).
+// Logging never blocks or fails a publish.
 
 export async function readActivity() {
   if (!hasStorage()) return []
   try {
-    const meta = await head(ACTIVITY_BLOB)
-    const res = await fetch(meta.url, { cache: 'no-store' })
-    if (!res.ok) return []
-    const data = await safeParse(await res.text(), [])
-    return Array.isArray(data) ? data : []
+    const result = await list({ prefix: ACTIVITY_PREFIX, limit: 100 })
+    const blobs = (result.blobs || [])
+      // pathname embeds a fixed-width base36 ms timestamp → lexical = newest first
+      .sort((a, b) => b.pathname.localeCompare(a.pathname))
+      .slice(0, MAX_ACTIVITY)
+    const entries = await Promise.all(
+      blobs.map(async (blob) => {
+        try {
+          const res = await fetch(blob.url, { cache: 'no-store' })
+          if (!res.ok) return null
+          return await safeParse(await res.text(), null)
+        } catch {
+          return null
+        }
+      }),
+    )
+    return entries.filter(Boolean).sort((a, b) => String(b.at).localeCompare(String(a.at)))
   } catch {
     return []
   }
@@ -71,16 +85,16 @@ export async function readActivity() {
 
 export async function logActivity(entry) {
   try {
-    const log = await readActivity()
-    log.unshift(entry)
-    if (log.length > MAX_ACTIVITY) log.length = MAX_ACTIVITY
-    const body = JSON.stringify(log, null, 2)
-    await put(ACTIVITY_BLOB, body, {
+    await put(`${ACTIVITY_PREFIX}${Date.now().toString(36)}-${entry.id}.json`, JSON.stringify(entry), {
       access: 'public',
       contentType: 'application/json',
       addRandomSuffix: false,
       cacheControlMaxAge: 0,
     })
+    // Opportunistic pruning of entries beyond the cap — failures are fine.
+    const result = await list({ prefix: ACTIVITY_PREFIX, limit: 1000 })
+    const blobs = (result.blobs || []).sort((a, b) => b.pathname.localeCompare(a.pathname))
+    await Promise.all(blobs.slice(MAX_ACTIVITY).map((blob) => del(blob.url).catch(() => {})))
   } catch {
     // Activity logging is best-effort by design — never fail the publish.
   }
