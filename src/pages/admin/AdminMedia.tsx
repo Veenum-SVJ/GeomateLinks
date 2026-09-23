@@ -29,13 +29,13 @@ export default function AdminMedia() {
     load()
   }, [load])
 
-  const handleUpload = async (files: FileList | null) => {
-    if (!files?.length) return
+  const handleUpload = async (files: File[]) => {
+    if (!files.length) return
     setUploading(true)
     setError("")
     try {
       const { upload } = await import("@vercel/blob/client")
-      for (const file of Array.from(files)) {
+      for (const file of files) {
         await upload(`media/${Date.now()}-${file.name}`, file, {
           access: "public",
           handleUploadUrl: "/api/admin/upload",
@@ -101,8 +101,11 @@ export default function AdminMedia() {
         multiple
         className="hidden"
         onChange={(e) => {
-          handleUpload(e.target.files)
+          // Copy the files out first: resetting the input wipes the live
+          // FileList, which would leave the async uploader nothing to send.
+          const files = e.target.files ? Array.from(e.target.files) : []
           e.target.value = ""
+          if (files.length) handleUpload(files)
         }}
       />
 
