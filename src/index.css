@@ -866,11 +866,29 @@ footer {
 /* ---- Admin: phone polish -------------------------------------------- */
 /* Inputs inside the admin need ≥16px font size on phones, otherwise iOS
    Safari auto-zooms the whole page whenever a field is focused. */
-@media (max-width: 640px) {
+@media (max-width: 1024px) and (pointer: coarse) {
   .admin-root input,
   .admin-root textarea,
   .admin-root select {
     font-size: 16px !important;
+  }
+}
+/* Tablet band: the persistent sidebar narrows the content area, so editor
+   grids stay single-column until real desktop widths (lg = 1024px). */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-root .sm\:grid-cols-2,
+  .admin-root .sm\:grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  .admin-root .sm\:col-span-2,
+  .admin-root .sm\:col-span-3 {
+    grid-column: auto;
+  }
+  .admin-root .md\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-root .md\:grid-cols-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 /* Tap targets: buttons should clear ~40px on touch screens. Desktop

@@ -34,11 +34,11 @@ function AdminShell() {
   return (
     <div className="admin-root flex min-h-screen w-full bg-background">
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:block",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:block",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex h-16 items-center justify-between px-6 border-b">
@@ -46,7 +46,7 @@ function AdminShell() {
             <img src="/favicon.ico" alt="Logo" className="h-6 w-6 rounded" />
             GEOMATE LINKS CONSULTING LTD
           </Link>
-          <button className="-m-2 p-2 lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
+          <button className="-m-2 p-2 md:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -96,7 +96,7 @@ function AdminShell() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 lg:px-6">
-          <button className="-m-2 p-2 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+          <button className="-m-2 p-2 md:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex-1 flex items-center gap-2">
