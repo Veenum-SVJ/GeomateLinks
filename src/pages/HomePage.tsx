@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
 import { Menu, X } from "lucide-react"
 import LazyMap from "@/components/LazyMap"
+import LazyHeroVideo from "@/components/LazyHeroVideo"
 import useSEO from "@/hooks/useSEO"
 import { useSiteContent } from "@/hooks/useSiteContent"
 import { submitMessage } from "@/lib/api"
@@ -142,9 +143,11 @@ export default function HomePage() {
           <div className="hero-visual">
             <div className="hero-image">
               {content.hero.videoUrl ? (
-                <video autoPlay loop muted playsInline poster={content.hero.posterUrl}>
-                  <source src={content.hero.videoUrl} type="video/mp4" />
-                </video>
+                <LazyHeroVideo
+                  src={content.hero.videoUrl}
+                  poster={content.hero.posterUrl}
+                  alt="Geomate Links field operations"
+                />
               ) : (
                 <img src={content.hero.posterUrl} alt="Geomate Links field operations" />
               )}
