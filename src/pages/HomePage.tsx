@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react"
 import { Menu, X } from "lucide-react"
+import LazyMap from "@/components/LazyMap"
 import useSEO from "@/hooks/useSEO"
 import { useSiteContent } from "@/hooks/useSiteContent"
 import { submitMessage } from "@/lib/api"
@@ -305,24 +306,7 @@ export default function HomePage() {
                 )}
               </form>
             </div>
-            <div className="contact-map-wrap">
-              <div className="contact-map">
-                <iframe
-                  src={content.company.mapEmbed}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Geomate Links office location on Google Maps"
-                />
-              </div>
-              <a
-                className="contact-map-link"
-                href={content.company.mapLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open in Google Maps →
-              </a>
-            </div>
+            <LazyMap company={content.company} />
           </div>
         </div>
       </section>
