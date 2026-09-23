@@ -14,7 +14,7 @@ const FOOTER_LINKS = [
   { label: "Contact", href: "#contact" },
 ]
 
-const EMPTY_FORM = { name: "", email: "", phone: "", subject: "", message: "" }
+const EMPTY_FORM = { name: "", email: "", phone: "", subject: "", message: "", website: "" }
 
 export default function HomePage() {
   useSEO()
@@ -59,6 +59,13 @@ export default function HomePage() {
     setStatusMessage("")
 
     try {
+      if (form.website) {
+        // Honeypot filled: treat as spam, fake success so bots move on.
+        setStatus("sent")
+        setStatusMessage("Thank you. Your enquiry has been received.")
+        setForm(EMPTY_FORM)
+        return
+      }
       await submitMessage(form)
       setStatus("sent")
       setStatusMessage("Thank you. Your enquiry has been received.")
@@ -292,6 +299,17 @@ export default function HomePage() {
               </div>
 
               <form className="contact-form" onSubmit={handleSubmit}>
+                {/* Honeypot: bots fill every visible and hidden field; humans
+                    never see this one. Filled field ⇒ silently discarded. */}
+                <input
+                  name="website"
+                  value={form.website}
+                  onChange={updateField}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
+                />
                 <div className="contact-form-row">
                   <input name="name" value={form.name} onChange={updateField} placeholder="Full name" required />
                   <input name="email" type="email" value={form.email} onChange={updateField} placeholder="Email" required />
