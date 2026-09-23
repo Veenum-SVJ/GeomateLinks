@@ -1,14 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAdmin } from "@/lib/adminStore"
+import ConfirmDialog from "@/components/admin/ConfirmDialog"
 import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react"
 import type { Service } from "@/types/content"
 
 export default function AdminServices() {
   const { content, loading, update } = useAdmin()
+  const [confirmRemove, setConfirmRemove] = useState<number | null>(null)
 
   if (loading || !content) {
     return (
@@ -90,7 +93,7 @@ export default function AdminServices() {
                 <Button variant="ghost" size="sm" onClick={() => move(index, 1)} disabled={index === content.services.length - 1} title="Move down">
                   <ArrowDown className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => remove(index)} className="text-red-600 hover:bg-red-50" title="Remove">
+                <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(index)} className="text-red-600 hover:bg-red-50" title="Remove">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -121,6 +124,18 @@ export default function AdminServices() {
           </CardContent>
         </Card>
       ))}
+
+      <ConfirmDialog
+        open={confirmRemove !== null}
+        title={`Remove service ${confirmRemove !== null ? confirmRemove + 1 : ""}?`}
+        description={`"${confirmRemove !== null ? content.services[confirmRemove]?.title : ""}" will disappear from the homepage after you publish. This opens the standard publish flow, so you can discard before publishing if it was a mistake.`}
+        confirmLabel="Remove"
+        onConfirm={() => {
+          if (confirmRemove !== null) remove(confirmRemove)
+          setConfirmRemove(null)
+        }}
+        onCancel={() => setConfirmRemove(null)}
+      />
     </div>
   )
 }

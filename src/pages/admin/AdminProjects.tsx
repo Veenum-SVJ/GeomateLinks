@@ -1,14 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAdmin } from "@/lib/adminStore"
 import MediaField from "@/components/admin/MediaField"
+import ConfirmDialog from "@/components/admin/ConfirmDialog"
 import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react"
 import type { Project } from "@/types/content"
 
 export default function AdminProjects() {
   const { content, loading, update } = useAdmin()
+  const [confirmRemove, setConfirmRemove] = useState<number | null>(null)
 
   if (loading || !content) {
     return (
@@ -86,7 +89,7 @@ export default function AdminProjects() {
                 <Button variant="ghost" size="sm" onClick={() => move(index, 1)} disabled={index === content.projects.length - 1} title="Move down">
                   <ArrowDown className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => remove(index)} className="text-red-600 hover:bg-red-50" title="Remove">
+                <Button variant="ghost" size="sm" onClick={() => setConfirmRemove(index)} className="text-red-600 hover:bg-red-50" title="Remove">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -119,10 +122,21 @@ export default function AdminProjects() {
                 value={project.image}
                 onChange={(url) => setField(index, "image", url)}
               />
-            </div>
-          </CardContent>
+            </div>          </CardContent>
         </Card>
       ))}
-</div>
+
+      <ConfirmDialog
+        open={confirmRemove !== null}
+        title={`Remove project ${confirmRemove !== null ? confirmRemove + 1 : ""}?`}
+        description={`"${confirmRemove !== null ? content.projects[confirmRemove]?.title : ""}" will disappear from the homepage portfolio after you publish. This opens the standard publish flow, so you can discard before publishing if it was a mistake.`}
+        confirmLabel="Remove"
+        onConfirm={() => {
+          if (confirmRemove !== null) remove(confirmRemove)
+          setConfirmRemove(null)
+        }}
+        onCancel={() => setConfirmRemove(null)}
+      />
+    </div>
   )
 }
