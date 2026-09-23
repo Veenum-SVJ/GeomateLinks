@@ -65,7 +65,7 @@ export default function AdminMessages() {
           ) : (
             <div className="space-y-3">
               {messages.map((msg) => (
-                <div key={msg.id} className="flex items-start justify-between gap-4 p-4 border rounded-lg">
+                <div key={msg.id} className="flex flex-col gap-3 border rounded-lg p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={msg.read ? "font-medium" : "font-semibold"}>
@@ -87,18 +87,18 @@ export default function AdminMessages() {
                       {new Date(msg.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <div className="flex flex-col gap-2 shrink-0">
+                  <div className="flex gap-2 shrink-0">
                     {!msg.read && (
                       <button
                         onClick={() => handleRead(msg.id)}
-                        className="text-xs px-2 py-1 border rounded hover:bg-muted"
+                        className="flex-1 text-xs px-3 py-2 border rounded hover:bg-muted sm:flex-none sm:py-1.5"
                       >
                         Mark read
                       </button>
                     )}
                     <button
                       onClick={() => handleDelete(msg.id)}
-                      className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50"
+                      className="flex-1 text-xs px-3 py-2 border rounded text-red-600 hover:bg-red-50 sm:flex-none sm:py-1.5"
                     >
                       Delete
                     </button>

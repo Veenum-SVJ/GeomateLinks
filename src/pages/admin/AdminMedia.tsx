@@ -141,13 +141,13 @@ export default function AdminMedia() {
                     <div className="space-y-1 p-2">
                       <p className="truncate text-xs font-medium" title={item.pathname}>{item.pathname.replace(/^media\//, "")}</p>
                       <p className="text-[10px] text-muted-foreground">{formatSize(item.size)}</p>
-                      <div className="flex gap-1 pt-1">
-                        <Button variant="outline" size="sm" className="h-7 flex-1 px-2 text-xs" onClick={() => copyUrl(item)}>
+                      <div className="flex gap-1.5 pt-1">
+                        <Button variant="outline" size="sm" className="h-9 flex-1 px-2 text-xs sm:h-7" onClick={() => copyUrl(item)}>
                           {copied === item.url ? <Check className="mr-1 h-3 w-3" /> : <Copy className="mr-1 h-3 w-3" />}
                           {copied === item.url ? "Copied" : "Copy URL"}
                         </Button>
                       </div>
-                      <Button variant="destructive" size="sm" className="h-7 w-full text-xs" onClick={() => handleDelete(item)}>
+                      <Button variant="destructive" size="sm" className="h-9 w-full text-xs sm:h-7" onClick={() => handleDelete(item)}>
                         <Trash2 className="mr-1 h-3 w-3" /> Delete
                       </Button>
                     </div>

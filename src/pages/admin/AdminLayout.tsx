@@ -28,7 +28,7 @@ function AdminShell() {
   const { dirty, saving, error, notice, save, reload } = useAdmin()
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="admin-root flex min-h-screen w-full bg-background">
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
@@ -42,7 +42,7 @@ function AdminShell() {
             <img src="/favicon.ico" alt="Logo" className="h-6 w-6 rounded" />
             GEOMATE LINKS CONSULTING LTD
           </Link>
-          <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <button className="-m-2 p-2 lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -55,7 +55,7 @@ function AdminShell() {
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -84,7 +84,7 @@ function AdminShell() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 lg:px-6">
-          <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+          <button className="-m-2 p-2 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex-1 flex items-center gap-2">
@@ -96,15 +96,15 @@ function AdminShell() {
           </div>
         </header>
         {(dirty || saving) && (
-          <div className="sticky top-16 z-20 flex flex-wrap items-center gap-3 border-b bg-amber-50 px-4 py-2.5 lg:px-6">
+          <div className="sticky top-16 z-20 flex flex-col gap-2.5 border-b bg-amber-50 px-4 py-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 lg:px-6">
             <span className="text-sm font-medium text-amber-800">
               {saving ? "Publishing…" : "You have unpublished changes"}
             </span>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:ml-auto">
               <button
                 onClick={() => reload()}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md border border-amber-300 bg-white px-3 py-2 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50 sm:flex-none sm:py-1.5"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Discard
@@ -112,7 +112,7 @@ function AdminShell() {
               <button
                 onClick={() => save()}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-md bg-brand-brown px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-brown/90 disabled:opacity-50"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-brand-brown px-3 py-2 text-xs font-semibold text-white hover:bg-brand-brown/90 disabled:opacity-50 sm:flex-none sm:py-1.5"
               >
                 <UploadCloud className="h-3.5 w-3.5" />
                 {saving ? "Publishing…" : "Publish to live site"}

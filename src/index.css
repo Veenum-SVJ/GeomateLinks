@@ -753,3 +753,21 @@ footer {
 @media (max-width: 768px) {
   .contact-form-row { grid-template-columns: 1fr; }
 }
+
+/* ---- Admin: phone polish -------------------------------------------- */
+/* Inputs inside the admin need ≥16px font size on phones, otherwise iOS
+   Safari auto-zooms the whole page whenever a field is focused. */
+@media (max-width: 640px) {
+  .admin-root input,
+  .admin-root textarea,
+  .admin-root select {
+    font-size: 16px !important;
+  }
+}
+/* Tap targets: buttons should clear ~40px on touch screens. Desktop
+   sizing is untouched (pointer: coarse only matches touch-first devices). */
+@media (pointer: coarse) {
+  .admin-root button:not([class*="h-"]) {
+    min-height: 40px;
+  }
+}
