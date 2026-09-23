@@ -6,6 +6,8 @@
 import {
   readMessages,
   appendMessage,
+  updateMessage,
+  deleteMessageById,
   normaliseMessage,
   isValidMessage,
 } from './_lib/store.js'
@@ -52,18 +54,18 @@ export default async function handler(req, res) {
 
     const id = url.searchParams.get('id')
     if (!id) return json(res, 400, { error: 'Missing id' })
-    const messages = await readMessages()
-    const next =
-      method === 'PATCH'
-        ? messages.map((m) => (m.id === id ? { ...m, read: true } : m))
-        : messages.filter((m) => m.id !== id)
-    if (next.length === messages.length && method === 'DELETE') {
-      return json(res, 404, { error: 'Message not found' })
-    }
     try {
-      const { writeMessages } = await import('./_lib/store.js')
-      await writeMessages(next)
-      return json(res, 200, { ok: true, messages: next })
+      // Per-entry updates touch only the target blob, so an enquiry landing
+      // at the same moment is untouched. The refreshed list keeps the
+      // client-side badge/list sync contract.
+      const updated =
+        method === 'PATCH' ? await updateMessage(id, { read: true }) : null
+      const deleted = method === 'DELETE' ? await deleteMessageById(id) : false
+      if (!updated && !deleted) {
+        return json(res, 404, { error: 'Message not found' })
+      }
+      const messages = await readMessages()
+      return json(res, 200, { ok: true, messages })
     } catch (err) {
       console.error('[api/messages] update failed', err)
       return json(res, 500, { error: 'Could not update messages' })

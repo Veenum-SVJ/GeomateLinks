@@ -5,7 +5,8 @@
 import { put, head, list, del } from '@vercel/blob'
 
 const CONTENT_BLOB = 'site-content.json'
-const MESSAGES_BLOB = 'contact-messages.json'
+const MESSAGES_PREFIX = 'messages/'
+const LEGACY_MESSAGES_BLOB = 'contact-messages.json'
 const ACTIVITY_PREFIX = 'activity/'
 const MAX_MESSAGES = 500
 const MAX_ACTIVITY = 30
@@ -125,11 +126,33 @@ export async function deleteMediaByUrl(url) {
 }
 
 // ---- Messages ---------------------------------------------------------
+// Each enquiry is its own Blob object (messages/<stamp>-<id>.json), so a new
+// submission is a pure append: concurrent enquiries — or an enquiry landing
+// while an admin marks another read — can never overwrite each other, which
+// the old single-document inbox could (Blob is last-write-wins with
+// read-after-write lag). The legacy single document is migrated on first read.
 
-export async function readMessages() {
-  if (!hasStorage()) return []
+function messagePathname(entry) {
+  const ts = Date.parse(entry.createdAt)
+  // Fixed-width base36 ms timestamp → lexical order equals newest first.
+  const stamp = (Number.isFinite(ts) ? ts : Date.now()).toString(36).padStart(11, '0')
+  return `${MESSAGES_PREFIX}${stamp}-${entry.id}.json`
+}
+
+async function listMessageBlobs() {
+  const blobs = []
+  let cursor
+  do {
+    const result = await list({ prefix: MESSAGES_PREFIX, limit: 1000, cursor })
+    blobs.push(...(result.blobs || []))
+    cursor = result.cursor && blobs.length < 5000 ? result.cursor : undefined
+  } while (cursor)
+  return blobs
+}
+
+async function readLegacyMessages() {
   try {
-    const meta = await head(MESSAGES_BLOB)
+    const meta = await head(LEGACY_MESSAGES_BLOB)
     const res = await fetch(meta.url, { cache: 'no-store' })
     if (!res.ok) return []
     const data = await safeParse(await res.text(), [])
@@ -139,23 +162,104 @@ export async function readMessages() {
   }
 }
 
-export async function writeMessages(messages) {
-  const body = JSON.stringify(messages, null, 2)
-  await put(MESSAGES_BLOB, body, {
+export async function readMessages() {
+  if (!hasStorage()) return []
+  try {
+    const blobs = await listMessageBlobs()
+    // One-time migration from the legacy single-document inbox: merge any
+    // legacy messages that are not already stored per-entry (dedupe by id,
+    // idempotent writes), then delete the legacy blob. If a new enquiry
+    // lands before the first read, blobs exist but the merge still runs —
+    // so nothing is ever left invisible. A failed delete simply re-runs the
+    // (harmless) merge on the next read.
+    const blobIds = new Set(blobs.map((b) => b.pathname))
+    const legacy = await readLegacyMessages()
+    const missing = legacy.filter((m) => !blobIds.has(messagePathname(m)))
+    if (missing.length) {
+      for (let i = 0; i < missing.length; i += 25) {
+        await Promise.all(
+          missing.slice(i, i + 25).map((m) =>
+            put(messagePathname(m), JSON.stringify(m), {
+              access: 'public',
+              contentType: 'application/json',
+              addRandomSuffix: false,
+              cacheControlMaxAge: 0,
+            }).catch(() => {}),
+          ),
+        )
+      }
+      try {
+        const meta = await head(LEGACY_MESSAGES_BLOB)
+        await del(meta.url)
+      } catch { /* best-effort */ }
+    }
+
+    const entries = await Promise.all(
+      blobs.map(async (blob) => {
+        try {
+          const res = await fetch(blob.url, { cache: 'no-store' })
+          if (!res.ok) return null
+          const data = await safeParse(await res.text(), null)
+          return data && typeof data === 'object' && data.id ? data : null
+        } catch {
+          return null
+        }
+      }),
+    )
+    const migrated = missing.filter(Boolean)
+    return [...entries.filter(Boolean), ...migrated]
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+  } catch {
+    return []
+  }
+}
+
+export async function appendMessage(entry) {
+  await put(messagePathname(entry), JSON.stringify(entry, null, 2), {
     access: 'public',
     contentType: 'application/json',
     addRandomSuffix: false,
     cacheControlMaxAge: 0,
   })
-  return messages
+  // Opportunistic pruning beyond the cap — failures are fine and never
+  // affect the submission itself.
+  try {
+    const blobs = await listMessageBlobs()
+    const sorted = blobs.sort((a, b) => b.pathname.localeCompare(a.pathname))
+    await Promise.all(sorted.slice(MAX_MESSAGES).map((b) => del(b.url).catch(() => {})))
+  } catch { /* best-effort */ }
+  return entry
 }
 
-export async function appendMessage(entry) {
+// Finds the entry, applies the patch and rewrites it in place (same
+// pathname, since id and createdAt are immutable). Returns the updated
+// entry, or null when the id is unknown.
+export async function updateMessage(id, patch) {
   const messages = await readMessages()
-  messages.unshift(entry)
-  if (messages.length > MAX_MESSAGES) messages.length = MAX_MESSAGES
-  await writeMessages(messages)
-  return entry
+  const target = messages.find((m) => m.id === id)
+  if (!target) return null
+  const next = { ...target, ...patch }
+  if (JSON.stringify(next) === JSON.stringify(target)) return next
+  await put(messagePathname(next), JSON.stringify(next, null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    cacheControlMaxAge: 0,
+  })
+  return next
+}
+
+// Returns true when the message existed and was removed.
+export async function deleteMessageById(id) {
+  const messages = await readMessages()
+  const target = messages.find((m) => m.id === id)
+  if (!target) return false
+  const pathname = messagePathname(target)
+  const blobs = await listMessageBlobs()
+  const blob = blobs.find((b) => b.pathname === pathname)
+  if (!blob) return false
+  await del(blob.url)
+  return true
 }
 
 export function normaliseMessage(payload) {

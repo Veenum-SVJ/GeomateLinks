@@ -2,7 +2,7 @@
 import crypto from 'crypto';
 import { createRequire } from 'module';
 import { handleUpload as blobHandleUpload } from '@vercel/blob/client';
-import { readContent, writeContent, readMessages, writeMessages, appendMessage, normaliseMessage, isValidMessage, listMedia, deleteMediaByUrl, readActivity, logActivity } from '../_lib/store.js';
+import { readContent, writeContent, readMessages, appendMessage, normaliseMessage, isValidMessage, listMedia, deleteMediaByUrl, readActivity, logActivity, updateMessage, deleteMessageById } from '../_lib/store.js';
 import { describeChanges } from '../_lib/describeChanges.js';
 
 // Node ESM cannot import JSON statically; use CJS require instead.
@@ -247,16 +247,16 @@ export default async function handler(req, res) {
     if (req.method === 'PATCH' || req.method === 'DELETE') {
       const id = url.searchParams.get('id');
       if (!id) return json(res, 400, { error: 'Missing id' });
-      const messages = await readMessages();
-      const next =
-        req.method === 'PATCH'
-          ? messages.map((m) => (m.id === id ? { ...m, read: true } : m))
-          : messages.filter((m) => m.id !== id);
-      if (next.length === messages.length && req.method === 'DELETE') {
+      // Per-entry updates touch only the target blob — an enquiry landing at
+      // the same moment is untouched.
+      const updated =
+        req.method === 'PATCH' ? await updateMessage(id, { read: true }) : null;
+      const deleted = req.method === 'DELETE' ? await deleteMessageById(id) : false;
+      if (!updated && !deleted) {
         return json(res, 404, { error: 'Message not found' });
       }
-      await writeMessages(next);
-      return json(res, 200, { ok: true, messages: next });
+      const messages = await readMessages();
+      return json(res, 200, { ok: true, messages });
     }
   }
 
