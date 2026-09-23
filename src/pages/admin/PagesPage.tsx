@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAdmin } from "@/lib/adminStore"
+import MediaField from "@/components/admin/MediaField"
+import { Plus, Trash2 } from "lucide-react"
 import type { SiteContent } from "@/types/content"
 
 type PageKey = keyof SiteContent["pages"]
@@ -33,6 +36,26 @@ export default function PagesPage() {
   const setStat = (index: number, field: "value" | "label", value: string) =>
     update((draft) => {
       draft.stats[index][field] = value
+      return draft
+    })
+
+  const setAboutImage = (index: number, url: string) =>
+    update((draft) => {
+      if (!draft.aboutImages) draft.aboutImages = []
+      draft.aboutImages[index] = url
+      return draft
+    })
+
+  const addAboutImage = () =>
+    update((draft) => {
+      if (!draft.aboutImages) draft.aboutImages = []
+      draft.aboutImages.push("")
+      return draft
+    })
+
+  const removeAboutImage = (index: number) =>
+    update((draft) => {
+      draft.aboutImages = (draft.aboutImages ?? []).filter((_, i) => i !== index)
       return draft
     })
 
@@ -119,6 +142,63 @@ export default function PagesPage() {
           </CardContent>
         </Card>
       ))}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Hero video &amp; poster</CardTitle>
+          <CardDescription>
+            The background video in the hero. If the video URL is empty, the poster image shows instead.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <MediaField
+            label="Hero video (MP4)"
+            value={content.hero.videoUrl ?? ""}
+            onChange={(url) => setHero("videoUrl", url)}
+            accept="video/mp4"
+          />
+          <MediaField
+            label="Poster image (fallback when no video)"
+            value={content.hero.posterUrl ?? ""}
+            onChange={(url) => setHero("posterUrl", url)}
+            accept="image/*"
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>About images</CardTitle>
+          <CardDescription>
+            Optional photo strip beside the About text. An empty list keeps the section text-only.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(content.aboutImages ?? []).length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No images — the About section is currently text-only.
+            </p>
+          )}
+          {(content.aboutImages ?? []).map((url, index) => (
+            <div key={index} className="flex items-end gap-2">
+              <div className="min-w-0 flex-1">
+                <MediaField
+                  label={`Image ${index + 1}`}
+                  value={url}
+                  onChange={(next) => setAboutImage(index, next)}
+                  accept="image/*"
+                />
+              </div>
+              <Button variant="ghost" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => removeAboutImage(index)} title="Remove image">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button variant="outline" size="sm" onClick={addAboutImage}>
+            <Plus className="mr-2 h-4 w-4" /> Add image slot
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

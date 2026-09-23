@@ -181,9 +181,13 @@ export default function HomePage() {
                 {content.company.established}
               </p>
             </div>
-            <div className="about-image-grid" style={{ display: 'none' }}>
-              {/* About images removed per user request */}
-            </div>
+            {(content.aboutImages ?? []).length > 0 && (
+              <div className="about-image-grid">
+                {(content.aboutImages ?? []).map((src, index) => (
+                  <img key={`${src}-${index}`} src={src} alt={`Geomate Links field work ${index + 1}`} loading="lazy" />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
