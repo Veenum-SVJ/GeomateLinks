@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAdmin } from "@/lib/adminStore"
 import MediaField from "@/components/admin/MediaField"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, GripVertical } from "lucide-react"
+import { useListDrag } from "@/hooks/useListDrag"
 import type { SiteContent } from "@/types/content"
 
 type PageKey = keyof SiteContent["pages"]
@@ -58,6 +59,16 @@ export default function PagesPage() {
       draft.aboutImages = (draft.aboutImages ?? []).filter((_, i) => i !== index)
       return draft
     })
+
+  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
+    update((draft) => {
+      const list = draft.aboutImages ?? []
+      const [moved] = list.splice(from, 1)
+      list.splice(to, 0, moved)
+      draft.aboutImages = list
+      return draft
+    }),
+  )
 
   const pageMeta: { key: PageKey; name: string; hint: string }[] = [
     { key: "about", name: "About section", hint: "The band below the hero on the homepage." },
@@ -180,7 +191,21 @@ export default function PagesPage() {
             </p>
           )}
           {(content.aboutImages ?? []).map((url, index) => (
-            <div key={index} className="flex items-end gap-2">
+            <div
+              key={index}
+              {...itemProps(index, `about-${index}`)}
+              className={`flex items-end gap-2 ${dragIndex === index ? "opacity-50" : ""}`}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mb-1 h-9 w-9 shrink-0 cursor-grab text-muted-foreground/50 hover:text-foreground active:cursor-grabbing"
+                aria-label={`Drag handle for image ${index + 1}`}
+                title="Drag to reorder"
+                {...handleProps(`about-${index}`)}
+              >
+                <GripVertical className="h-4 w-4" />
+              </Button>
               <div className="min-w-0 flex-1">
                 <MediaField
                   label={`Image ${index + 1}`}

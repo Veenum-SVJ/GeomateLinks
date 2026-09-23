@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useAdmin } from "@/lib/adminStore"
 import ConfirmDialog from "@/components/admin/ConfirmDialog"
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react"
+import { Plus, Trash2, ArrowUp, ArrowDown, GripVertical } from "lucide-react"
+import { useListDrag } from "@/hooks/useListDrag"
 import type { Service } from "@/types/content"
 
 export default function AdminServices() {
@@ -26,6 +27,13 @@ export default function AdminServices() {
       fn(draft.services)
       return draft
     })
+
+  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
+    mutate((services) => {
+      const [moved] = services.splice(from, 1)
+      services.splice(to, 0, moved)
+    }),
+  )
 
   const setField = (index: number, field: keyof Service, value: string) =>
     mutate((services) => {
@@ -82,11 +90,25 @@ export default function AdminServices() {
       )}
 
       {content.services.map((service, index) => (
-        <Card key={service.id || index}>
+        <Card
+          key={service.id || index}
+          {...itemProps(index, service.id || `idx-${index}`)}
+          className={dragIndex === index ? "opacity-50" : undefined}
+        >
           <CardHeader>
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-base">Service {index + 1}</CardTitle>
               <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="cursor-grab text-muted-foreground/50 hover:text-foreground active:cursor-grabbing"
+                  aria-label={`Drag handle for service ${index + 1}`}
+                  title="Drag to reorder"
+                  {...handleProps(service.id || `idx-${index}`)}
+                >
+                  <GripVertical className="h-4 w-4" />
+                </Button>
                 <Button variant="ghost" size="sm" onClick={() => move(index, -1)} disabled={index === 0} title="Move up">
                   <ArrowUp className="h-4 w-4" />
                 </Button>
