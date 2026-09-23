@@ -5,10 +5,29 @@ import { useAdmin } from "@/lib/adminStore"
 import { useEffect, useState } from "react"
 import { fetchMessages } from "@/lib/api"
 import type { StoredMessage } from "@/types/content"
-import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail } from "lucide-react"
+import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+const quickLinks = [
+  { name: "Pages", href: "/admin/pages", icon: FileText },
+  { name: "Services", href: "/admin/services", icon: Briefcase },
+  { name: "Projects", href: "/admin/projects", icon: FolderKanban },
+  { name: "Messages", href: "/admin/messages", icon: Mails },
+  { name: "Media", href: "/admin/media", icon: Image },
+]
+
+function timeAgo(iso: string) {
+  const secs = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000))
+  if (secs < 60) return "just now"
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours / 24)}d ago`
+}
 
 export default function AdminOverview() {
-  const { content, loading, error } = useAdmin()
+  const { content, loading, error, dirty, saving, save } = useAdmin()
   const [messages, setMessages] = useState<StoredMessage[]>([])
   const [unread, setUnread] = useState(0)
 
@@ -28,6 +47,8 @@ export default function AdminOverview() {
       </div>
     )
   }
+
+  const newest = [...messages].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))[0]
 
   const sections = [
     { name: "Pages", href: "/admin/pages", icon: FileText, description: "Hero, section headings and homepage copy", meta: `${(content.stats ?? []).length} stats · 4 sections` },
@@ -51,6 +72,72 @@ export default function AdminOverview() {
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {/* Quick actions: newest enquiry, publish state and one-tap links —
+          the two statuses stay visible side by side on phones while the
+          link chips scroll horizontally. */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <Link to="/admin/messages" className="block">
+            <Card className={cn("h-full transition-colors hover:bg-muted/40", newest && !newest.read && "border-amber-300 bg-amber-50/60")}>
+              <CardContent className="p-4">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Newest enquiry</p>
+                {newest ? (
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <p className="truncate text-sm font-semibold">{newest.name}</p>
+                    {!newest.read && (
+                      <span className="shrink-0 rounded bg-brand-brown px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                        New
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-1.5 text-sm text-muted-foreground">No enquiries yet</p>
+                )}
+                {newest && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(newest.createdAt)}</p>
+                )}
+              </CardContent>
+            </Card>
+          </Link>
+          <Card className={cn("h-full", dirty && !saving && "border-amber-300 bg-amber-50/60")}>
+            <CardContent className="p-4">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Publish status</p>
+              {dirty || saving ? (
+                <>
+                  <p className="mt-1.5 text-sm font-semibold">{saving ? "Publishing…" : "Unpublished changes"}</p>
+                  <Button size="sm" className="mt-2 w-full" onClick={() => save()} disabled={saving}>
+                    <UploadCloud className="mr-1 h-3.5 w-3.5" />
+                    {saving ? "Publishing…" : "Publish now"}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold">
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" aria-hidden />
+                    Live site up to date
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-2 w-full">
+                    <Link to="/"><Globe className="mr-1 h-3.5 w-3.5" /> View site</Link>
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {quickLinks.map(({ name, href, icon: Icon }) => (
+            <Link
+              key={name}
+              to={href}
+              className="inline-flex min-h-[40px] shrink-0 items-center gap-2 rounded-full border bg-white px-4 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Icon className="h-4 w-4 text-brand-brown" />
+              {name}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
