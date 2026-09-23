@@ -14,6 +14,16 @@ type PageKey = keyof SiteContent["pages"]
 export default function PagesPage() {
   const { content, loading, update } = useAdmin()
 
+  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
+    update((draft) => {
+      const list = draft.aboutImages ?? []
+      const [moved] = list.splice(from, 1)
+      list.splice(to, 0, moved)
+      draft.aboutImages = [...list]
+      return draft
+    }),
+  )
+
   if (loading || !content) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -59,16 +69,6 @@ export default function PagesPage() {
       draft.aboutImages = (draft.aboutImages ?? []).filter((_, i) => i !== index)
       return draft
     })
-
-  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
-    update((draft) => {
-      const list = draft.aboutImages ?? []
-      const [moved] = list.splice(from, 1)
-      list.splice(to, 0, moved)
-      draft.aboutImages = list
-      return draft
-    }),
-  )
 
   const pageMeta: { key: PageKey; name: string; hint: string }[] = [
     { key: "about", name: "About section", hint: "The band below the hero on the homepage." },

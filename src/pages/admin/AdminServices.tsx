@@ -14,6 +14,14 @@ export default function AdminServices() {
   const { content, loading, update } = useAdmin()
   const [confirmRemove, setConfirmRemove] = useState<number | null>(null)
 
+  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
+    update((draft) => {
+      const [moved] = draft.services.splice(from, 1)
+      draft.services.splice(to, 0, moved)
+      return draft
+    }),
+  )
+
   if (loading || !content) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -27,13 +35,6 @@ export default function AdminServices() {
       fn(draft.services)
       return draft
     })
-
-  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
-    mutate((services) => {
-      const [moved] = services.splice(from, 1)
-      services.splice(to, 0, moved)
-    }),
-  )
 
   const setField = (index: number, field: keyof Service, value: string) =>
     mutate((services) => {

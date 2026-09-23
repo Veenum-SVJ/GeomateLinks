@@ -14,6 +14,14 @@ export default function AdminProjects() {
   const { content, loading, update } = useAdmin()
   const [confirmRemove, setConfirmRemove] = useState<number | null>(null)
 
+  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
+    update((draft) => {
+      const [moved] = draft.projects.splice(from, 1)
+      draft.projects.splice(to, 0, moved)
+      return draft
+    }),
+  )
+
   if (loading || !content) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -36,16 +44,9 @@ export default function AdminProjects() {
   const move = (index: number, delta: number) =>
     mutate((projects) => {
       const target = index + delta
-      if (target < 0 || target >= projects.length) return
+      if (target < 0 || target === projects.length) return
       ;[projects[index], projects[target]] = [projects[target], projects[index]]
     })
-
-  const { dragIndex, handleProps, itemProps } = useListDrag((from, to) =>
-    mutate((projects) => {
-      const [moved] = projects.splice(from, 1)
-      projects.splice(to, 0, moved)
-    }),
-  )
 
   const remove = (index: number) =>
     mutate((projects) => {
