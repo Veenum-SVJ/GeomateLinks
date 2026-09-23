@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
+import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
 import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw } from "lucide-react"
 
 const navItems = [
@@ -17,7 +18,9 @@ const navItems = [
 export default function AdminLayout() {
   return (
     <AdminProvider>
-      <AdminShell />
+      <UnreadMessagesProvider>
+        <AdminShell />
+      </UnreadMessagesProvider>
     </AdminProvider>
   )
 }
@@ -26,6 +29,7 @@ function AdminShell() {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { dirty, saving, error, notice, save, reload } = useAdmin()
+  const { unread } = useUnreadMessages()
 
   return (
     <div className="admin-root flex min-h-screen w-full bg-background">
@@ -61,6 +65,14 @@ function AdminShell() {
               >
                 <item.icon className="h-4 w-4" />
                 {item.name}
+                {item.name === "Messages" && unread > 0 && (
+                  <span
+                    className="ml-auto inline-flex min-w-[20px] items-center justify-center rounded-full bg-brand-brown px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                    aria-label={`${unread} unread message${unread === 1 ? "" : "s"}`}
+                  >
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
               </Link>
             )
           })}
