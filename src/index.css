@@ -573,6 +573,50 @@ nav {
   filter: grayscale(40%) contrast(1.1);
 }
 
+/* Skeleton overlay shown while the embed mounts and loads, between the map
+   scrolling into view and the iframe firing its load event. */
+.map-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  background:
+    repeating-linear-gradient(0deg, rgba(92,58,30,0.06) 0, rgba(92,58,30,0.06) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(92,58,30,0.06) 0, rgba(92,58,30,0.06) 1px, transparent 1px, transparent 28px),
+    var(--brand-cream);
+}
+.map-skeleton-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(92,58,30,0.18);
+  border-top-color: var(--brand-gold);
+  animation: map-spin 0.9s linear infinite;
+}
+.map-skeleton-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-warm-gray);
+  animation: map-pulse 1.6s ease-in-out infinite;
+}
+@keyframes map-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes map-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-skeleton-spinner { animation: none; }
+  .map-skeleton-label { animation: none; }
+}
+
 /* Fallback card shown when the Google embed cannot load (blocked, offline,
    or embed error). Rendered inside .contact-map so it inherits the frame. */
 .map-fallback {

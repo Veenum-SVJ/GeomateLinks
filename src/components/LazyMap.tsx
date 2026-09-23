@@ -56,6 +56,12 @@ export default function LazyMap({ company }: Props) {
             onError={() => setState("failed")}
           />
         )}
+        {state === "loading" && (
+          <div className="map-skeleton" aria-hidden>
+            <span className="map-skeleton-spinner" />
+            <span className="map-skeleton-label">Loading map…</span>
+          </div>
+        )}
         {state === "failed" && (
           <div className="map-fallback" role="group" aria-label="Office address and directions">
             <span className="map-fallback-badge">
