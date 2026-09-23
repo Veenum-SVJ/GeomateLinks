@@ -248,15 +248,14 @@ export default async function handler(req, res) {
       const id = url.searchParams.get('id');
       if (!id) return json(res, 400, { error: 'Missing id' });
       // Per-entry updates touch only the target blob — an enquiry landing at
-      // the same moment is untouched.
-      const updated =
-        req.method === 'PATCH' ? await updateMessage(id, { read: true }) : null;
-      const deleted = req.method === 'DELETE' ? await deleteMessageById(id) : false;
-      if (!updated && !deleted) {
+      // the same moment is untouched. The returned list derives from the
+      // pre-write read (no read-after-write staleness).
+      const result =
+        req.method === 'PATCH' ? await updateMessage(id, { read: true }) : await deleteMessageById(id);
+      if (!(result.applied ?? result.deleted)) {
         return json(res, 404, { error: 'Message not found' });
       }
-      const messages = await readMessages();
-      return json(res, 200, { ok: true, messages });
+      return json(res, 200, { ok: true, messages: result.messages });
     }
   }
 

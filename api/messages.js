@@ -56,16 +56,15 @@ export default async function handler(req, res) {
     if (!id) return json(res, 400, { error: 'Missing id' })
     try {
       // Per-entry updates touch only the target blob, so an enquiry landing
-      // at the same moment is untouched. The refreshed list keeps the
-      // client-side badge/list sync contract.
-      const updated =
-        method === 'PATCH' ? await updateMessage(id, { read: true }) : null
-      const deleted = method === 'DELETE' ? await deleteMessageById(id) : false
-      if (!updated && !deleted) {
+      // at the same moment is untouched. The returned list is derived from
+      // the pre-write read — no read-after-write, so it can never carry a
+      // stale just-written state back to the client.
+      const result =
+        method === 'PATCH' ? await updateMessage(id, { read: true }) : await deleteMessageById(id)
+      if (!(result.applied ?? result.deleted)) {
         return json(res, 404, { error: 'Message not found' })
       }
-      const messages = await readMessages()
-      return json(res, 200, { ok: true, messages })
+      return json(res, 200, { ok: true, messages: result.messages })
     } catch (err) {
       console.error('[api/messages] update failed', err)
       return json(res, 500, { error: 'Could not update messages' })

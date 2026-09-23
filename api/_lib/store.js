@@ -232,34 +232,37 @@ export async function appendMessage(entry) {
 }
 
 // Finds the entry, applies the patch and rewrites it in place (same
-// pathname, since id and createdAt are immutable). Returns the updated
-// entry, or null when the id is unknown.
+// pathname, since id and createdAt are immutable). Returns the updated list
+// built from the PRE-WRITE read with the patch applied in memory — never a
+// read-after-write, which Blob storage can serve stale during its
+// propagation window.
 export async function updateMessage(id, patch) {
   const messages = await readMessages()
   const target = messages.find((m) => m.id === id)
-  if (!target) return null
+  if (!target) return { applied: false, messages }
   const next = { ...target, ...patch }
-  if (JSON.stringify(next) === JSON.stringify(target)) return next
-  await put(messagePathname(next), JSON.stringify(next, null, 2), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-    cacheControlMaxAge: 0,
-  })
-  return next
+  if (JSON.stringify(next) !== JSON.stringify(target)) {
+    await put(messagePathname(next), JSON.stringify(next, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      cacheControlMaxAge: 0,
+    })
+  }
+  return { applied: true, entry: next, messages: messages.map((m) => (m.id === id ? next : m)) }
 }
 
-// Returns true when the message existed and was removed.
+// Removes the entry's own blob. Returns the post-delete list built from the
+// pre-write read (same no-read-after-write rule as updateMessage).
 export async function deleteMessageById(id) {
   const messages = await readMessages()
   const target = messages.find((m) => m.id === id)
-  if (!target) return false
+  if (!target) return { deleted: false, messages }
   const pathname = messagePathname(target)
   const blobs = await listMessageBlobs()
   const blob = blobs.find((b) => b.pathname === pathname)
-  if (!blob) return false
-  await del(blob.url)
-  return true
+  if (blob) await del(blob.url)
+  return { deleted: true, messages: messages.filter((m) => m.id !== id) }
 }
 
 export function normaliseMessage(payload) {
