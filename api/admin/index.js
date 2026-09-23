@@ -114,6 +114,7 @@ async function handleUpload(req, res) {
   const jsonResponse = await blobHandleUpload({
     body,
     request: req,
+    onBeforeGenerateToken: async () => ({}),
     onUploadCompleted: async () => {},
   });
   return json(res, 200, jsonResponse);
