@@ -329,13 +329,19 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
 
 // Patch-in-place. Returns the updated lead derived from the pre-write read —
 // never a read-after-write. Status changes are audited on the lead timeline
-// and in the dashboard activity feed.
-export async function updateLead(id, patch, { actor = 'Admin' } = {}) {
+// and in the dashboard activity feed. clientId/convertedAt are protected
+// from ordinary PATCHes (they change only via convertLead, which passes
+// allowProtected) so an edited form can never unlink a converted lead.
+export async function updateLead(id, patch, { actor = 'Admin', allowProtected = false } = {}) {
   const leads = await readAllLeads()
   const target = leads.find((l) => l.id === id)
   if (!target) return { applied: false, leads }
   const clean = normaliseLead({ ...target, ...patch })
-  const next = { ...target, ...clean, id: target.id, code: target.code, createdAt: target.createdAt, clientId: target.clientId, convertedAt: target.convertedAt, updatedAt: new Date().toISOString() }
+  const next = { ...target, ...clean, id: target.id, code: target.code, createdAt: target.createdAt, updatedAt: new Date().toISOString() }
+  if (!allowProtected) {
+    next.clientId = target.clientId
+    next.convertedAt = target.convertedAt
+  }
   const statusChanged = patch.status && patch.status !== target.status
   if (statusChanged) next.statusChangedAt = next.updatedAt
   if (JSON.stringify(next) !== JSON.stringify(target)) {
@@ -418,8 +424,10 @@ export async function convertLead(id, clientInput = {}, { actor = 'Admin' } = {}
 
   const updated = await updateLead(
     id,
-    { clientId: client.id, convertedAt: new Date().toISOString(), status: lead.status === 'Won' ? 'Won' : 'Won' },
-    { actor },
+    // Conversion only links the client and stamps the date — the pipeline
+    // status stays under the administrator's control (Change Status).
+    { clientId: client.id, convertedAt: new Date().toISOString() },
+    { actor, allowProtected: true },
   )
   const leadNext = updated.lead || lead
   await createActivity(
