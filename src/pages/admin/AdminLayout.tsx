@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
 import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw } from "lucide-react"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -11,8 +11,15 @@ const navItems = [
   { name: "Services", href: "/admin/services", icon: Briefcase },
   { name: "Projects", href: "/admin/projects", icon: FolderKanban },
   { name: "Messages", href: "/admin/messages", icon: Mails },
-  { name: "Media", href: "/admin/media", icon: Image },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+]
+
+// CRM sub-navigation — a group in the existing sidebar style, active when
+// any /admin/crm route is open.
+const crmNavItems = [
+  { name: "Leads", href: "/admin/crm/leads", icon: Users },
+  { name: "Clients", href: "/admin/crm/clients", icon: Building2 },
+  { name: "Follow-ups", href: "/admin/crm/followups", icon: CalendarClock },
+  { name: "Activities", href: "/admin/crm/activities", icon: History },
 ]
 
 export default function AdminLayout() {
@@ -52,7 +59,7 @@ function AdminShell() {
         </div>
         <nav className="p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.href || (item.href === "/admin/settings" && location.pathname.startsWith("/admin/settings"))
+            const isActive = location.pathname === item.href
             return (
               <Link
                 key={item.name}
@@ -76,6 +83,69 @@ function AdminShell() {
               </Link>
             )
           })}
+
+          {(() => {
+            const crmActive = location.pathname === "/admin/crm" || location.pathname.startsWith("/admin/crm/")
+            return (
+              <>
+                <div className="pt-3">
+                  <Link
+                    to="/admin/crm"
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
+                      crmActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted"
+                    )}
+                  >
+                    <Users className="h-4 w-4" />
+                    CRM
+                  </Link>
+                </div>
+                <div className={cn("ml-4 space-y-1 border-l", crmActive ? "border-brand-brown/30" : "border-border")}>
+                  {crmNavItems.map((item) => {
+                    const isActive = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </>
+            )
+          })()}
+
+          <div className="pt-3">
+            {[
+              { name: "Media", href: "/admin/media", icon: Image },
+              { name: "Settings", href: "/admin/settings", icon: Settings },
+            ].map((item) => {
+              const isActive = location.pathname === item.href || (item.href === "/admin/settings" && location.pathname.startsWith("/admin/settings"))
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                    isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.name}
+                </Link>
+              )
+            })}
+          </div>
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
           <Link

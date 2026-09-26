@@ -14,6 +14,13 @@ const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"))
 const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"))
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"))
 const ProfilePage = lazy(() => import("./pages/admin/ProfilePage"))
+const CrmDashboard = lazy(() => import("./pages/admin/crm/CrmDashboard"))
+const CrmLeads = lazy(() => import("./pages/admin/crm/LeadsPage"))
+const CrmLeadDetail = lazy(() => import("./pages/admin/crm/LeadDetail"))
+const CrmClients = lazy(() => import("./pages/admin/crm/ClientsPage"))
+const CrmClientDetail = lazy(() => import("./pages/admin/crm/ClientDetail"))
+const CrmFollowups = lazy(() => import("./pages/admin/crm/FollowupsPage"))
+const CrmActivities = lazy(() => import("./pages/admin/crm/ActivitiesPage"))
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-brand-cream">
@@ -41,6 +48,13 @@ function App() {
               <Route path="media" element={<AdminMedia />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="settings/profile" element={<ProfilePage />} />
+              <Route path="crm" element={<CrmDashboard />} />
+              <Route path="crm/leads" element={<CrmLeads />} />
+              <Route path="crm/leads/:id" element={<CrmLeadDetail />} />
+              <Route path="crm/clients" element={<CrmClients />} />
+              <Route path="crm/clients/:id" element={<CrmClientDetail />} />
+              <Route path="crm/followups" element={<CrmFollowups />} />
+              <Route path="crm/activities" element={<CrmActivities />} />
             </Route>
           </Routes>
         </Suspense>

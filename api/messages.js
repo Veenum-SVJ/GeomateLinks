@@ -11,6 +11,7 @@ import {
   normaliseMessage,
   isValidMessage,
 } from './_lib/store.js'
+import { leadFromMessage } from './_lib/crmStore.js'
 
 // Password protection is switched off while the site is under construction.
 function authDisabled() {
@@ -34,6 +35,15 @@ export default async function handler(req, res) {
     }
     try {
       await appendMessage(entry)
+      // CRM integration: every website enquiry becomes a New/Website lead
+      // linked back to this message (deduped by messageRef, so replays never
+      // create duplicates). Best-effort — a CRM problem can never break the
+      // contact form.
+      try {
+        await leadFromMessage(entry)
+      } catch (err) {
+        console.error('[api/messages] auto-lead failed', err)
+      }
       return json(res, 201, { ok: true })
     } catch (err) {
       console.error('[api/messages] append failed', err)
