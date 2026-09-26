@@ -314,7 +314,10 @@ async function readPipelineIndex() {
     const blobs = await listBlobs(PIPELINE_PREFIX)
     const entries = await Promise.all(
       blobs.map(async (blob) => {
-        const id = blob.pathname.slice(PIPELINE_PREFIX.length)
+        // pathname is crm/pipeline/<id>.json — strip the suffix; the bare id
+        // keys the index and re-reads the facet.
+        const raw = blob.pathname.slice(PIPELINE_PREFIX.length)
+        const id = raw.endsWith('.json') ? raw.slice(0, -'.json'.length) : raw
         if (!id) return null
         const data = await readPipelineBlob(id)
         return data ? [id, data] : null
