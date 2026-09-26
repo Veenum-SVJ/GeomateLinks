@@ -338,9 +338,17 @@ export async function updateLead(id, patch, { actor = 'Admin', allowProtected = 
   if (!target) return { applied: false, leads }
   const clean = normaliseLead({ ...target, ...patch })
   const next = { ...target, ...clean, id: target.id, code: target.code, createdAt: target.createdAt, updatedAt: new Date().toISOString() }
-  if (!allowProtected) {
-    next.clientId = target.clientId
-    next.convertedAt = target.convertedAt
+  // normaliseLead does not carry clientId/convertedAt, so overlay them from
+  // the patch explicitly. Only convertLead (allowProtected) may change them;
+  // ordinary PATCHes keep the stored values.
+  if (patch.clientId !== undefined || patch.convertedAt !== undefined) {
+    if (allowProtected) {
+      if (patch.clientId !== undefined) next.clientId = str(patch.clientId, 80)
+      if (patch.convertedAt !== undefined) next.convertedAt = iso(patch.convertedAt)
+    } else {
+      next.clientId = target.clientId
+      next.convertedAt = target.convertedAt
+    }
   }
   const statusChanged = patch.status && patch.status !== target.status
   if (statusChanged) next.statusChangedAt = next.updatedAt
