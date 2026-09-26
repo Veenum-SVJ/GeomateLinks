@@ -10,6 +10,8 @@ import { REJECTION_REASONS, QUOTATION_STATUSES } from "@/types/quotations"
 import type { Quotation, ProjectHandoff, QuotationStatus } from "@/types/quotations"
 import { fetchClients } from "@/lib/crmApi"
 import { sendQuotationEmail, changeQuotationStatus, createProjectHandoff } from "@/lib/quotationsApi"
+import { createProject } from "@/lib/projectsApi"
+import type { Project } from "@/lib/projectsApi"
 import { formatMinor } from "@/lib/money"
 import { crmDayOnly } from "@/components/admin/crm/CrmUI"
 import { cn } from "@/lib/utils"
@@ -435,11 +437,13 @@ export function CreateProjectDialog({
 }) {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
+  const [project, setProject] = useState<Project | null>(null)
   const [error, setError] = useState("")
 
   useEffect(() => {
     if (open) {
       setDone(false)
+      setProject(null)
       setError("")
     }
   }, [open])
@@ -450,10 +454,29 @@ export function CreateProjectDialog({
     setBusy(true)
     setError("")
     try {
-      await createProjectHandoff(quotation.id)
+      // 1. Handoff: resolves client/lead snapshots + stamps the lead's projectRef.
+      const handoffResult = await createProjectHandoff(quotation.id)
+      const h = handoffResult.handoff
+      // 2. Create the project in the PMS from the handoff payload.
+      const result = await createProject({
+        clientId: h.client.id,
+        leadId: h.lead.id || undefined,
+        quotationId: h.quotationId,
+        title: h.project.title,
+        description: h.project.description,
+        objectives: h.project.scopeOfWork,
+        location: { description: h.project.location },
+        serviceId: h.project.services[0]?.id,
+        serviceTitle: h.project.services[0]?.title,
+        quotedValueMinor: h.finance.grandTotalMinor,
+        currency: h.finance.currency,
+        paymentTerms: h.finance.paymentTerms,
+      })
+      setProject(result.project)
       setDone(true)
+      onDone?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not prepare the handoff")
+      setError(err instanceof Error ? err.message : "Could not create the project")
     } finally {
       setBusy(false)
     }
@@ -464,26 +487,29 @@ export function CreateProjectDialog({
       {done ? (
         <div className="text-center">
           <CheckCircle2 className="mx-auto h-10 w-10 text-brand-green" />
-          <h2 className="mt-2 text-sm font-semibold text-brand-dark">Handoff prepared</h2>
+          <h2 className="mt-2 text-sm font-semibold text-brand-dark">Project created</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            The project brief from {quotation.number} is recorded on the quotation and the linked lead. The Project Management
-            System arrives in the next phase and will pick it up from here.
+            {project?.number} — {project?.title} now lives in Project Management, linked to this quotation, the client and the lead.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              onClose()
-              onDone?.()
-            }}
-            className="mt-4 rounded-md bg-brand-brown px-3 py-2 text-sm font-semibold text-white hover:bg-brand-brown/90"
-          >
-            Done
-          </button>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <a
+              href={`/admin/pms/${project?.id}`}
+              className="rounded-md bg-brand-brown px-3 py-2 text-sm font-semibold text-white hover:bg-brand-brown/90"
+            >
+              Open project
+            </a>
+            <button type="button" onClick={onClose} className="rounded-md border px-3 py-2 text-sm">
+              Close
+            </button>
+          </div>
         </div>
       ) : (
         <>
           <h2 className="text-sm font-semibold text-brand-dark">Create project — {quotation.number}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Prepares the handoff from this accepted quotation.</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Creates a Project Management record from this accepted quotation — client, lead, title, description, service,
+            location and quoted value come across automatically.
+          </p>
           <dl className="mt-3 space-y-1.5 rounded-md border bg-muted/30 px-3 py-2.5 text-sm">
             <div className="flex justify-between gap-3">
               <dt className="text-muted-foreground">Client</dt>
@@ -509,7 +535,7 @@ export function CreateProjectDialog({
             </div>
           </dl>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            The Project Management System is a future module — nothing else is created yet.
+            The quotation itself is never copied — the project links to it and you can refine everything in Project Management.
           </p>
           <DialogError message={error} />
           <div className="mt-4 flex justify-end gap-2">
@@ -523,7 +549,7 @@ export function CreateProjectDialog({
               className="inline-flex items-center gap-1.5 rounded-md bg-brand-green px-3 py-2 text-sm font-semibold text-white hover:bg-brand-green/90 disabled:opacity-50"
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-              {busy ? "Preparing…" : "Prepare handoff"}
+              {busy ? "Creating…" : "Create project"}
             </button>
           </div>
         </>

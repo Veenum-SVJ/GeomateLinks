@@ -57,10 +57,21 @@ export default async function handler(req, res) {
   }
 
   const seg = path.split('/').filter(Boolean)
-  // seg[0] = resource | 'by-lead' | 'by-client', seg[1] = id, seg[2] = action
-  const resource = seg[0] || ''
-  const id = seg[1] || ''
-  const action = seg[2] || ''
+  // Path shapes after the prefix strip (crm.js keeps the resource word —
+  // /api/crm/leads/:id — but /api/quotations/:id does NOT, so normalise):
+  //   /dashboard | /services | /by-lead/:id | /by-client/:id | / (list)
+  //   /:id[/:action]                  ← resource IS the quotation id
+  const KEYWORD_RESOURCES = ['dashboard', 'services', 'by-lead', 'by-client', 'quotations']
+  const raw = seg[0] || ''
+  let resource = raw
+  let id = seg[1] || ''
+  let action = seg[2] || ''
+  if (raw && !KEYWORD_RESOURCES.includes(raw)) {
+    // /api/quotations/<id>/… — normalise so the quotation branch matches.
+    id = raw
+    action = seg[1] || ''
+    resource = 'quotations'
+  }
   const q = Object.fromEntries(url.searchParams.entries())
 
   try {

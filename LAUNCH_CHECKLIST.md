@@ -74,6 +74,20 @@ terminal, or ask the agent to run them.
       curl -s -o /dev/null -w "%{http_code}" https://<your-domain>/api/quotations/dashboard
       ```
       Expected: `401`. Same dev-mode caveat as the CRM check above.
+- [ ] **[Check]** Project Management is locked (clients, locations, progress,
+      team, quoted values, internal notes):
+      ```
+      curl -s -o /dev/null -w "%{http_code}" https://<your-domain>/api/projects/dashboard
+      ```
+      Expected: `401`. Same dev-mode caveat as above — while
+      `ADMIN_AUTH_DISABLED=1` this returns `200`.
+
+### What flips automatically (no code changes needed)
+
+- `/api/projects/*` (the whole Project Management module — project records,
+  tasks, milestones, team, deliverables, staff directory, publication
+  metadata) requires the signed session cookie, same as the CRM and the
+  quotations module.
 
 ### What flips automatically (no code changes needed)
 

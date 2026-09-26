@@ -26,6 +26,11 @@ const QuotationsList = lazy(() => import("./pages/admin/quotations/QuotationsLis
 const QuotationEditor = lazy(() => import("./pages/admin/quotations/QuotationEditor"))
 const QuotationDetail = lazy(() => import("./pages/admin/quotations/QuotationDetail"))
 const QuotationPrint = lazy(() => import("./pages/admin/quotations/QuotationPrint"))
+const ProjectsOverview = lazy(() => import("./pages/admin/projects/ProjectsOverview"))
+const ProjectsList = lazy(() => import("./pages/admin/projects/ProjectsList"))
+const ProjectEditor = lazy(() => import("./pages/admin/projects/ProjectEditor"))
+const ProjectDetail = lazy(() => import("./pages/admin/projects/ProjectDetail"))
+const StaffDirectory = lazy(() => import("./pages/admin/projects/StaffDirectory"))
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-brand-cream">
@@ -67,6 +72,13 @@ function App() {
               <Route path="quotations/:id/edit" element={<QuotationEditor />} />
               <Route path="quotations/:id/print" element={<QuotationPrint />} />
               <Route path="quotations/:id" element={<QuotationDetail />} />
+              <Route path="pms" element={<ProjectsOverview />} />
+              <Route path="pms/all" element={<ProjectsList />} />
+              <Route path="pms/list/:status" element={<ProjectsList />} />
+              <Route path="pms/new" element={<ProjectEditor />} />
+              <Route path="pms/staff" element={<StaffDirectory />} />
+              <Route path="pms/:id/edit" element={<ProjectEditor />} />
+              <Route path="pms/:id" element={<ProjectDetail />} />
             </Route>
           </Routes>
         </Suspense>

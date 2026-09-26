@@ -23,6 +23,7 @@ import { LeadStatusBadge, PriorityBadge, SourceBadge, CrmSpinner, CrmErrorState,
 import { ActivityTimeline, FollowupsList, AddActivityDialog, FollowupDialog, ACTIVITY_TYPE_LABELS, ACTIVITY_ICONS } from "@/components/admin/crm/TimelineComponents"
 import LeadFormDialog from "@/components/admin/crm/LeadFormDialog"
 import ConvertLeadDialog from "@/components/admin/crm/ConvertLeadDialog"
+import { LeadProjectsSection } from "@/components/admin/projects/ProjectSections"
 
 type MergedItem = {
   kind: "activity" | "followup"
@@ -545,6 +546,9 @@ export default function LeadDetail() {
 
               {/* Quotations (from the quotations module) */}
               <LeadQuotationsSection leadId={lead.id} />
+
+              {/* Projects (from Project Management) */}
+              <LeadProjectsSection leadId={lead.id} />
             </div>
           </div>
 

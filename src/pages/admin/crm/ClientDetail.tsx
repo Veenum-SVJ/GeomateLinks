@@ -15,6 +15,7 @@ import type { Quotation } from "@/types/quotations"
 import { CrmSpinner, CrmErrorState, CrmEmptyState, crmRelativeTime, crmDayOnly, CrmConfirmDialog, LeadStatusBadge } from "@/components/admin/crm/CrmUI"
 import { ActivityTimeline, FollowupsList, AddActivityDialog, FollowupDialog } from "@/components/admin/crm/TimelineComponents"
 import ClientFormDialog from "@/components/admin/crm/ClientFormDialog"
+import { ClientProjectsSection } from "@/components/admin/projects/ProjectSections"
 
 // Quotations for this client, from the quotations module (CRM ↔ quotation
 // integration). Best-effort read — failures degrade to a hint.
@@ -261,6 +262,9 @@ export default function ClientDetail() {
 
               {/* Quotations (from the quotations module) */}
               <ClientQuotationsSection clientId={client.id} />
+
+              {/* Projects (from Project Management) */}
+              <ClientProjectsSection clientId={client.id} />
 
               {/* Linked leads */}
               <section className="rounded-lg border bg-white p-4">

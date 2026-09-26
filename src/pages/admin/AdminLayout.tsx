@@ -3,13 +3,13 @@ import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
 import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText } from "lucide-react"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Pages", href: "/admin/pages", icon: FileText },
   { name: "Services", href: "/admin/services", icon: Briefcase },
-  { name: "Projects", href: "/admin/projects", icon: FolderKanban },
+  { name: "Portfolio", href: "/admin/projects", icon: FolderKanban },
   { name: "Messages", href: "/admin/messages", icon: Mails },
 ]
 
@@ -87,6 +87,7 @@ function AdminShell() {
           {(() => {
             const crmActive = location.pathname === "/admin/crm" || location.pathname.startsWith("/admin/crm/")
             const quotationsActive = location.pathname.startsWith("/admin/quotations")
+            const pmsActive = location.pathname.startsWith("/admin/pms")
             return (
               <>
                 <div className="pt-3">
@@ -150,6 +151,45 @@ function AdminShell() {
                         className={cn(
                           "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                           isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </div>
+
+                {/* Project Management — internal delivery engine; the top-level
+                    “Portfolio” item stays the public-website editor. */}
+                <div className="pt-3">
+                  <Link
+                    to="/admin/pms"
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
+                      pmsActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted",
+                    )}
+                  >
+                    <HardHat className="h-4 w-4" />
+                    Project Management
+                  </Link>
+                </div>
+                <div className={cn("ml-4 space-y-1 border-l", pmsActive ? "border-brand-brown/30" : "border-border")}>
+                  {[
+                    { name: "Dashboard", href: "/admin/pms", icon: HardHat },
+                    { name: "All Projects", href: "/admin/pms/all", icon: FolderKanban },
+                    { name: "Team Directory", href: "/admin/pms/staff", icon: Users },
+                  ].map((item) => {
+                    const isActive = location.pathname === item.href || (item.href !== "/admin/pms" && location.pathname.startsWith(`${item.href}/`))
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
                         <item.icon className="h-4 w-4" />
