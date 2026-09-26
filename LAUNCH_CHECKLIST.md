@@ -63,12 +63,21 @@ terminal, or ask the agent to run them.
       curl -s https://<your-domain>/api/admin/session
       ```
       Expected: `{"authenticated":false}`.
+- [ ] **[Check]** CRM is locked (leads, clients and notes are private):
+      ```
+      curl -s -o /dev/null -w "%{http_code}" https://<your-domain>/api/crm/dashboard
+      ```
+      Expected: `401`. While `ADMIN_AUTH_DISABLED=1` (dev mode) this
+      returns `200` — flip the switch before storing real client data.
 
 ### What flips automatically (no code changes needed)
 
-- `/api/admin/*`, content writes, and message read/mark/delete require the
-  signed session cookie (HttpOnly · Secure · SameSite=Strict, 8-hour
-  expiry, HMAC-verified, timing-safe password compare).
+- `/api/admin/*`, `/api/crm/*` (the whole CRM — leads, clients,
+  activities, follow-ups, dashboard), content writes, and message
+  read/mark/delete require the signed session cookie (HttpOnly · Secure ·
+  SameSite=Strict, 8-hour expiry, HMAC-verified, timing-safe password
+  compare). CRM data is private by construction: no public route touches
+  the `crm/` Blob prefixes.
 - Login attempts are rate-limited to **10 per 5 minutes** per IP.
 - `/admin` frontend redirects to `/admin/login`, which returns to being a
   password screen (the current quick-links landing page is a dev-mode
