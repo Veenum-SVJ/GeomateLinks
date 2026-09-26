@@ -218,23 +218,26 @@ async function readCounter() {
 }
 
 // Sequential human-friendly codes: GML-2026-0001, CLI-0007. The counter is a
-// read-modify-write on one small blob with retry — safe for a single-admin
-// tool; codes are never reused even if a rare concurrent allocation retries.
-async function allocateCode(kind, prefix, withYear) {
+// read-modify-write on one small blob; because Blob reads can be stale inside
+// a propagation window, the candidate code is verified against the records
+// actually stored (createLead/createClient pass their own check) and the
+// counter is bumped past any collision before the code is handed out.
+async function allocateCode(kind, prefix, withYear, isTaken) {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
       const counter = await readCounter()
-      const next = (Number(counter.counts[kind]) || 0) + 1
-      const code = withYear
-        ? `${prefix}-${new Date().getFullYear()}-${String(next).padStart(4, '0')}`
-        : `${prefix}-${String(next).padStart(4, '0')}`
+      let next = (Number(counter.counts[kind]) || 0) + 1
+      const codeFor = (n) =>
+        withYear ? `${prefix}-${new Date().getFullYear()}-${String(n).padStart(4, '0')}` : `${prefix}-${String(n).padStart(4, '0')}`
+      // Skip codes already in use (stale-counter collision protection).
+      while (isTaken && (await isTaken(codeFor(next)))) next++
       await put(COUNTER_BLOB, JSON.stringify({ counts: { ...counter.counts, [kind]: next } }, null, 2), {
         access: 'public',
         contentType: 'application/json',
         addRandomSuffix: false,
         cacheControlMaxAge: 0,
       })
-      return code
+      return codeFor(next)
     } catch {
       await sleep(40 + Math.random() * 80)
     }
@@ -390,7 +393,7 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
   const lead = {
     ...normaliseLead(input),
     id: newId(),
-    code: await allocateCode('leads', 'GML', true),
+    code: await allocateCode('leads', 'GML', true, async (code) => (await readAllLeads()).some((l) => l.code === code)),
     clientId: '',
     convertedAt: '',
     archived: false,
@@ -474,10 +477,14 @@ export async function updateLead(id, patch, { actor = 'Admin' } = {}) {
   for (const field of PIPELINE_FIELDS) {
     if (patch[field] !== undefined) pipelinePatch[field] = patch[field]
   }
+  let finalLead = next
   if (Object.keys(pipelinePatch).length > 0) {
-    await savePipelineData(id, pipelinePatch)
+    // Reflect the freshly merged facet in the response instead of the
+    // pre-write read (which may lag the facet blob just written).
+    const merged = await savePipelineData(id, pipelinePatch)
+    finalLead = { ...next, ...merged }
   }
-  return { applied: true, lead: next, leads: leads.map((l) => (l.id === id ? next : l)) }
+  return { applied: true, lead: finalLead, leads: leads.map((l) => (l.id === id ? finalLead : l)) }
 }
 
 export async function deleteLead(id) {
@@ -616,7 +623,7 @@ export async function createClient(input, { actor = 'Admin' } = {}) {
   const client = {
     ...normaliseClient(input),
     id: newId(),
-    code: await allocateCode('clients', 'CLI', false),
+    code: await allocateCode('clients', 'CLI', false, async (code) => (await readAll(CLIENTS_PREFIX)).some((c) => c.code === code)),
     createdAt: now,
     updatedAt: now,
   }
