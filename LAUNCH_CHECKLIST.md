@@ -69,13 +69,19 @@ terminal, or ask the agent to run them.
       ```
       Expected: `401`. While `ADMIN_AUTH_DISABLED=1` (dev mode) this
       returns `200` — flip the switch before storing real client data.
+- [ ] **[Check]** Quotations are locked (pricing, discounts and notes are private):
+      ```
+      curl -s -o /dev/null -w "%{http_code}" https://<your-domain>/api/quotations/dashboard
+      ```
+      Expected: `401`. Same dev-mode caveat as the CRM check above.
 
 ### What flips automatically (no code changes needed)
 
 - `/api/admin/*`, `/api/crm/*` (the whole CRM — leads, clients,
-  activities, follow-ups, dashboard), content writes, and message
-  read/mark/delete require the signed session cookie (HttpOnly · Secure ·
-  SameSite=Strict, 8-hour expiry, HMAC-verified, timing-safe password
+  activities, follow-ups, dashboard), `/api/quotations/*` (the whole
+  quotations module — pricing, discounts, notes), content writes, and
+  message read/mark/delete require the signed session cookie (HttpOnly ·
+  Secure · SameSite=Strict, 8-hour expiry, HMAC-verified, timing-safe password
   compare). CRM data is private by construction: no public route touches
   the `crm/` Blob prefixes.
 - Login attempts are rate-limited to **10 per 5 minutes** per IP.

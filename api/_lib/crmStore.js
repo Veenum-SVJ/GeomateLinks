@@ -136,7 +136,9 @@ function iso(value) {
   return Number.isFinite(t) ? new Date(t).toISOString() : ''
 }
 
-function newId() {
+// Exported for the quotations store (api/_lib/quotationStore.js), which
+// reuses this exact append-only blob idiom instead of duplicating it.
+export function newId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
@@ -174,7 +176,9 @@ async function fetchEntry(url) {
 
 // Reads every record under a prefix, newest first. Callers must paginate or
 // aggregate before returning to the client (see readLeads/getDashboard).
-async function readAll(prefix) {
+// Exported for the quotations store — same per-entry read/write/remove
+// helpers, one implementation of the append-only pattern.
+export async function readAll(prefix) {
   if (!hasStorage()) return []
   try {
     const blobs = await listBlobs(prefix)
@@ -187,7 +191,7 @@ async function readAll(prefix) {
   }
 }
 
-async function putEntry(prefix, entry) {
+export async function putEntry(prefix, entry) {
   await put(entryPathname(prefix, entry), JSON.stringify(entry, null, 2), {
     access: 'public',
     contentType: 'application/json',
@@ -196,7 +200,7 @@ async function putEntry(prefix, entry) {
   })
 }
 
-async function removeEntry(prefix, entry) {
+export async function removeEntry(prefix, entry) {
   const blobs = await listBlobs(prefix)
   const pathname = entryPathname(prefix, entry)
   const blob = blobs.find((b) => b.pathname === pathname)
@@ -222,7 +226,9 @@ async function readCounter() {
 // a propagation window, the candidate code is verified against the records
 // actually stored (createLead/createClient pass their own check) and the
 // counter is bumped past any collision before the code is handed out.
-async function allocateCode(kind, prefix, withYear, isTaken) {
+// Exported for the quotations module (GML-QT-… numbers) — same shared counter
+// blob and the same stale-counter duplicate protection.
+export async function allocateCode(kind, prefix, withYear, isTaken) {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
       const counter = await readCounter()

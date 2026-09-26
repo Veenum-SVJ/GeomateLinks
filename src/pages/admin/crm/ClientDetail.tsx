@@ -8,9 +8,76 @@ import type { SiteContent } from "@/types/content"
 import type { ClientDetailResult } from "@/types/crm"
 import { fetchClient, deleteClient } from "@/lib/crmApi"
 import { fetchContent, fallbackContent } from "@/lib/api"
+import { fetchQuotationsByClient } from "@/lib/quotationsApi"
+import { QuotationStatusBadge } from "@/components/admin/quotations/QuotationUI"
+import { formatMinorShort } from "@/lib/money"
+import type { Quotation } from "@/types/quotations"
 import { CrmSpinner, CrmErrorState, CrmEmptyState, crmRelativeTime, crmDayOnly, CrmConfirmDialog, LeadStatusBadge } from "@/components/admin/crm/CrmUI"
 import { ActivityTimeline, FollowupsList, AddActivityDialog, FollowupDialog } from "@/components/admin/crm/TimelineComponents"
 import ClientFormDialog from "@/components/admin/crm/ClientFormDialog"
+
+// Quotations for this client, from the quotations module (CRM ↔ quotation
+// integration). Best-effort read — failures degrade to a hint.
+function ClientQuotationsSection({ clientId }: { clientId: string }) {
+  const [quotations, setQuotations] = useState<Quotation[] | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    fetchQuotationsByClient(clientId)
+      .then((r) => {
+        if (active) setQuotations(r.quotations)
+      })
+      .catch(() => {
+        if (active) setFailed(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [clientId])
+
+  if (failed) {
+    return (
+      <section className="rounded-lg border bg-white p-4">
+        <h2 className="text-sm font-semibold text-brand-dark">Quotations</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Could not load linked quotations (they may still be indexing).</p>
+      </section>
+    )
+  }
+
+  return (
+    <section className="rounded-lg border bg-white p-4">
+      <h2 className="flex items-center justify-between text-sm font-semibold text-brand-dark">
+        Quotations ({quotations?.length || 0})
+        <Link to="/admin/quotations" className="text-xs font-medium text-brand-brown hover:underline">
+          Quotations module
+        </Link>
+      </h2>
+      {!quotations ? (
+        <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+      ) : quotations.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">No quotations yet for this client.</p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {quotations.map((q) => (
+            <li key={q.id}>
+              <Link to={`/admin/quotations/${q.id}`} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
+                <span className="min-w-0">
+                  <span className="block truncate font-medium text-brand-dark">
+                    <span className="font-mono text-xs text-brand-brown">{q.number}</span>
+                    {q.version > 1 ? ` · v${q.version}` : ""} — {q.projectTitle}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">{q.location || q.client.company || q.client.name} · {formatMinorShort(q.grandTotalMinor, q.currency)}</span>
+                </span>
+                <QuotationStatusBadge status={String(q.status)} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
 
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>()
@@ -191,6 +258,9 @@ export default function ClientDetail() {
                   </ul>
                 )}
               </section>
+
+              {/* Quotations (from the quotations module) */}
+              <ClientQuotationsSection clientId={client.id} />
 
               {/* Linked leads */}
               <section className="rounded-lg border bg-white p-4">

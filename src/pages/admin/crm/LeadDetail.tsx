@@ -14,6 +14,10 @@ import type { Lead as CrmLead, LeadDetailResult as LeadDetail, CrmActivity as Cr
 import { LEAD_STATUSES } from "@/types/crm"
 import { fetchLead, updateLead, deleteLead } from "@/lib/crmApi"
 import { fetchContent, fallbackContent } from "@/lib/api"
+import { fetchQuotationsByLead } from "@/lib/quotationsApi"
+import { QuotationStatusBadge } from "@/components/admin/quotations/QuotationUI"
+import { formatMinorShort } from "@/lib/money"
+import type { Quotation } from "@/types/quotations"
 import { Input } from "@/components/ui/input"
 import { LeadStatusBadge, PriorityBadge, SourceBadge, CrmSpinner, CrmErrorState, CrmEmptyState, crmRelativeTime, crmDayOnly, CrmConfirmDialog } from "@/components/admin/crm/CrmUI"
 import { ActivityTimeline, FollowupsList, AddActivityDialog, FollowupDialog, ACTIVITY_TYPE_LABELS, ACTIVITY_ICONS } from "@/components/admin/crm/TimelineComponents"
@@ -333,25 +337,12 @@ export default function LeadDetail() {
               >
                 <FolderPlus className="h-3.5 w-3.5" /> Create Project
               </button>
-              <button
-                onClick={async () => {
-                  setActionBusy("quote")
-                  setActionError("")
-                  try {
-                    const result = await updateLead(lead.id, { quotationRef: { code: `QT-${new Date().getFullYear()}-${lead.code.split("-").pop()}`, createdAt: new Date().toISOString() } })
-                    setDetail({ ...detail, lead: result.lead })
-                  } catch (err) {
-                    setActionError(err instanceof Error ? err.message : "Could not record the quotation")
-                  } finally {
-                    setActionBusy("")
-                  }
-                }}
-                disabled={actionBusy === "quote"}
-                title="Integration point — the quotation module will build on this reference"
-                className="inline-flex items-center gap-1.5 rounded-md border border-dashed px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted"
+              <Link
+                to={`/admin/quotations/new?leadId=${lead.id}`}
+                className="inline-flex items-center gap-1.5 rounded-md bg-brand-brown px-3 py-2 text-sm font-semibold text-white hover:bg-brand-brown/90"
               >
                 <FileText className="h-3.5 w-3.5" /> Create Quotation
-              </button>
+              </Link>
               <button
                 onClick={() =>
                   setConfirm({
@@ -536,6 +527,7 @@ export default function LeadDetail() {
                       }}
                     />
                   </label>
+
                 </div>
                 {(detail.lead.attachments?.length || 0) === 0 ? (
                   <p className="mt-3 text-sm text-muted-foreground">No attachments. Upload quotes, site plans or any supporting files.</p>
@@ -550,6 +542,9 @@ export default function LeadDetail() {
                   </ul>
                 )}
               </section>
+
+              {/* Quotations (from the quotations module) */}
+              <LeadQuotationsSection leadId={lead.id} />
             </div>
           </div>
 
@@ -645,6 +640,70 @@ function MergedTimeline({ detail }: { detail: LeadDetail }) {
         )
       })}
     </ol>
+  )
+}
+
+// Quotations linked to this lead, from the quotations module (CRM ↔ quotation
+// integration). Reads via /api/quotations/by-lead/:id — best-effort: a quota
+// or propagation failure shows a hint, never a broken page.
+function LeadQuotationsSection({ leadId }: { leadId: string }) {
+  const [quotations, setQuotations] = useState<Quotation[] | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    fetchQuotationsByLead(leadId)
+      .then((r) => {
+        if (active) setQuotations(r.quotations)
+      })
+      .catch(() => {
+        if (active) setFailed(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [leadId])
+
+  if (failed) {
+    return (
+      <section className="mt-4 rounded-lg border bg-white p-4">
+        <h2 className="text-sm font-semibold text-brand-dark">Quotations</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Could not load linked quotations (they may still be indexing).</p>
+      </section>
+    )
+  }
+
+  return (
+    <section className="mt-4 rounded-lg border bg-white p-4">
+      <h2 className="flex items-center justify-between text-sm font-semibold text-brand-dark">
+        Quotations ({quotations?.length || 0})
+        <Link to="/admin/quotations" className="text-xs font-medium text-brand-brown hover:underline">
+          Quotations module
+        </Link>
+      </h2>
+      {!quotations ? (
+        <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+      ) : quotations.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">No quotations yet — use “Create Quotation” above to draft one from this lead.</p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {quotations.map((q) => (
+            <li key={q.id}>
+              <Link to={`/admin/quotations/${q.id}`} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
+                <span className="min-w-0">
+                  <span className="block truncate font-medium text-brand-dark">
+                    <span className="font-mono text-xs text-brand-brown">{q.number}</span>
+                    {q.version > 1 ? ` · v${q.version}` : ""} — {q.projectTitle}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">{q.client.company || q.client.name} · {formatMinorShort(q.grandTotalMinor, q.currency)}</span>
+                </span>
+                <QuotationStatusBadge status={String(q.status)} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 

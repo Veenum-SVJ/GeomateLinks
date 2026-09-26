@@ -5,6 +5,7 @@
   "rewrites": [
     { "source": "/api/admin/(.*)", "destination": "/api/admin/index.js" },
     { "source": "/api/crm/(.*)", "destination": "/api/crm.js" },
+    { "source": "/api/quotations/(.*)", "destination": "/api/quotations.js" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

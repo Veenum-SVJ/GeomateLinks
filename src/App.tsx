@@ -21,6 +21,11 @@ const CrmClients = lazy(() => import("./pages/admin/crm/ClientsPage"))
 const CrmClientDetail = lazy(() => import("./pages/admin/crm/ClientDetail"))
 const CrmFollowups = lazy(() => import("./pages/admin/crm/FollowupsPage"))
 const CrmActivities = lazy(() => import("./pages/admin/crm/ActivitiesPage"))
+const QuotationsOverview = lazy(() => import("./pages/admin/quotations/QuotationsOverview"))
+const QuotationsList = lazy(() => import("./pages/admin/quotations/QuotationsList"))
+const QuotationEditor = lazy(() => import("./pages/admin/quotations/QuotationEditor"))
+const QuotationDetail = lazy(() => import("./pages/admin/quotations/QuotationDetail"))
+const QuotationPrint = lazy(() => import("./pages/admin/quotations/QuotationPrint"))
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-brand-cream">
@@ -55,6 +60,13 @@ function App() {
               <Route path="crm/clients/:id" element={<CrmClientDetail />} />
               <Route path="crm/followups" element={<CrmFollowups />} />
               <Route path="crm/activities" element={<CrmActivities />} />
+              <Route path="quotations" element={<QuotationsOverview />} />
+              <Route path="quotations/all" element={<QuotationsList />} />
+              <Route path="quotations/list/:status" element={<QuotationsList />} />
+              <Route path="quotations/new" element={<QuotationEditor />} />
+              <Route path="quotations/:id/edit" element={<QuotationEditor />} />
+              <Route path="quotations/:id/print" element={<QuotationPrint />} />
+              <Route path="quotations/:id" element={<QuotationDetail />} />
             </Route>
           </Routes>
         </Suspense>
