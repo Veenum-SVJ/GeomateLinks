@@ -25,6 +25,7 @@ const fallbackModule = require('../_data/content.json')
 const fallbackContent = fallbackModule.default || fallbackModule
 
 const LEADS_PREFIX = 'crm/leads/'
+const PIPELINE_PREFIX = 'crm/pipeline/'
 const CLIENTS_PREFIX = 'crm/clients/'
 const ACTIVITIES_PREFIX = 'crm/activities/'
 const FOLLOWUPS_PREFIX = 'crm/followups/'
@@ -46,6 +47,71 @@ export const ACTIVE_LEAD_STATUSES = ['Contacted', 'Qualified', 'Quotation Sent',
 export const QUOTATION_PENDING_STATUSES = ['Quotation Sent', 'Negotiation']
 
 // ---------------------------------------------------------------- utilities
+
+// Pipeline facets (client link, contact/follow-up dates, project & quotation
+// references) live in their OWN blob (crm/pipeline/<id>.json), separate from
+// the lead's core record. Blob rewrites are read-modify-write and can serve
+// stale reads inside a propagation window; keeping disjoint field sets in
+// different blobs means a core edit (status, contact details) can never
+// durably erase a conversion link or follow-up sync — and vice versa.
+const PIPELINE_FIELDS = ['clientId', 'convertedAt', 'nextFollowUpAt', 'lastContactedAt', 'projectRef', 'quotationRef']
+
+function emptyPipeline() {
+  return {
+    clientId: '',
+    convertedAt: '',
+    nextFollowUpAt: '',
+    lastContactedAt: '',
+    projectRef: { id: '', title: '' },
+    quotationRef: { code: '', createdAt: '' },
+  }
+}
+
+function pipelinePathname(id) {
+  return `${PIPELINE_PREFIX}${id}.json`
+}
+
+async function readPipelineBlob(id) {
+  if (!hasStorage()) return null
+  try {
+    const meta = await head(pipelinePathname(id))
+    const res = await fetch(meta.url, { cache: 'no-store' })
+    if (!res.ok) return null
+    const data = await safeParse(await res.text(), null)
+    return data && typeof data === 'object' ? data : null
+  } catch {
+    return null // blob does not exist yet — normal for records created before this split
+  }
+}
+
+
+
+function pickPipeline(lead) {
+  const picked = {}
+  for (const field of PIPELINE_FIELDS) picked[field] = lead[field]
+  return picked
+}
+
+// Backfill: leads created before the pipeline split (and any facet write
+// lost to an earlier race) get their facet values restored from the core
+// record whenever the facet blob is missing or lacks a value. Idempotent.
+async function backfillPipeline(id, core) {
+  try {
+    const current = await readPipelineBlob(id)
+    const facet = current || emptyPipeline()
+    const patch = {}
+    for (const field of PIPELINE_FIELDS) {
+      if (!facet[field] && core[field]) patch[field] = core[field]
+      if (field === 'projectRef' || field === 'quotationRef') {
+        const facetRef = facet[field]
+        if ((!facetRef || !facetRef.id) && core[field] && core[field].id) patch[field] = core[field]
+      }
+    }
+    if (Object.keys(patch).length > 0) await savePipelineData(id, patch)
+  } catch {
+    // best-effort backfill
+  }
+}
 
 function hasStorage() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
@@ -229,7 +295,32 @@ function isValidLead(lead) {
 }
 
 export async function readAllLeads() {
-  return readAll(LEADS_PREFIX)
+  const [coreLeads, pipelines] = await Promise.all([readAll(LEADS_PREFIX), readPipelineIndex()])
+  return coreLeads.map((lead) => {
+    backfillPipeline(lead.id, lead)
+    return { ...lead, ...(pipelines[lead.id] || {}) }
+  })
+}
+
+// Reads every pipeline facet blob into an id-keyed index. Pipeline blobs are
+// single-key (pathname ends with the lead id), so no filename parsing is
+// needed beyond the prefix.
+async function readPipelineIndex() {
+  if (!hasStorage()) return {}
+  try {
+    const blobs = await listBlobs(PIPELINE_PREFIX)
+    const entries = await Promise.all(
+      blobs.map(async (blob) => {
+        const id = blob.pathname.slice(PIPELINE_PREFIX.length)
+        if (!id) return null
+        const data = await readPipelineBlob(id)
+        return data ? [id, data] : null
+      }),
+    )
+    return Object.fromEntries(entries.filter(Boolean))
+  } catch {
+    return {}
+  }
 }
 
 function filterLeads(leads, params = {}) {
@@ -311,6 +402,9 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
     error.status = 400
     throw error
   }
+  // Persist the pipeline facets (dates/refs) in their own blob, then the
+  // core record. A failure in either leaves no orphan of the other.
+  await savePipelineData(lead.id, pickPipeline(lead))
   await putEntry(LEADS_PREFIX, lead)
   if (!skipActivity) {
     await createActivity(
@@ -327,29 +421,35 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
   return lead
 }
 
+// Writes the pipeline facet blob (read-modify-write against the CURRENT
+// stored facet, merging only the provided fields).
+async function savePipelineData(id, patch) {
+  const current = (await readPipelineBlob(id)) || emptyPipeline()
+  const merged = { ...emptyPipeline(), ...current }
+  for (const field of PIPELINE_FIELDS) {
+    if (patch[field] !== undefined) merged[field] = patch[field]
+  }
+  await put(pipelinePathname(id), JSON.stringify(merged, null, 2), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    cacheControlMaxAge: 0,
+  })
+  return merged
+}
+
 // Patch-in-place. Returns the updated lead derived from the pre-write read —
-// never a read-after-write. Status changes are audited on the lead timeline
-// and in the dashboard activity feed. clientId/convertedAt are protected
-// from ordinary PATCHes (they change only via convertLead, which passes
-// allowProtected) so an edited form can never unlink a converted lead.
-export async function updateLead(id, patch, { actor = 'Admin', allowProtected = false } = {}) {
+// never a read-after-write. The two halves of a lead live in separate blobs:
+// core fields rewrite the lead blob; pipeline facets (client link, dates,
+// project/quotation refs) go through their own read-modify-write in
+// crm/pipeline/<id>.json, so a core edit can never durably erase a
+// conversion link or a follow-up sync (and vice versa).
+export async function updateLead(id, patch, { actor = 'Admin' } = {}) {
   const leads = await readAllLeads()
   const target = leads.find((l) => l.id === id)
   if (!target) return { applied: false, leads }
   const clean = normaliseLead({ ...target, ...patch })
   const next = { ...target, ...clean, id: target.id, code: target.code, createdAt: target.createdAt, updatedAt: new Date().toISOString() }
-  // normaliseLead does not carry clientId/convertedAt, so overlay them from
-  // the patch explicitly. Only convertLead (allowProtected) may change them;
-  // ordinary PATCHes keep the stored values.
-  if (patch.clientId !== undefined || patch.convertedAt !== undefined) {
-    if (allowProtected) {
-      if (patch.clientId !== undefined) next.clientId = str(patch.clientId, 80)
-      if (patch.convertedAt !== undefined) next.convertedAt = iso(patch.convertedAt)
-    } else {
-      next.clientId = target.clientId
-      next.convertedAt = target.convertedAt
-    }
-  }
   const statusChanged = patch.status && patch.status !== target.status
   if (statusChanged) next.statusChangedAt = next.updatedAt
   if (JSON.stringify(next) !== JSON.stringify(target)) {
@@ -367,6 +467,16 @@ export async function updateLead(id, patch, { actor = 'Admin', allowProtected = 
       )
     }
   }
+  // Pipeline facets are written through their own blob merge (converting,
+  // follow-up scheduling/completion, "mark contacted", project/quotation
+  // refs). Unchanged for plain field edits — no write, no race.
+  const pipelinePatch = {}
+  for (const field of PIPELINE_FIELDS) {
+    if (patch[field] !== undefined) pipelinePatch[field] = patch[field]
+  }
+  if (Object.keys(pipelinePatch).length > 0) {
+    await savePipelineData(id, pipelinePatch)
+  }
   return { applied: true, lead: next, leads: leads.map((l) => (l.id === id ? next : l)) }
 }
 
@@ -375,6 +485,8 @@ export async function deleteLead(id) {
   const target = leads.find((l) => l.id === id)
   if (!target) return { deleted: false }
   await removeEntry(LEADS_PREFIX, target)
+  // Remove the lead's pipeline facet blob too.
+  await del(pipelinePathname(id)).catch(() => {})
   // Remove dependent records so no orphans are left behind. The lead's own
   // history is gone by explicit admin choice — archiving preserves it.
   const [activities, followups] = await Promise.all([readAll(ACTIVITIES_PREFIX), readAll(FOLLOWUPS_PREFIX)])
@@ -435,7 +547,7 @@ export async function convertLead(id, clientInput = {}, { actor = 'Admin' } = {}
     // Conversion only links the client and stamps the date — the pipeline
     // status stays under the administrator's control (Change Status).
     { clientId: client.id, convertedAt: new Date().toISOString() },
-    { actor, allowProtected: true },
+    { actor },
   )
   const leadNext = updated.lead || lead
   await createActivity(
