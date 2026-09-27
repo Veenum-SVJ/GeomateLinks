@@ -199,6 +199,12 @@ function normaliseQuotation(input) {
   const totals = computeTotals(lines, totalsInput.quoteDiscount, totalsInput.additionalChargesMinor, totalsInput.taxBp)
   const status = QUOTATION_STATUSES.includes(input.status) ? input.status : 'Draft'
   return {
+    // Identity + stamps — preserved from the stored record. Reads re-normalise
+    // every entry; dropping these broke id lookups, mutations and deletes
+    // once storage moved from blobs to Postgres.
+    id: str(input.id, 80),
+    createdAt: iso(input.createdAt),
+    updatedAt: iso(input.updatedAt),
     // Identity
     number: str(input.number, 40),
     version: Math.max(1, Math.round(Number(input.version) || 1)),

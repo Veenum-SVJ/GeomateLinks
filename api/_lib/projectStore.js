@@ -218,6 +218,12 @@ function normaliseProject(input) {
   const deliverables = (Array.isArray(input.deliverables) ? input.deliverables : []).map(normaliseDeliverable).filter((d) => d.name)
   const team = (Array.isArray(input.team) ? input.team : []).map(normaliseTeamMember).filter((m) => m.name)
   return {
+    // Identity + stamps — preserved from the stored record. Reads re-normalise
+    // every entry; dropping these broke id lookups, mutations and deletes
+    // once storage moved from blobs to Postgres.
+    id: str(input.id, 80),
+    createdAt: iso(input.createdAt),
+    updatedAt: iso(input.updatedAt),
     number: str(input.number, 40),
     title: str(input.title, 200),
     status,

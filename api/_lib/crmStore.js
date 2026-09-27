@@ -29,6 +29,13 @@ const PIPELINE_PREFIX = 'crm/pipeline/'
 const CLIENTS_PREFIX = 'crm/clients/'
 const ACTIVITIES_PREFIX = 'crm/activities/'
 const FOLLOWUPS_PREFIX = 'crm/followups/'
+// Mirror the prefix constants from quotationStore.js / projectStore.js (the
+// migration missed these five — quotation/project CRUD 500ed on Postgres).
+export const QUOTATIONS_PREFIX = 'crm/quotations/'
+export const QUOTATIONS_HISTORY_PREFIX = 'crm/quotations-history/'
+export const PROJECTS_PREFIX = 'crm/projects/'
+export const PROJECT_ACTIVITIES_PREFIX = 'crm/project-activities/'
+export const STAFF_PREFIX = 'crm/staff/'
 
 const TABLE = {
   leads: 'crm_leads',
@@ -36,6 +43,13 @@ const TABLE = {
   clients: 'crm_clients',
   activities: 'crm_activities',
   followups: 'crm_followups',
+  // Quotation, project and staff stores reuse the same primitives (see
+  // quotationStore.js / projectStore.js) — their prefixes belong in the map.
+  quotations: 'crm_quotations',
+  quotationHistory: 'crm_quotation_history',
+  projects: 'crm_projects',
+  projectActivities: 'crm_project_activities',
+  staff: 'crm_staff',
 }
 
 export const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Quotation Sent', 'Negotiation', 'Won', 'Lost', 'On Hold']
@@ -126,6 +140,11 @@ const PREFIX_TABLE = {
   [CLIENTS_PREFIX]: TABLE.clients,
   [ACTIVITIES_PREFIX]: TABLE.activities,
   [FOLLOWUPS_PREFIX]: TABLE.followups,
+  [QUOTATIONS_PREFIX]: TABLE.quotations,
+  [QUOTATIONS_HISTORY_PREFIX]: TABLE.quotationHistory,
+  [PROJECTS_PREFIX]: TABLE.projects,
+  [PROJECT_ACTIVITIES_PREFIX]: TABLE.projectActivities,
+  [STAFF_PREFIX]: TABLE.staff,
 }
 
 function tableOf(prefix) {
