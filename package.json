@@ -9,6 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "backup": "node scripts/backupSupabase.mjs",
+    "restore": "node scripts/restoreSupabase.mjs",
     "smoke": "node scripts/supabaseSmoke.mjs"
   },
   "dependencies": {

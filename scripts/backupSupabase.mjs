@@ -40,6 +40,11 @@ const TABLES = [
   'crm_projects',
   'crm_project_activities',
   'crm_staff',
+  'documents',
+  'document_versions',
+  'document_folders',
+  'document_categories',
+  'document_activity',
   'id_counters',
   'media_files',
 ]

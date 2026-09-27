@@ -25,6 +25,20 @@ Without these the API functions fall back to the bundled JSON defaults
 
 Backups: `npm run backup` exports every table to `backups/<timestamp>/*.json`
 with a `_manifest.json`; keeps the 8 newest runs (override with `BACKUP_KEEP`).
+A weekly GitHub Action (`.github/workflows/supabase-backup.yml`, Sundays
+03:30 UTC) runs the same export and stores it as a **private workflow
+artifact** (90 days, Actions tab) — backup folders contain customer data and
+are never committed to this public repo. Needs the `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` repo secrets; failed runs open a `backup-failure`
+issue.
+
+Restores: `npm run restore backups/<timestamp>` previews a restore (dry run);
+add `--apply` to write. Backup rows are upserted by id (merge — rows added
+since the backup are left alone; pass `--replace` to delete them, which is
+destructive). Collisions (existing rows with different content) are listed
+before anything is written, and server-side counters are never lowered.
+Legacy Blob-era folders (pre-Supabase, e.g. `backups/2026-09-26`) are
+rejected — they need a manual conversion pass.
 
 ## Document Management System
 Project-centred DMS at `/admin/documents` (also a Documents tab on every

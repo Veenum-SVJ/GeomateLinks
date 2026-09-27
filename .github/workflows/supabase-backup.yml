@@ -1,0 +1,115 @@
+# Weekly Supabase backup — exports every data table to a timestamped
+# backups/<stamp>/ folder and stores it as a PRIVATE workflow artifact
+# (90-day retention).
+#
+# Backup folders contain customer data (enquiries, leads, clients,
+# quotations), so they are NEVER committed to the repository — the repo is
+# public and artifacts are only readable by people with Actions access.
+#
+# Requires the SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY repository secrets
+# (Settings → Secrets and variables → Actions). A failed run opens/comments
+# on a `backup-failure` issue so a missed backup can't go unnoticed.
+name: Weekly Supabase backup
+
+on:
+  schedule:
+    # Sundays 03:30 UTC — outside Nigerian working hours (04:30 WAT).
+    - cron: '30 3 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: weekly-supabase-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Export tables → artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run backup
+        id: backup
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          npm run backup
+          stamp=$(ls backups | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}T' | sort | tail -1)
+          test -f "backups/$stamp/_manifest.json"
+          echo "stamp=$stamp" >> "$GITHUB_OUTPUT"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-${{ steps.backup.outputs.stamp }}
+          path: backups/${{ steps.backup.outputs.stamp }}/
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Fetch failed tables from manifest
+        if: failure()
+        id: manifest
+        run: |
+          set -euo pipefail
+          failed=$(node -e "const m=require('./backups/'+process.argv[1]+'/_manifest.json'); const t=Object.entries(m.tables||{}).filter(([,v])=>v.error).map(([k,v])=>k+': '+v.error).join('; '); console.log(t || 'unknown failure')" "${{ steps.backup.outputs.stamp }}")
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Open an issue when the backup fails
+        if: failure()
+        uses: actions/github-script@v7
+        env:
+          BACKUP_STAMP: ${{ steps.backup.outputs.stamp }}
+          FAILED_TABLES: ${{ steps.manifest.outputs.failed }}
+        with:
+          script: |
+            const { repo: { owner, repo }, runId, serverUrl } = context;
+            const stamp = process.env.BACKUP_STAMP || 'unknown';
+            const failed = process.env.FAILED_TABLES || '';
+            const existing = await github.rest.issues.listForRepo({
+              owner, repo,
+              state: 'open',
+              labels: 'backup-failure',
+              per_page: 1,
+            });
+            const body = [
+              'The scheduled Supabase backup failed — data exports are stale until this is fixed.',
+              '',
+              `**Backup folder:** \`${stamp}\``,
+              `**Failed tables / errors:** ${failed || 'see run logs'}`,
+              '',
+              `[Failed workflow run #${runId}](${serverUrl}/${owner}/${repo}/actions/runs/${runId})`,
+              '',
+              'Re-run locally with `npm run backup` once credentials are fixed, then close this issue.',
+            ].join('\n');
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner, repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner, repo,
+                title: `Weekly Supabase backup failed (${stamp})`,
+                body,
+                labels: ['backup-failure'],
+              });
+            }
