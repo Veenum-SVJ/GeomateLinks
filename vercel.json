@@ -7,6 +7,7 @@
     { "source": "/api/crm/(.*)", "destination": "/api/crm.js" },
     { "source": "/api/quotations/(.*)", "destination": "/api/quotations.js" },
     { "source": "/api/projects/(.*)", "destination": "/api/projects.js" },
+    { "source": "/api/documents/(.*)", "destination": "/api/documents.js" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
