@@ -31,6 +31,12 @@ const ProjectsList = lazy(() => import("./pages/admin/projects/ProjectsList"))
 const ProjectEditor = lazy(() => import("./pages/admin/projects/ProjectEditor"))
 const ProjectDetail = lazy(() => import("./pages/admin/projects/ProjectDetail"))
 const StaffDirectory = lazy(() => import("./pages/admin/projects/StaffDirectory"))
+const DocumentsOverview = lazy(() => import("./pages/admin/documents/DocumentsOverview"))
+const DocumentsList = lazy(() => import("./pages/admin/documents/DocumentsList"))
+const DocumentDetail = lazy(() => import("./pages/admin/documents/DocumentDetail"))
+const ProjectDocumentsPage = lazy(() => import("./pages/admin/documents/ProjectDocumentsPage"))
+const DocumentsProjects = lazy(() => import("./pages/admin/documents/DocumentsProjects"))
+const DocumentCategoriesSettings = lazy(() => import("./pages/admin/documents/DocumentCategoriesSettings"))
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-brand-cream">
@@ -79,6 +85,16 @@ function App() {
               <Route path="pms/staff" element={<StaffDirectory />} />
               <Route path="pms/:id/edit" element={<ProjectEditor />} />
               <Route path="pms/:id" element={<ProjectDetail />} />
+              <Route path="documents" element={<DocumentsOverview />} />
+              <Route path="documents/all" element={<DocumentsList variant="all" />} />
+              <Route path="documents/recent" element={<DocumentsList variant="recent" />} />
+              <Route path="documents/starred" element={<DocumentsList variant="starred" />} />
+              <Route path="documents/archived" element={<DocumentsList variant="archived" />} />
+              <Route path="documents/projects" element={<DocumentsProjects />} />
+              <Route path="documents/categories" element={<DocumentCategoriesSettings />} />
+              <Route path="documents/settings" element={<DocumentCategoriesSettings />} />
+              <Route path="documents/:id" element={<DocumentDetail />} />
+              <Route path="documents/project/:id" element={<ProjectDocumentsPage />} />
             </Route>
           </Routes>
         </Suspense>

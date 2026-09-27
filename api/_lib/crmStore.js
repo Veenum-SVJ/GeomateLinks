@@ -1,22 +1,22 @@
-// CRM data layer — Vercel Blob-backed stores for leads, clients, activities
-// and follow-ups (ES Module).
+// CRM data layer — Supabase (Postgres)-backed stores for leads, clients,
+// activities and follow-ups (ES Module).
 //
-// Storage model follows the proven per-entry pattern used for messages and
-// activity: every record is its own Blob object under a fixed prefix
-// (crm/leads/<stamp>-<id>.json …). A new record is a pure append, so
-// concurrent writes (two admins, or a website enquiry landing while an admin
-// edits a lead) can never overwrite each other — Blob is last-write-wins with
-// read-after-write lag, which a single shared document would not survive.
+// Storage model: every record keeps its full JSON payload in a jsonb `data`
+// column of its table (crm_leads, crm_clients, …); see api/_lib/db.js for the
+// shared primitives. Postgres gives real row-level writes and read-after-
+// write consistency, so concurrent writes (two admins, or a website enquiry
+// landing while an admin edits a lead) can never overwrite each other — the
+// explicit guarantee the old per-entry Blob pattern worked around.
 //
-// Responses for updates/deletes are derived from the PRE-WRITE read with the
-// change applied in memory — never a read-after-write (same rule as
-// updateMessage in store.js).
+// Responses for updates/deletes are still derived from the PRE-WRITE read
+// with the change applied in memory, so the API contract is byte-identical
+// to the Blob era.
 //
 // Notes are stored as activities of type "note" (append-only) rather than as
-// an array on the lead/client record: appending never rewrites the owner
-// blob, so a note landing mid-edit can never clobber a concurrent status
-// change.
-import { put, head, list, del } from '@vercel/blob'
+// an array on the lead/client record.
+import {
+  listRecords, getRecord, putRecord, deleteRecord, findByField, nextCounter, hasDb,
+} from './db.js'
 import { createRequire } from 'module'
 import { readContent } from './store.js'
 
@@ -29,7 +29,14 @@ const PIPELINE_PREFIX = 'crm/pipeline/'
 const CLIENTS_PREFIX = 'crm/clients/'
 const ACTIVITIES_PREFIX = 'crm/activities/'
 const FOLLOWUPS_PREFIX = 'crm/followups/'
-const COUNTER_BLOB = 'crm/counters/ids.json'
+
+const TABLE = {
+  leads: 'crm_leads',
+  pipeline: 'crm_lead_pipeline',
+  clients: 'crm_clients',
+  activities: 'crm_activities',
+  followups: 'crm_followups',
+}
 
 export const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Quotation Sent', 'Negotiation', 'Won', 'Lost', 'On Hold']
 export const LEAD_SOURCES = ['Website', 'Phone', 'WhatsApp', 'Email', 'Referral', 'Social Media', 'Walk-in', 'Existing Client', 'Other']
@@ -49,11 +56,10 @@ export const QUOTATION_PENDING_STATUSES = ['Quotation Sent', 'Negotiation']
 // ---------------------------------------------------------------- utilities
 
 // Pipeline facets (client link, contact/follow-up dates, project & quotation
-// references) live in their OWN blob (crm/pipeline/<id>.json), separate from
-// the lead's core record. Blob rewrites are read-modify-write and can serve
-// stale reads inside a propagation window; keeping disjoint field sets in
-// different blobs means a core edit (status, contact details) can never
-// durably erase a conversion link or follow-up sync — and vice versa.
+// references) live in their OWN table (crm_lead_pipeline), separate from the
+// lead's core record — same disjoint-field-set principle as before: a core
+// edit (status, contact details) can never durably erase a conversion link
+// or follow-up sync — and vice versa.
 const PIPELINE_FIELDS = ['clientId', 'convertedAt', 'nextFollowUpAt', 'lastContactedAt', 'projectRef', 'quotationRef']
 
 function emptyPipeline() {
@@ -67,24 +73,9 @@ function emptyPipeline() {
   }
 }
 
-function pipelinePathname(id) {
-  return `${PIPELINE_PREFIX}${id}.json`
-}
-
 async function readPipelineBlob(id) {
-  if (!hasStorage()) return null
-  try {
-    const meta = await head(pipelinePathname(id))
-    const res = await fetch(meta.url, { cache: 'no-store' })
-    if (!res.ok) return null
-    const data = await safeParse(await res.text(), null)
-    return data && typeof data === 'object' ? data : null
-  } catch {
-    return null // blob does not exist yet — normal for records created before this split
-  }
+  return getRecord(TABLE.pipeline, id)
 }
-
-
 
 function pickPipeline(lead) {
   const picked = {}
@@ -113,22 +104,6 @@ async function backfillPipeline(id, core) {
   }
 }
 
-function hasStorage() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
-}
-
-function safeParse(raw, fallback) {
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return fallback
-  }
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 const str = (value, max) => String(value ?? '').trim().slice(0, max)
 
 function iso(value) {
@@ -136,120 +111,72 @@ function iso(value) {
   return Number.isFinite(t) ? new Date(t).toISOString() : ''
 }
 
-// Exported for the quotations store (api/_lib/quotationStore.js), which
-// reuses this exact append-only blob idiom instead of duplicating it.
+// Exported for the quotations and project stores (api/_lib/*.js), which reuse
+// these shared table helpers instead of duplicating them.
 export function newId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-// Fixed-width base36 ms timestamp prefix → lexical list order = newest first.
-function stampOf(entry) {
-  const ts = Date.parse(entry.createdAt)
-  return (Number.isFinite(ts) ? ts : Date.now()).toString(36).padStart(11, '0')
+// Legacy prefix → Postgres table. The old per-entry Blob prefixes
+// (crm/leads/<stamp>-<id>.json …) map 1:1 onto tables; callers keep passing
+// the prefix constants so every store module reads exactly as before.
+const PREFIX_TABLE = {
+  [LEADS_PREFIX]: TABLE.leads,
+  [PIPELINE_PREFIX]: TABLE.pipeline,
+  [CLIENTS_PREFIX]: TABLE.clients,
+  [ACTIVITIES_PREFIX]: TABLE.activities,
+  [FOLLOWUPS_PREFIX]: TABLE.followups,
 }
 
-function entryPathname(prefix, entry) {
-  return `${prefix}${stampOf(entry)}-${entry.id}.json`
-}
-
-async function listBlobs(prefix) {
-  const blobs = []
-  let cursor
-  do {
-    const result = await list({ prefix, limit: 1000, cursor })
-    blobs.push(...(result.blobs || []))
-    cursor = result.cursor && blobs.length < 5000 ? result.cursor : undefined
-  } while (cursor)
-  return blobs
-}
-
-async function fetchEntry(url) {
-  try {
-    const res = await fetch(url, { cache: 'no-store' })
-    if (!res.ok) return null
-    const data = await safeParse(await res.text(), null)
-    return data && typeof data === 'object' && data.id ? data : null
-  } catch {
-    return null
+function tableOf(prefix) {
+  const table = PREFIX_TABLE[prefix]
+  if (!table) {
+    const error = new Error(`Unknown store prefix: ${prefix}`)
+    error.status = 500
+    throw error
   }
+  return table
 }
 
-// Reads every record under a prefix, newest first. Callers must paginate or
+// Reads every record in a store, newest first. Callers must paginate or
 // aggregate before returning to the client (see readLeads/getDashboard).
-// Exported for the quotations store — same per-entry read/write/remove
-// helpers, one implementation of the append-only pattern.
+// Exported for the quotations and project stores.
 export async function readAll(prefix) {
-  if (!hasStorage()) return []
-  try {
-    const blobs = await listBlobs(prefix)
-    const entries = await Promise.all(blobs.map((blob) => fetchEntry(blob.url)))
-    return entries
-      .filter(Boolean)
-      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
-  } catch {
-    return []
-  }
+  if (!hasDb()) return []
+  return listRecords(tableOf(prefix))
 }
 
 export async function putEntry(prefix, entry) {
-  await put(entryPathname(prefix, entry), JSON.stringify(entry, null, 2), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-    cacheControlMaxAge: 0,
-  })
+  await putRecord(tableOf(prefix), entry.id, entry)
 }
 
 export async function removeEntry(prefix, entry) {
-  const blobs = await listBlobs(prefix)
-  const pathname = entryPathname(prefix, entry)
-  const blob = blobs.find((b) => b.pathname === pathname)
-  if (blob) await del(blob.url)
+  await deleteRecord(tableOf(prefix), entry.id)
 }
 
 // ------------------------------------------------------- ID code allocation
 
-async function readCounter() {
-  try {
-    const meta = await head(COUNTER_BLOB)
-    const res = await fetch(meta.url, { cache: 'no-store' })
-    if (!res.ok) return { counts: {} }
-    const data = await safeParse(await res.text(), { counts: {} })
-    return data && data.counts ? data : { counts: {} }
-  } catch {
-    return { counts: {} }
-  }
-}
-
-// Sequential human-friendly codes: GML-2026-0001, CLI-0007. The counter is a
-// read-modify-write on one small blob; because Blob reads can be stale inside
-// a propagation window, the candidate code is verified against the records
-// actually stored (createLead/createClient pass their own check) and the
-// counter is bumped past any collision before the code is handed out.
-// Exported for the quotations module (GML-QT-… numbers) — same shared counter
-// blob and the same stale-counter duplicate protection.
+// Sequential human-friendly codes: GML-2026-0001, CLI-0007. The counter is
+// one atomic UPDATE … RETURNING round-trip (public.bump_counter), and the
+// unique index on each table's `code` column makes duplicate codes
+// impossible even if the counter is ever reseeded behind the stored records
+// (createLead/createClient pass their own check). Exported for the
+// quotations module (GML-QT-… numbers).
 export async function allocateCode(kind, prefix, withYear, isTaken) {
-  for (let attempt = 0; attempt < 5; attempt++) {
-    try {
-      const counter = await readCounter()
-      let next = (Number(counter.counts[kind]) || 0) + 1
-      const codeFor = (n) =>
-        withYear ? `${prefix}-${new Date().getFullYear()}-${String(n).padStart(4, '0')}` : `${prefix}-${String(n).padStart(4, '0')}`
-      // Skip codes already in use (stale-counter collision protection).
-      while (isTaken && (await isTaken(codeFor(next)))) next++
-      await put(COUNTER_BLOB, JSON.stringify({ counts: { ...counter.counts, [kind]: next } }, null, 2), {
-        access: 'public',
-        contentType: 'application/json',
-        addRandomSuffix: false,
-        cacheControlMaxAge: 0,
-      })
-      return codeFor(next)
-    } catch {
-      await sleep(40 + Math.random() * 80)
+  const codeFor = (n) =>
+    withYear ? `${prefix}-${new Date().getFullYear()}-${String(n).padStart(4, '0')}` : `${prefix}-${String(n).padStart(4, '0')}`
+  try {
+    let next = await nextCounter(kind)
+    // Skip codes already in use (reseeded-counter collision protection).
+    while (next !== null && isTaken && (await isTaken(codeFor(next)))) {
+      next = await nextCounter(kind)
     }
+    if (next === null) throw new Error('counter unavailable')
+    return codeFor(next)
+  } catch {
+    // Never block record creation on counter problems.
+    return `${prefix}-X${Date.now().toString(36).toUpperCase().slice(-6)}`
   }
-  // Never block record creation on counter problems.
-  return `${prefix}-X${Date.now().toString(36).toUpperCase().slice(-6)}`
 }
 
 // ------------------------------------------------------------------ leads
@@ -311,25 +238,12 @@ export async function readAllLeads() {
   })
 }
 
-// Reads every pipeline facet blob into an id-keyed index. Pipeline blobs are
-// single-key (pathname ends with the lead id), so no filename parsing is
-// needed beyond the prefix.
+// Reads every pipeline facet row into an id-keyed index.
 async function readPipelineIndex() {
-  if (!hasStorage()) return {}
+  if (!hasDb()) return {}
   try {
-    const blobs = await listBlobs(PIPELINE_PREFIX)
-    const entries = await Promise.all(
-      blobs.map(async (blob) => {
-        // pathname is crm/pipeline/<id>.json — strip the suffix; the bare id
-        // keys the index and re-reads the facet.
-        const raw = blob.pathname.slice(PIPELINE_PREFIX.length)
-        const id = raw.endsWith('.json') ? raw.slice(0, -'.json'.length) : raw
-        if (!id) return null
-        const data = await readPipelineBlob(id)
-        return data ? [id, data] : null
-      }),
-    )
-    return Object.fromEntries(entries.filter(Boolean))
+    const rows = await listRecords(TABLE.pipeline)
+    return Object.fromEntries(rows.filter((r) => r && r.id).map((r) => [r.id, r]))
   } catch {
     return {}
   }
@@ -402,7 +316,7 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
   const lead = {
     ...normaliseLead(input),
     id: newId(),
-    code: await allocateCode('leads', 'GML', true, async (code) => (await readAllLeads()).some((l) => l.code === code)),
+    code: await allocateCode('leads', 'GML', true, async (code) => Boolean(await findByField(TABLE.leads, 'code', code))),
     clientId: '',
     convertedAt: '',
     archived: false,
@@ -414,8 +328,8 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
     error.status = 400
     throw error
   }
-  // Persist the pipeline facets (dates/refs) in their own blob, then the
-  // core record. A failure in either leaves no orphan of the other.
+  // Persist the pipeline facets (dates/refs) in their own table row, then
+  // the core record. A failure in either leaves no orphan of the other.
   await savePipelineData(lead.id, pickPipeline(lead))
   await putEntry(LEADS_PREFIX, lead)
   if (!skipActivity) {
@@ -433,7 +347,7 @@ export async function createLead(input, { actor = 'Admin', skipActivity = false 
   return lead
 }
 
-// Writes the pipeline facet blob (read-modify-write against the CURRENT
+// Writes the pipeline facet row (read-modify-write against the CURRENT
 // stored facet, merging only the provided fields).
 async function savePipelineData(id, patch) {
   const current = (await readPipelineBlob(id)) || emptyPipeline()
@@ -441,21 +355,16 @@ async function savePipelineData(id, patch) {
   for (const field of PIPELINE_FIELDS) {
     if (patch[field] !== undefined) merged[field] = patch[field]
   }
-  await put(pipelinePathname(id), JSON.stringify(merged, null, 2), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-    cacheControlMaxAge: 0,
-  })
+  await putRecord(TABLE.pipeline, id, merged)
   return merged
 }
 
 // Patch-in-place. Returns the updated lead derived from the pre-write read —
-// never a read-after-write. The two halves of a lead live in separate blobs:
-// core fields rewrite the lead blob; pipeline facets (client link, dates,
-// project/quotation refs) go through their own read-modify-write in
-// crm/pipeline/<id>.json, so a core edit can never durably erase a
-// conversion link or a follow-up sync (and vice versa).
+// never a read-after-write. The two halves of a lead live in separate
+// tables: core fields rewrite the lead row; pipeline facets (client link,
+// dates, project/quotation refs) go through their own read-modify-write in
+// crm_lead_pipeline, so a core edit can never durably erase a conversion
+// link or a follow-up sync (and vice versa).
 export async function updateLead(id, patch, { actor = 'Admin' } = {}) {
   const leads = await readAllLeads()
   const target = leads.find((l) => l.id === id)
@@ -479,7 +388,7 @@ export async function updateLead(id, patch, { actor = 'Admin' } = {}) {
       )
     }
   }
-  // Pipeline facets are written through their own blob merge (converting,
+  // Pipeline facets are written through their own facet merge (converting,
   // follow-up scheduling/completion, "mark contacted", project/quotation
   // refs). Unchanged for plain field edits — no write, no race.
   const pipelinePatch = {}
@@ -501,8 +410,8 @@ export async function deleteLead(id) {
   const target = leads.find((l) => l.id === id)
   if (!target) return { deleted: false }
   await removeEntry(LEADS_PREFIX, target)
-  // Remove the lead's pipeline facet blob too.
-  await del(pipelinePathname(id)).catch(() => {})
+  // Remove the lead's pipeline facet row too.
+  await deleteRecord(TABLE.pipeline, id).catch(() => {})
   // Remove dependent records so no orphans are left behind. The lead's own
   // history is gone by explicit admin choice — archiving preserves it.
   const [activities, followups] = await Promise.all([readAll(ACTIVITIES_PREFIX), readAll(FOLLOWUPS_PREFIX)])
@@ -632,7 +541,7 @@ export async function createClient(input, { actor = 'Admin' } = {}) {
   const client = {
     ...normaliseClient(input),
     id: newId(),
-    code: await allocateCode('clients', 'CLI', false, async (code) => (await readAll(CLIENTS_PREFIX)).some((c) => c.code === code)),
+    code: await allocateCode('clients', 'CLI', false, async (code) => Boolean(await findByField(TABLE.clients, 'code', code))),
     createdAt: now,
     updatedAt: now,
   }

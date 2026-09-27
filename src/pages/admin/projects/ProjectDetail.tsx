@@ -9,7 +9,7 @@ import { createPortal } from "react-dom"
 import {
   ArrowLeft, Pencil, Archive, ArchiveRestore, CheckCircle2, Globe, EyeOff, Plus, Trash2,
   Users, Building2, ReceiptText, MapPin, ExternalLink, Loader2, AlertTriangle, Flag, ListTodo,
-  Truck, History, MessageSquarePlus, Star, Info, Ban,
+  Truck, History, MessageSquarePlus, Star, Info, Ban, Files,
 } from "lucide-react"
 import {
   fetchProject, changeProjectStatus, updateProjectProgress, completeProject, setProjectArchived, updateProject,
@@ -20,6 +20,7 @@ import {
   addProjectActivity, publishProject, unpublishProject,
   fetchStaff,
 } from "@/lib/projectsApi"
+import { ProjectDocumentsTab, AttachDocumentsDialog, AttachedDocumentsList } from "@/components/admin/documents/ProjectDocumentsTab"
 import { fetchContent, saveContent, fetchMedia } from "@/lib/api"
 import { formatMinor } from "@/lib/money"
 import { crmDayOnly, crmRelativeTime, CrmSpinner, CrmErrorState, CrmEmptyState, CrmConfirmDialog } from "@/components/admin/crm/CrmUI"
@@ -32,7 +33,7 @@ import type { Project, StaffMember, TaskStatus } from "@/types/projects"
 import { PROJECT_STATUSES } from "@/types/projects"
 import { cn } from "@/lib/utils"
 
-const TABS = ["Overview", "Tasks", "Milestones", "Team", "Timeline", "Deliverables", "Location", "Links"] as const
+const TABS = ["Overview", "Tasks", "Milestones", "Team", "Timeline", "Deliverables", "Documents", "Location", "Links"] as const
 type Tab = (typeof TABS)[number]
 
 export default function ProjectDetailPage() {
@@ -193,6 +194,7 @@ export default function ProjectDetailPage() {
       {tab === "Team" && <TeamTab project={p} onChanged={load} onError={setActionError} />}
       {tab === "Timeline" && <TimelineTab detail={detail} onChanged={load} onError={setActionError} />}
       {tab === "Deliverables" && <DeliverablesTab project={p} onChanged={load} onError={setActionError} />}
+      {tab === "Documents" && <ProjectDocumentsTab projectId={p.id} />}
       {tab === "Location" && <LocationTab project={p} onChanged={load} onError={setActionError} />}
       {tab === "Links" && <LinksTab project={p} />}
 
@@ -976,6 +978,7 @@ const PROJECT_HISTORY_LOCAL: Record<string, string> = {
 function DeliverablesTab({ project: p, onChanged, onError }: { project: Project; onChanged: () => void; onError: (m: string) => void }) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Project["deliverables"][number] | null>(null)
+  const [attachFor, setAttachFor] = useState<Project["deliverables"][number] | null>(null)
 
   return (
     <div className="space-y-4">
@@ -1012,6 +1015,7 @@ function DeliverablesTab({ project: p, onChanged, onError }: { project: Project;
                   {d.deliveredAt ? ` · delivered ${crmDayOnly(d.deliveredAt)}` : ""}
                 </p>
                 {d.description && <p className="mt-1 text-xs text-muted-foreground">{d.description}</p>}
+                <AttachedDocumentsList projectId={p.id} documentIds={(d as { documentIds?: string[] }).documentIds} />
               </div>
               <div className="flex shrink-0 flex-wrap gap-1.5">
                 {d.status !== "Delivered" && (
@@ -1022,6 +1026,12 @@ function DeliverablesTab({ project: p, onChanged, onError }: { project: Project;
                     Mark delivered
                   </button>
                 )}
+                <button
+                  onClick={() => setAttachFor(d)}
+                  className="rounded-md border px-2 py-1.5 text-xs font-medium hover:bg-muted"
+                >
+                  <Files className="mr-1 inline h-3 w-3" /> Documents
+                </button>
                 <button onClick={() => { setEditing(d); setOpen(true) }} className="rounded-md border px-2 py-1.5 text-xs font-medium hover:bg-muted">Edit</button>
                 <button
                   onClick={() => removeProjectDeliverable(p.id, d.id).then(onChanged).catch((err) => onError(err instanceof Error ? err.message : "Could not remove the deliverable"))}
@@ -1036,6 +1046,13 @@ function DeliverablesTab({ project: p, onChanged, onError }: { project: Project;
       )}
 
       <DeliverableEditorDialog open={open} project={p} deliverable={editing} onClose={() => setOpen(false)} onSaved={() => { setOpen(false); onChanged() }} />
+      <AttachDocumentsDialog
+        open={attachFor !== null}
+        projectId={p.id}
+        deliverable={attachFor ? { id: attachFor.id, name: attachFor.name, documentIds: (attachFor as { documentIds?: string[] }).documentIds } : null}
+        onClose={() => setAttachFor(null)}
+        onSaved={() => { setAttachFor(null); onChanged() }}
+      />
     </div>
   )
 }

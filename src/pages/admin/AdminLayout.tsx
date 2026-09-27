@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
 import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat } from "lucide-react"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat, Files, Star, Archive } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -182,6 +182,56 @@ function AdminShell() {
                     { name: "Team Directory", href: "/admin/pms/staff", icon: Users },
                   ].map((item) => {
                     const isActive = location.pathname === item.href || (item.href !== "/admin/pms" && location.pathname.startsWith(`${item.href}/`))
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </>
+            )
+          })()}
+
+          {/* Documents — project file area; distinct from the public-site
+              Media library. */}
+          {(() => {
+            const docsActive = location.pathname.startsWith("/admin/documents")
+            return (
+              <>
+                <div className="pt-3">
+                  <Link
+                    to="/admin/documents"
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
+                      docsActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted",
+                    )}
+                  >
+                    <Files className="h-4 w-4" />
+                    Documents
+                  </Link>
+                </div>
+                <div className={cn("ml-4 space-y-1 border-l", docsActive ? "border-brand-brown/30" : "border-border")}>
+                  {[
+                    { name: "Dashboard", href: "/admin/documents", icon: Files },
+                    { name: "All Files", href: "/admin/documents/all", icon: FileText },
+                    { name: "Recent", href: "/admin/documents/recent", icon: History },
+                    { name: "Projects", href: "/admin/documents/projects", icon: FolderKanban },
+                    { name: "Starred", href: "/admin/documents/starred", icon: Star },
+                    { name: "Archived", href: "/admin/documents/archived", icon: Archive },
+                    { name: "Categories", href: "/admin/documents/categories", icon: Settings },
+                  ].map((item) => {
+                    const isActive = location.pathname === item.href
                     return (
                       <Link
                         key={item.name}

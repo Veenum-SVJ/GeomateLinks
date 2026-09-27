@@ -150,6 +150,12 @@ function normaliseMilestone(input) {
 
 function normaliseDeliverable(input) {
   const status = DELIVERABLE_STATUSES.includes(input?.status) ? input.status : 'Pending'
+  // DMS: documents attached to this deliverable (light references — the
+  // document record itself lives in the Document Management System and keeps
+  // its own snapshot of this deliverable). Feeds the future client portal.
+  const documentIds = Array.isArray(input?.documentIds)
+    ? [...new Set(input.documentIds.map((id) => str(id, 80)).filter(Boolean))].slice(0, 20)
+    : []
   return {
     id: str(input?.id, 40) || newId(),
     name: str(input?.name, 200),
@@ -160,6 +166,7 @@ function normaliseDeliverable(input) {
     notes: str(input?.notes, 500),
     // Placeholder for the future Document Management System — metadata only.
     attachments: [],
+    documentIds,
     createdAt: iso(input?.createdAt) || new Date().toISOString(),
   }
 }
