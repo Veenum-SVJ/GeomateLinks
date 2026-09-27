@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from "react"
 import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
 import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat, Files, Star, Archive } from "lucide-react"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat, Files, Star, Archive, ChevronDown, ChevronRight, type LucideIcon } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -13,14 +13,82 @@ const navItems = [
   { name: "Messages", href: "/admin/messages", icon: Mails },
 ]
 
-// CRM sub-navigation — a group in the existing sidebar style, active when
-// any /admin/crm route is open.
-const crmNavItems = [
-  { name: "Leads", href: "/admin/crm/leads", icon: Users },
-  { name: "Clients", href: "/admin/crm/clients", icon: Building2 },
-  { name: "Follow-ups", href: "/admin/crm/followups", icon: CalendarClock },
-  { name: "Activities", href: "/admin/crm/activities", icon: History },
+// Module groups — CRM, Quotations, Project Management and Documents render as
+// collapsible sections (chevron toggles; the group name still navigates to the
+// section landing page, which also auto-expands it).
+type NavChild = {
+  name: string
+  href: string
+  icon: LucideIcon
+  // prefixMatch: keep the item highlighted on nested routes (e.g. detail
+  // pages); without it only an exact path match highlights the item.
+  prefixMatch?: boolean
+}
+
+type NavGroupDef = {
+  name: string
+  href: string
+  icon: LucideIcon
+  children: NavChild[]
+}
+
+const crmNavItems: NavChild[] = [
+  { name: "Leads", href: "/admin/crm/leads", icon: Users, prefixMatch: true },
+  { name: "Clients", href: "/admin/crm/clients", icon: Building2, prefixMatch: true },
+  { name: "Follow-ups", href: "/admin/crm/followups", icon: CalendarClock, prefixMatch: true },
+  { name: "Activities", href: "/admin/crm/activities", icon: History, prefixMatch: true },
 ]
+
+const quotationsNavItems: NavChild[] = [
+  { name: "Overview", href: "/admin/quotations", icon: ReceiptText },
+  { name: "All Quotations", href: "/admin/quotations/all", icon: FileText },
+]
+
+// Project Management — internal delivery engine; the top-level "Portfolio"
+// item stays the public-website editor.
+const pmsNavItems: NavChild[] = [
+  { name: "Dashboard", href: "/admin/pms", icon: HardHat },
+  { name: "All Projects", href: "/admin/pms/all", icon: FolderKanban, prefixMatch: true },
+  { name: "Team Directory", href: "/admin/pms/staff", icon: Users, prefixMatch: true },
+]
+
+// Documents — project file area; distinct from the public-site Media library.
+const documentsNavItems: NavChild[] = [
+  { name: "Dashboard", href: "/admin/documents", icon: Files },
+  { name: "All Files", href: "/admin/documents/all", icon: FileText },
+  { name: "Recent", href: "/admin/documents/recent", icon: History },
+  { name: "Projects", href: "/admin/documents/projects", icon: FolderKanban },
+  { name: "Starred", href: "/admin/documents/starred", icon: Star },
+  { name: "Archived", href: "/admin/documents/archived", icon: Archive },
+  { name: "Categories", href: "/admin/documents/categories", icon: Settings },
+]
+
+const navGroups: NavGroupDef[] = [
+  { name: "CRM", href: "/admin/crm", icon: Users, children: crmNavItems },
+  { name: "Quotations", href: "/admin/quotations", icon: ReceiptText, children: quotationsNavItems },
+  { name: "Project Management", href: "/admin/pms", icon: HardHat, children: pmsNavItems },
+  { name: "Documents", href: "/admin/documents", icon: Files, children: documentsNavItems },
+]
+
+// Collapsed-group names persist across sessions; a group whose section is
+// currently open always renders expanded (deep links are never hidden).
+const SIDEBAR_STATE_KEY = "geomate-admin-sidebar-collapsed"
+
+function loadCollapsedGroups(): string[] {
+  try {
+    const raw = window.localStorage.getItem(SIDEBAR_STATE_KEY)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed.filter((n) => typeof n === "string") : []
+  } catch {
+    return []
+  }
+}
+
+function childIsActive(pathname: string, item: NavChild) {
+  return item.prefixMatch
+    ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+    : pathname === item.href
+}
 
 export default function AdminLayout() {
   return (
@@ -32,11 +100,96 @@ export default function AdminLayout() {
   )
 }
 
+function NavGroup({
+  group,
+  pathname,
+  active,
+  collapsedNames,
+  onToggle,
+  onNavigate,
+}: {
+  group: NavGroupDef
+  pathname: string
+  active: boolean
+  collapsedNames: string[]
+  onToggle: (name: string) => void
+  onNavigate: () => void
+}) {
+  const expanded = active || !collapsedNames.includes(group.name)
+  const detailsId = `nav-group-${group.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
+  return (
+    <>
+      <div className="pt-3">
+        <div
+          className={cn(
+            "flex items-center rounded-md transition-colors",
+            active ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted"
+          )}
+        >
+          {/* The group name navigates to the section landing page (which also
+              auto-expands the group); only the chevron toggles collapse. */}
+          <Link
+            to={group.href}
+            onClick={onNavigate}
+            className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-semibold"
+          >
+            <group.icon className="h-4 w-4 shrink-0" />
+            <span className="truncate">{group.name}</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => onToggle(group.name)}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            aria-label={`${expanded ? "Collapse" : "Expand"} ${group.name}`}
+            className="mr-2 rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+      {expanded && (
+        <div id={detailsId} className={cn("ml-4 space-y-1 border-l", active ? "border-brand-brown/30" : "border-border")}>
+          {group.children.map((item) => {
+            const isActive = childIsActive(pathname, item)
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.name}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+    </>
+  )
+}
+
 function AdminShell() {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>(loadCollapsedGroups)
   const { dirty, saving, error, notice, save, reload } = useAdmin()
   const { unread } = useUnreadMessages()
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(collapsedGroups))
+    } catch {
+      // Storage unavailable (private mode) — collapse state just won't persist.
+    }
+  }, [collapsedGroups])
+
+  const toggleGroup = (name: string) =>
+    setCollapsedGroups((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]))
 
   return (
     <div className="admin-root flex min-h-screen w-full bg-background">
@@ -84,173 +237,18 @@ function AdminShell() {
             )
           })}
 
-          {(() => {
-            const crmActive = location.pathname === "/admin/crm" || location.pathname.startsWith("/admin/crm/")
-            const quotationsActive = location.pathname.startsWith("/admin/quotations")
-            const pmsActive = location.pathname.startsWith("/admin/pms")
-            return (
-              <>
-                <div className="pt-3">
-                  <Link
-                    to="/admin/crm"
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
-                      crmActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted"
-                    )}
-                  >
-                    <Users className="h-4 w-4" />
-                    CRM
-                  </Link>
-                </div>
-                <div className={cn("ml-4 space-y-1 border-l", crmActive ? "border-brand-brown/30" : "border-border")}>
-                  {crmNavItems.map((item) => {
-                    const isActive = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-
-                {/* Quotations — sibling of CRM, feeds the future PMS. */}
-                <div className="pt-3">
-                  <Link
-                    to="/admin/quotations"
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
-                      quotationsActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted"
-                    )}
-                  >
-                    <ReceiptText className="h-4 w-4" />
-                    Quotations
-                  </Link>
-                </div>
-                <div className={cn("ml-4 space-y-1 border-l", quotationsActive ? "border-brand-brown/30" : "border-border")}>
-                  {[
-                    { name: "Overview", href: "/admin/quotations", icon: ReceiptText },
-                    { name: "All Quotations", href: "/admin/quotations/all", icon: FileText },
-                  ].map((item) => {
-                    const isActive = location.pathname === item.href
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-
-                {/* Project Management — internal delivery engine; the top-level
-                    “Portfolio” item stays the public-website editor. */}
-                <div className="pt-3">
-                  <Link
-                    to="/admin/pms"
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
-                      pmsActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted",
-                    )}
-                  >
-                    <HardHat className="h-4 w-4" />
-                    Project Management
-                  </Link>
-                </div>
-                <div className={cn("ml-4 space-y-1 border-l", pmsActive ? "border-brand-brown/30" : "border-border")}>
-                  {[
-                    { name: "Dashboard", href: "/admin/pms", icon: HardHat },
-                    { name: "All Projects", href: "/admin/pms/all", icon: FolderKanban },
-                    { name: "Team Directory", href: "/admin/pms/staff", icon: Users },
-                  ].map((item) => {
-                    const isActive = location.pathname === item.href || (item.href !== "/admin/pms" && location.pathname.startsWith(`${item.href}/`))
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </>
-            )
-          })()}
-
-          {/* Documents — project file area; distinct from the public-site
-              Media library. */}
-          {(() => {
-            const docsActive = location.pathname.startsWith("/admin/documents")
-            return (
-              <>
-                <div className="pt-3">
-                  <Link
-                    to="/admin/documents"
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors",
-                      docsActive ? "bg-brand-brown/10 text-brand-brown" : "text-brand-dark hover:bg-muted",
-                    )}
-                  >
-                    <Files className="h-4 w-4" />
-                    Documents
-                  </Link>
-                </div>
-                <div className={cn("ml-4 space-y-1 border-l", docsActive ? "border-brand-brown/30" : "border-border")}>
-                  {[
-                    { name: "Dashboard", href: "/admin/documents", icon: Files },
-                    { name: "All Files", href: "/admin/documents/all", icon: FileText },
-                    { name: "Recent", href: "/admin/documents/recent", icon: History },
-                    { name: "Projects", href: "/admin/documents/projects", icon: FolderKanban },
-                    { name: "Starred", href: "/admin/documents/starred", icon: Star },
-                    { name: "Archived", href: "/admin/documents/archived", icon: Archive },
-                    { name: "Categories", href: "/admin/documents/categories", icon: Settings },
-                  ].map((item) => {
-                    const isActive = location.pathname === item.href
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                          isActive ? "bg-brand-brown/10 text-brand-brown" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </>
-            )
-          })()}
+          {/* Collapsible module groups — collapsed state persists per admin. */}
+          {navGroups.map((group) => (
+            <NavGroup
+              key={group.name}
+              group={group}
+              pathname={location.pathname}
+              active={location.pathname === group.href || location.pathname.startsWith(`${group.href}/`)}
+              collapsedNames={collapsedGroups}
+              onToggle={toggleGroup}
+              onNavigate={() => setSidebarOpen(false)}
+            />
+          ))}
 
           <div className="pt-3">
             {[
