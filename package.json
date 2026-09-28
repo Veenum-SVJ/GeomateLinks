@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "backup": "node scripts/backupSupabase.mjs",
     "restore": "node scripts/restoreSupabase.mjs",
-    "smoke": "node scripts/supabaseSmoke.mjs"
+    "smoke": "node scripts/supabaseSmoke.mjs",
+    "smoke:equipment": "node scripts/emsSmoke.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

@@ -55,6 +55,14 @@ const TABLES = [
   'document_folders',
   'document_categories',
   'document_activity',
+  'equipment',
+  'equipment_categories',
+  'equipment_assignments',
+  'equipment_reservations',
+  'equipment_maintenance',
+  'equipment_calibrations',
+  'equipment_inspections',
+  'equipment_history',
   'id_counters',
   'media_files',
 ]
@@ -76,8 +84,9 @@ const SHAPE = {
     const id = row.id ?? data.id
     const createdAt = row.created_at ?? data.createdAt
     const out = { id: String(id || ''), data, created_at: isoOrNull(createdAt) }
-    // The DMS document tables (documents, document_versions, …) additionally
-    // carry a `code` column with a unique index — restored rows must keep it.
+    // The DMS document tables (documents, document_versions, …) and the EMS
+    // equipment_categories table carry a `code` column with a unique index —
+    // restored rows must keep it.
     if (typeof row.code === 'string' || typeof row.code === 'number') out.code = String(row.code)
     return out
   },

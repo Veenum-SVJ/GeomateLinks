@@ -3,10 +3,11 @@ import { Link, Outlet, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { AdminProvider, useAdmin } from "@/lib/adminStore"
 import { UnreadMessagesProvider, useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat, Files, Star, Archive, ChevronDown, ChevronRight, type LucideIcon } from "lucide-react"
+import { LayoutDashboard, FileText, Briefcase, FolderKanban, Mails, Image, Settings, UserCircle, ExternalLink, Menu, X, UploadCloud, RotateCcw, Users, Building2, CalendarClock, History, ReceiptText, HardHat, Files, Star, Archive, Wrench, Gauge, ClipboardCheck, GraduationCap, ChevronDown, ChevronRight, type LucideIcon } from "lucide-react"
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Getting Started", href: "/admin/getting-started", icon: GraduationCap },
   { name: "Pages", href: "/admin/pages", icon: FileText },
   { name: "Services", href: "/admin/services", icon: Briefcase },
   { name: "Portfolio", href: "/admin/projects", icon: FolderKanban },
@@ -63,11 +64,26 @@ const documentsNavItems: NavChild[] = [
   { name: "Categories", href: "/admin/documents/categories", icon: Settings },
 ]
 
+// Equipment — internal inventory: instruments, drones, field kit; who has
+// what, service and calibration schedules.
+const equipmentNavItems: NavChild[] = [
+  { name: "Dashboard", href: "/admin/equipment", icon: Wrench },
+  { name: "All Equipment", href: "/admin/equipment/all", icon: FileText, prefixMatch: true },
+  { name: "Assignments", href: "/admin/equipment/assignments", icon: Users },
+  { name: "Maintenance", href: "/admin/equipment/maintenance", icon: History },
+  { name: "Calibration", href: "/admin/equipment/calibration", icon: Gauge },
+  { name: "Inspections", href: "/admin/equipment/inspections", icon: ClipboardCheck },
+  { name: "Categories", href: "/admin/equipment/categories", icon: Settings },
+  { name: "Reports", href: "/admin/equipment/reports", icon: FileText },
+  { name: "Archived", href: "/admin/equipment/archived", icon: Archive },
+]
+
 const navGroups: NavGroupDef[] = [
   { name: "CRM", href: "/admin/crm", icon: Users, children: crmNavItems },
   { name: "Quotations", href: "/admin/quotations", icon: ReceiptText, children: quotationsNavItems },
   { name: "Project Management", href: "/admin/pms", icon: HardHat, children: pmsNavItems },
   { name: "Documents", href: "/admin/documents", icon: Files, children: documentsNavItems },
+  { name: "Equipment", href: "/admin/equipment", icon: Wrench, children: equipmentNavItems },
 ]
 
 // Collapsed-group names persist across sessions; a group whose section is

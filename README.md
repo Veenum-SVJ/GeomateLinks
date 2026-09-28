@@ -50,6 +50,28 @@ status/visibility/tags/categories, per-project folders, audit trail, bulk
 actions, and an auth-checked `/api/documents/:id/file` route — raw storage
 URLs never appear in API responses. Test: `node scripts/documentSmoke.mjs`.
 
+## Equipment Management System
+Internal equipment registry at `/admin/equipment` (also an Equipment tab on
+every project page): asset register with generated asset numbers
+(`GML-<category>-NNN`, unique + immutable), categories (system-seeded,
+extensible), status/condition/location tracking, assignments to projects and
+staff with conflict prevention, reservations, returns with condition/damage
+recording, maintenance with schedules and due alerts, calibration with
+certificate metadata, inspections, append-only history, and lightweight
+reports with CSV export. Equipment documents and photos reuse the existing
+DMS and media stores (documents link by the `equipment:<assetNumber>` tag).
+Tables: `equipment`, `equipment_categories`, `equipment_assignments`,
+`equipment_reservations`, `equipment_maintenance`, `equipment_calibrations`,
+`equipment_inspections`, `equipment_history` (see
+`supabase/migrations/2026-09-28-equipment-management.sql`). Test:
+`npm run smoke:equipment`.
+
+## Getting Started guide
+`/admin/getting-started` — an in-CMS tutorial covering the end-to-end
+workflow (enquiry → CRM → quotation → project → field work with equipment →
+documents → delivery), per-module walkthroughs and daily rhythms. A
+dismissible welcome card on the dashboard links to it on first visit.
+
 ## Admin Dashboard
 The admin dashboard is available at `/admin`. Login with the password set in the `ADMIN_PASSWORD` environment variable.
 
@@ -57,6 +79,7 @@ The admin dashboard is available at `/admin`. Login with the password set in the
 - `npm run dev` – start dev server
 - `npm run build` – build for production
 - `npm run preview` – preview production build
+- `npm run smoke` / `npm run smoke:equipment` – data-layer smoke tests
 
 ## Deployment
 Automatic deploys from the `main` branch via Vercel.

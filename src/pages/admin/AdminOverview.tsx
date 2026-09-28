@@ -5,8 +5,10 @@ import { useAdmin } from "@/lib/adminStore"
 import { useEffect, useState } from "react"
 import { fetchActivity, type PublishEvent, type ActivityMessage } from "@/lib/api"
 import { useUnreadMessages } from "@/hooks/useUnreadMessages"
-import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe, History, UploadCloud as PublishIcon } from "lucide-react"
+import { FileText, Briefcase, FolderKanban, Mails, Image, ExternalLink, Mail, UploadCloud, Globe, History, UploadCloud as PublishIcon, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+const WELCOME_KEY = "geomate-admin-welcome-dismissed"
 
 const quickLinks = [
   { name: "Pages", href: "/admin/pages", icon: FileText },
@@ -35,6 +37,15 @@ export default function AdminOverview() {
   const { messages, unread, newest } = useUnreadMessages()
   const [publishes, setPublishes] = useState<PublishEvent[]>([])
   const [feedMessages, setFeedMessages] = useState<ActivityMessage[]>([])
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
+    } catch {
+      setShowWelcome(true)
+    }
+  }, [])
 
   useEffect(() => {
     fetchActivity()
@@ -75,6 +86,35 @@ export default function AdminOverview() {
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {/* First-visit welcome — dismissible; returns via Getting Started. */}
+      {showWelcome && (
+        <div className="rounded-lg border border-brand-brown/30 bg-amber-50/60 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-brand-dark">👋 Welcome to the Geomate Links CMS</h2>
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                New here? The Getting Started guide walks through the whole workflow — enquiry → CRM → quotation → project → field work with equipment → documents → delivery — in about five minutes.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Link to="/admin/getting-started" className="inline-flex items-center gap-1.5 rounded-md bg-brand-brown px-3 py-2 text-sm font-semibold text-white hover:bg-brand-brown/90">
+                Open the guide <ArrowRight className="h-4 w-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  try { window.localStorage.setItem(WELCOME_KEY, "1") } catch { /* ignore */ }
+                  setShowWelcome(false)
+                }}
+                className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick actions: newest enquiry, publish state and one-tap links —
           the two statuses stay visible side by side on phones while the

@@ -36,6 +36,15 @@ export const QUOTATIONS_HISTORY_PREFIX = 'crm/quotations-history/'
 export const PROJECTS_PREFIX = 'crm/projects/'
 export const PROJECT_ACTIVITIES_PREFIX = 'crm/project-activities/'
 export const STAFF_PREFIX = 'crm/staff/'
+// Equipment Management System prefixes — one per EMS table, mapped below.
+export const EQUIPMENT_PREFIX = 'equipment/items/'
+export const EQUIPMENT_CATEGORIES_PREFIX = 'equipment/categories/'
+export const EQUIPMENT_ASSIGNMENTS_PREFIX = 'equipment/assignments/'
+export const EQUIPMENT_RESERVATIONS_PREFIX = 'equipment/reservations/'
+export const EQUIPMENT_MAINTENANCE_PREFIX = 'equipment/maintenance/'
+export const EQUIPMENT_CALIBRATIONS_PREFIX = 'equipment/calibrations/'
+export const EQUIPMENT_INSPECTIONS_PREFIX = 'equipment/inspections/'
+export const EQUIPMENT_HISTORY_PREFIX = 'equipment/history/'
 
 const TABLE = {
   leads: 'crm_leads',
@@ -50,6 +59,15 @@ const TABLE = {
   projects: 'crm_projects',
   projectActivities: 'crm_project_activities',
   staff: 'crm_staff',
+  // Equipment Management System tables (see equipmentStore.js).
+  equipment: 'equipment',
+  equipmentCategories: 'equipment_categories',
+  equipmentAssignments: 'equipment_assignments',
+  equipmentReservations: 'equipment_reservations',
+  equipmentMaintenance: 'equipment_maintenance',
+  equipmentCalibrations: 'equipment_calibrations',
+  equipmentInspections: 'equipment_inspections',
+  equipmentHistory: 'equipment_history',
 }
 
 export const LEAD_STATUSES = ['New', 'Contacted', 'Qualified', 'Quotation Sent', 'Negotiation', 'Won', 'Lost', 'On Hold']
@@ -145,6 +163,16 @@ const PREFIX_TABLE = {
   [PROJECTS_PREFIX]: TABLE.projects,
   [PROJECT_ACTIVITIES_PREFIX]: TABLE.projectActivities,
   [STAFF_PREFIX]: TABLE.staff,
+  // EMS prefixes → tables (the migration lesson from quotations/projects:
+  // a missing entry here turns every read+write of the module into a 500).
+  [EQUIPMENT_PREFIX]: TABLE.equipment,
+  [EQUIPMENT_CATEGORIES_PREFIX]: TABLE.equipmentCategories,
+  [EQUIPMENT_ASSIGNMENTS_PREFIX]: TABLE.equipmentAssignments,
+  [EQUIPMENT_RESERVATIONS_PREFIX]: TABLE.equipmentReservations,
+  [EQUIPMENT_MAINTENANCE_PREFIX]: TABLE.equipmentMaintenance,
+  [EQUIPMENT_CALIBRATIONS_PREFIX]: TABLE.equipmentCalibrations,
+  [EQUIPMENT_INSPECTIONS_PREFIX]: TABLE.equipmentInspections,
+  [EQUIPMENT_HISTORY_PREFIX]: TABLE.equipmentHistory,
 }
 
 function tableOf(prefix) {

@@ -37,6 +37,17 @@ const DocumentDetail = lazy(() => import("./pages/admin/documents/DocumentDetail
 const ProjectDocumentsPage = lazy(() => import("./pages/admin/documents/ProjectDocumentsPage"))
 const DocumentsProjects = lazy(() => import("./pages/admin/documents/DocumentsProjects"))
 const DocumentCategoriesSettings = lazy(() => import("./pages/admin/documents/DocumentCategoriesSettings"))
+const GettingStartedPage = lazy(() => import("./pages/admin/GettingStartedPage"))
+const EquipmentOverview = lazy(() => import("./pages/admin/equipment/EquipmentOverview"))
+const EquipmentList = lazy(() => import("./pages/admin/equipment/EquipmentList"))
+const EquipmentEditor = lazy(() => import("./pages/admin/equipment/EquipmentEditor"))
+const EquipmentDetail = lazy(() => import("./pages/admin/equipment/EquipmentDetail"))
+const EquipmentAssignmentsPage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.AssignmentsPage })))
+const EquipmentMaintenancePage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.MaintenancePage })))
+const EquipmentCalibrationPage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.CalibrationPage })))
+const EquipmentInspectionsPage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.InspectionsPage })))
+const EquipmentCategoriesPage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.EquipmentCategoriesPage })))
+const EquipmentReportsPage = lazy(() => import("./pages/admin/equipment/EquipmentPages").then((m) => ({ default: m.EquipmentReportsPage })))
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-brand-cream">
@@ -64,6 +75,7 @@ function App() {
               <Route path="media" element={<AdminMedia />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="settings/profile" element={<ProfilePage />} />
+              <Route path="getting-started" element={<GettingStartedPage />} />
               <Route path="crm" element={<CrmDashboard />} />
               <Route path="crm/leads" element={<CrmLeads />} />
               <Route path="crm/leads/:id" element={<CrmLeadDetail />} />
@@ -95,6 +107,18 @@ function App() {
               <Route path="documents/settings" element={<DocumentCategoriesSettings />} />
               <Route path="documents/:id" element={<DocumentDetail />} />
               <Route path="documents/project/:id" element={<ProjectDocumentsPage />} />
+              <Route path="equipment" element={<EquipmentOverview />} />
+              <Route path="equipment/all" element={<EquipmentList variant="all" />} />
+              <Route path="equipment/archived" element={<EquipmentList variant="archived" />} />
+              <Route path="equipment/new" element={<EquipmentEditor />} />
+              <Route path="equipment/:id/edit" element={<EquipmentEditor />} />
+              <Route path="equipment/assignments" element={<EquipmentAssignmentsPage />} />
+              <Route path="equipment/maintenance" element={<EquipmentMaintenancePage />} />
+              <Route path="equipment/calibration" element={<EquipmentCalibrationPage />} />
+              <Route path="equipment/inspections" element={<EquipmentInspectionsPage />} />
+              <Route path="equipment/categories" element={<EquipmentCategoriesPage />} />
+              <Route path="equipment/reports" element={<EquipmentReportsPage />} />
+              <Route path="equipment/:id" element={<EquipmentDetail />} />
             </Route>
           </Routes>
         </Suspense>

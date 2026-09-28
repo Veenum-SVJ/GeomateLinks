@@ -21,6 +21,7 @@ import {
   fetchStaff,
 } from "@/lib/projectsApi"
 import { ProjectDocumentsTab, AttachDocumentsDialog, AttachedDocumentsList } from "@/components/admin/documents/ProjectDocumentsTab"
+import ProjectEquipmentTab from "@/components/admin/projects/ProjectEquipmentTab"
 import { fetchContent, saveContent, fetchMedia } from "@/lib/api"
 import { formatMinor } from "@/lib/money"
 import { crmDayOnly, crmRelativeTime, CrmSpinner, CrmErrorState, CrmEmptyState, CrmConfirmDialog } from "@/components/admin/crm/CrmUI"
@@ -33,7 +34,7 @@ import type { Project, StaffMember, TaskStatus } from "@/types/projects"
 import { PROJECT_STATUSES } from "@/types/projects"
 import { cn } from "@/lib/utils"
 
-const TABS = ["Overview", "Tasks", "Milestones", "Team", "Timeline", "Deliverables", "Documents", "Location", "Links"] as const
+const TABS = ["Overview", "Tasks", "Milestones", "Team", "Timeline", "Deliverables", "Equipment", "Documents", "Location", "Links"] as const
 type Tab = (typeof TABS)[number]
 
 export default function ProjectDetailPage() {
@@ -194,6 +195,7 @@ export default function ProjectDetailPage() {
       {tab === "Team" && <TeamTab project={p} onChanged={load} onError={setActionError} />}
       {tab === "Timeline" && <TimelineTab detail={detail} onChanged={load} onError={setActionError} />}
       {tab === "Deliverables" && <DeliverablesTab project={p} onChanged={load} onError={setActionError} />}
+      {tab === "Equipment" && <ProjectEquipmentTab project={p} onError={setActionError} />}
       {tab === "Documents" && <ProjectDocumentsTab projectId={p.id} />}
       {tab === "Location" && <LocationTab project={p} onChanged={load} onError={setActionError} />}
       {tab === "Links" && <LinksTab project={p} />}
